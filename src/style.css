@@ -1,0 +1,17 @@
+#start-button {
+    top: 50%;
+    left: calc(50% - 90px);
+    position: absolute;
+    width: 180px;
+    text-decoration: none;
+    padding: 12px 6px;
+    border: 1px solid rgb(0, 0, 0);
+    border-radius: 4px;
+    background: rgb(48, 47, 47);
+    color: rgb(255, 255, 255);
+    z-index: 999;
+}
+
+#start-button:hover {
+    background-color: #0056b3;
+}

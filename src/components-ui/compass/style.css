@@ -1,0 +1,43 @@
+#compass-container {
+    position: absolute;
+    top: 5%;
+    right: 2.5%;
+    width: 5vh;
+    height: 5vh;
+    border-radius: 50%;
+    border: 0.05vh solid white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+#compass-arrow-container {
+    width: 1.25vh;
+    height: 2.5vh;
+    position: relative;
+    transform-origin: center;
+}
+
+#compass-arrow-north {
+    width: 0;
+    height: 0;
+    border-left: 0.625vh solid transparent;
+    border-right: 0.625vh solid transparent;
+    border-bottom: 1.25vh solid red;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+#compass-arrow-south {
+    width: 0;
+    height: 0;
+    border-left: 0.625vh solid transparent;
+    border-right: 0.625vh solid transparent;
+    border-top: 1.25vh solid blue;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}

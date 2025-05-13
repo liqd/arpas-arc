@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>ARPAS Iframe Wrapper</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        #arpas-iframe {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 16 / 9;
+            border: none;
+        }
+
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .row {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .row button {
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+            border: 1px solid rgb(0, 0, 0);
+            border-radius: 4px;
+            background: rgb(48, 47, 47);
+            color: rgb(255, 255, 255);
+            z-index: 999;
+        }
+
+        .row button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <iframe id="arpas-iframe" src="https://christophholtmann.github.io/ARPAS_XR/"
+        allow="geolocation; camera *; microphone *; xr-spatial-tracking *; fullscreen *"></iframe>
+
+    <div class="button-container">
+        <div class="row">
+            <button onmousedown="sendDirectionalInput('up')" onmouseup="sendDirectionalInput('none')">&uarr;</button>
+        </div>
+        <div class="row" style="gap: 20px">
+            <button onmousedown="sendDirectionalInput('left')" onmouseup="sendDirectionalInput('none')">&larr;</button>
+            <button onmousedown="sendDirectionalInput('down')" onmouseup="sendDirectionalInput('none')">&darr;</button>
+            <button onmousedown="sendDirectionalInput('right')" onmouseup="sendDirectionalInput('none')">&rarr;</button>
+        </div>
+        <div class="row">
+            <button onclick="sendSpawnMessage()" style="width: 225px">Spawn</button>
+        </div>
+    </div>
+
+    <script>
+        const iframe = document.getElementById('arpas-iframe').contentWindow;
+
+        function sendDirectionalInput(direction) {
+            iframe.postMessage({ action: 'directionalInput', direction: direction }, '*');
+        }
+        function sendSpawnMessage() {
+            iframe.postMessage({ action: 'spawn' }, '*');
+        }
+    </script>
+</body>
+
+</html>
