@@ -16,11 +16,10 @@
     "scripts": {
         "dev": "vite",
         "build": "vite build",
-        "build:lib": "vite build --config vite.config.lib.ts",
         "preview": "vite preview",
         "deploy": "gh-pages -d dist",
         "wrapper": "serve dev-wrapper -l 4000",
-        "prepare": "npm run build:lib"
+        "prepare": "npm run build"
     },
     "dependencies": {
         "web-vitals": "^2.1.4"
