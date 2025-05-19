@@ -12,7 +12,8 @@ export type ObjectData = {
     variants: Array<VariantData>,
     longitude: number,
     latitude: number,
-    altitude: number
+    altitude: number,
+    comments: Array<CommentData>
 }
 
 export type VariantData = {
@@ -23,6 +24,17 @@ export type VariantData = {
     offsetPosition: Position,
     offsetRotation: Rotation,
     offsetScale: Scale,
+}
+
+export type CommentData = {
+    id: number,
+    username: string,
+    isModerator: boolean,
+    timestamp: number,
+    text: string,
+    likes: number,
+    dislikes: number,
+    replies: Array<CommentData>
 }
 
 export type SceneObjectData = {

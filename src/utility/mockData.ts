@@ -1,5 +1,7 @@
-import { SceneData } from "../types/sceneObjectData";
+import { SceneData } from "../types/objectData";
 import { Position, Rotation, Scale } from "../types/transform";
+
+// thanks gpt
 
 export const BenchScene: SceneData = {
     id: 4,
@@ -11,6 +13,39 @@ export const BenchScene: SceneData = {
             longitude: -0.1276,
             latitude: 51.5074,
             altitude: 0,
+            comments: [
+                {
+                    id: 1,
+                    username: "natureFan42",
+                    isModerator: false,
+                    timestamp: 1716100000000,
+                    likes: 12,
+                    dislikes: 0,
+                    text: "This wooden bench is perfect for relaxing under the trees. I love its natural look!",
+                    replies: [
+                        {
+                            id: 2,
+                            username: "urbanExplorer",
+                            isModerator: false,
+                            timestamp: 1716103600000,
+                            likes: 3,
+                            dislikes: 0,
+                            text: "Totally agree! Adds a nice touch of nature to the cityscape.",
+                            replies: []
+                        }
+                    ]
+                },
+                {
+                    id: 3,
+                    username: "benchCritic",
+                    isModerator: false,
+                    timestamp: 1716110000000,
+                    likes: 1,
+                    dislikes: 5,
+                    text: "Not a fan of the untreated wood—looks like it won’t last long outdoors.",
+                    replies: []
+                }
+            ],
             variants: [
                 {
                     id: 1,
@@ -38,6 +73,29 @@ export const BenchScene: SceneData = {
             longitude: -0.1280,
             latitude: 51.5076,
             altitude: 0,
+            comments: [
+                {
+                    id: 4,
+                    username: "metalLover",
+                    isModerator: false,
+                    timestamp: 1716120000000,
+                    likes: 7,
+                    dislikes: 1,
+                    text: "Love the industrial feel of this metal bench—very sturdy and stylish.",
+                    replies: [
+                        {
+                            id: 5,
+                            username: "greenPeace",
+                            isModerator: true,
+                            timestamp: 1716123600000,
+                            likes: 2,
+                            dislikes: 0,
+                            text: "Glad it’s painted green—it blends in better with the environment.",
+                            replies: []
+                        }
+                    ]
+                }
+            ],
             variants: [
                 {
                     id: 3,

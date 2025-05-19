@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { IfInSessionMode, XR, createXRStore } from "@react-three/xr"
 import { Canvas } from "@react-three/fiber"
-import { SceneData } from "./types/sceneObjectData";
+import { SceneData } from "./types/objectData";
 import { BenchScene } from "./utility/mockData";
 import IndexPage from "./pages/index";
 import "./style.css";

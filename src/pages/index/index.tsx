@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useXRStore, XRDomOverlay } from "@react-three/xr";
 import { ObjectDescription } from "../../components-ui";
-import { ObjectData, SceneData } from "../../types/sceneObjectData";
+import { ObjectData, SceneData } from "../../types/objectData";
 import "./style.css";
 
 const IndexPage = ({ data }: { data: SceneData }) => {

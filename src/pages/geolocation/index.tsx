@@ -10,7 +10,7 @@ import { Position, Rotation, Scale } from "../../types/transform";
 import geolocationConfig from "./geolocationConfig.json";
 import { getClosestObject, placeObjectAtWorldCoordinates, placeObjectsAtWorldCoordinates } from "../../utility/objects";
 import { normalizeAngleDifference } from "../../utility/angle";
-import { SceneObjectData } from "../../types/sceneObjectData";
+import { SceneObjectData } from "../../types/objectData";
 
 const defaultCoords: GeolocationCoordinates = {
     latitude: geolocationConfig.default_latitude ?? 0,
