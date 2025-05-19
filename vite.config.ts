@@ -16,7 +16,8 @@ export default defineConfig({
             'Access-Control-Allow-Headers': '*'
         },
         allowedHosts: [
-            'akita-awake-oarfish.ngrok-free.app'
+            'akita-awake-oarfish.ngrok-free.app',
+            'allowed-normal-flea.ngrok-free.app'
         ]
     },
     build: {
