@@ -2,8 +2,9 @@ import React, { useState, useCallback, useRef, JSX, useEffect } from "react";
 import { useXRHitTest, useXRInputSourceEvent, useXRStore, XRDomOverlay } from "@react-three/xr";
 import * as THREE from "three";
 import { Matrix4 } from "three";
-import { offsetGpsByMeters, gpsToMeters } from "../../utility/geolocation";
-import { Reticle, SceneObject } from "../../components";
+import { offsetGpsByMeters, gpsToMeters, getCompassHeading } from "../../utility/geolocation";
+import { Position, Rotation, Scale } from "../../utility/transform";
+import { Reticle, MeshObject } from "../../components";
 import { Compass } from "../../components-ui";
 import "./style.css";
 
@@ -21,6 +22,12 @@ const IndexPage = () => {
     const boxRef = useRef<THREE.Mesh>(null);
     const [initialCoords, setInitialCoords] = useState<GeolocationCoordinates | null>(null);
     const [currentCoords, setCurrentCoords] = useState<GeolocationCoordinates | null>(null);
+
+    const [compassHeading, setCompassHeading] = useState(0);
+    const [compassCardinal, setCompassCardinal] = useState("undef");
+    const [phoneTilt, setPhoneTilt] = useState({ alpha: 0, beta: 0, gamma: 0 });
+
+    useEffect(() => getCompassHeading(null, setCompassHeading, setCompassCardinal, setPhoneTilt), []);
 
     useEffect(() => {
         const onSuccess = (position: GeolocationPosition) => {
@@ -50,11 +57,6 @@ const IndexPage = () => {
             return;
         }
 
-        const targetCoords = offsetGpsByMeters(currentCoords, new THREE.Vector2(0, 1.5)); // 1.5m north
-        const { x, z } = gpsToMeters(initialCoords, targetCoords);
-
-        boxRef.current.position.set(x, boxRef.current.position.y, z);
-        boxRef.current.visible = true;
     }, [currentCoords, initialCoords]);
 
     /* -------------- HIT-TEST -------------- */
@@ -86,13 +88,18 @@ const IndexPage = () => {
         const matrix = hitTestMatricesRef.current["none"];
         if (!matrix) return;
 
-        const position = new THREE.Vector3().setFromMatrixPosition(matrix);
-        const rotation = new THREE.Euler().setFromRotationMatrix(matrix);
-        const scale = new THREE.Vector3(0.06, 0.06, 0.06);
+        const bucketName = "test";
+        const modelKey = "bench.glb";
+        const position = new Position().setFromMatrixPosition(matrix);
+        const rotation = new Rotation().setFromRotationMatrix(matrix);
+        const scale = new Scale(1, 1, 1);
 
         setSceneObjects((prevObjects) => [
             ...prevObjects,
-            <SceneObject key={prevObjects.length} position={position} rotation={rotation} scale={scale} />,
+            <MeshObject
+                key={prevObjects.length}
+                bucketName={bucketName} modelKey={modelKey}
+                position={position} rotation={rotation} scale={scale} />,
         ]);
     }
 
@@ -111,7 +118,7 @@ const IndexPage = () => {
     return (<>
         <XRDomOverlay style={{ width: "100%", height: "100%" }}>
             <button id="exit-button" onClick={() => store.getState().session?.end()}>X</button>
-            <Compass />
+            <Compass heading={compassHeading}/>
         </XRDomOverlay>
         <ambientLight intensity={5} />
         <directionalLight intensity={10} />

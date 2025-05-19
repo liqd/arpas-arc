@@ -1,10 +1,12 @@
 import React, { useMemo, useState, JSX } from "react";
 import * as THREE from "three";
+import { useFrame, useThree } from "@react-three/fiber";
+import { Position, Rotation, Scale } from "../../utility/transform";
 
 interface RoundedPlaneProps {
-    position?: THREE.Vector3 | [x: number, y: number, z: number] | undefined,
-    rotation?: THREE.Euler | [x: number, y: number, z: number] | undefined,
-    scale?: THREE.Vector3 | [x: number, y: number, z: number] | undefined,
+    position?: Position;
+    rotation?: Rotation;
+    scale?: Scale;
     width?: number;
     height?: number;
     radius?: number;
@@ -14,14 +16,16 @@ interface RoundedPlaneProps {
     opacity?: number;
     transparent?: boolean;
     depthWrite?: boolean;
+    alwaysFaceCamera?: boolean;
+    onlyFaceCameraAroundY?: boolean;
     onClick?: (event: THREE.Event) => void;
     children?: string | JSX.Element | JSX.Element[];
 }
 
 const RoundedPlane: React.FC<RoundedPlaneProps> = ({
-    position = new THREE.Vector3(),
-    rotation = new THREE.Euler(),
-    scale = new THREE.Vector3(1, 1, 1),
+    position = new Position(),
+    rotation = new Rotation(),
+    scale = new Scale(),
     width = 1,
     height = 1,
     radius = 0.1,
@@ -31,6 +35,8 @@ const RoundedPlane: React.FC<RoundedPlaneProps> = ({
     opacity = 1,
     transparent = false,
     depthWrite = true,
+    alwaysFaceCamera = false,
+    onlyFaceCameraAroundY = true,
     onClick,
     children,
     ...props
@@ -56,12 +62,36 @@ const RoundedPlane: React.FC<RoundedPlaneProps> = ({
 
     const geometry = useMemo(() => new THREE.ShapeGeometry(shape, segments), [shape, segments]);
 
+    const { camera } = useThree();
+    const planeRef = React.useRef<THREE.Mesh>(null);
+    useFrame(() => {
+        if (planeRef.current) {
+            if (alwaysFaceCamera) {
+                // Make it face the camera
+                if (onlyFaceCameraAroundY) {
+                    const cameraPosition = camera.position.clone();
+                    cameraPosition.y = planeRef.current.position.y;
+                    planeRef.current.lookAt(cameraPosition);
+                } else {
+                    planeRef.current.lookAt(camera.position);
+                }
+            } else {
+                // Apply manual rotation
+                planeRef.current.rotation.set(
+                    THREE.MathUtils.degToRad(rotation.x),
+                    THREE.MathUtils.degToRad(rotation.y),
+                    THREE.MathUtils.degToRad(rotation.z)
+                );
+            }
+        }
+    });
+
     return (
         <mesh
+            ref={planeRef}
             geometry={geometry}
-            position={position}
-            rotation={rotation}
-            scale={scale}
+            position={position.toArray()}
+            scale={scale.toArray()}
             onClick={onClick}
             onPointerOver={() => setHovered(true)}
             onPointerOut={() => setHovered(false)}
