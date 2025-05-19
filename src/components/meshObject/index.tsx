@@ -86,13 +86,14 @@ const MeshObject = ({
         };
     }, []);
 
+    const loadingSpheresScale = new Scale(.5, .5, .5);
     const modelName = modelKey.replace(/\.[^/.]+$/, ""); // Removes the file extension
 
     // Render loading visuals while the model URL is being fetched
     if (!modelUrl) {
         return (
             <>
-                <LoadingSpheres position={position.clone().addY(0.5 * scale.z)} scale={scale.clone().multiplyScalar(0.5)} />
+                <LoadingSpheres position={position.clone().addY(loadingSpheresScale.y * .75)} scale={loadingSpheresScale} />
                 <RoundedPlane
                     position={position}
                     rotation={new Rotation(rotation.x + 90, rotation.y, rotation.z)}
@@ -101,7 +102,7 @@ const MeshObject = ({
                 ></RoundedPlane>
                 {showLabel && (
                     <RoundedPlane
-                        position={new Position(position.x, position.y + (0.5 * scale.y), position.z)}
+                        position={position.clone().addY(loadingSpheresScale.y * .65)}
                         width={Math.max(0.1, modelName.length * (0.13 * scale.z))}
                         height={0.2 * scale.z}
                         radius={0.3}
@@ -126,7 +127,7 @@ const MeshObject = ({
     return (
         <>
             {modelUrl && (
-                <Suspense fallback={<LoadingSpheres position={position} scale={scale} />}>
+                <Suspense fallback={<LoadingSpheres position={position.clone().addY(loadingSpheresScale.y * .75)} scale={loadingSpheresScale} />}>
                     <ModelComponent
                         modelUrl={modelUrl}
                         objectRef={objectRef}
