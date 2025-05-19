@@ -1,6 +1,7 @@
 import * as THREE from "three";
-import { GeolocationObject, Position, Scale } from "../components";
+import { GeolocationObject } from "../components";
 import { SceneObjectData } from "../types/SceneObjectData";
+import { Position, Scale } from "./transform";
 
 export function placeObjectAtWorldCoordinates(
     referenceLocation: { coords: GeolocationCoordinates; position: Position },
