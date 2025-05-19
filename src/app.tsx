@@ -1,4 +1,4 @@
-import React from "react"
+import React, { Suspense } from "react";
 import ReactDOM from "react-dom/client";
 import { HashRouter, Route, Routes } from "react-router-dom";
 import { IfInSessionMode, XR, createXRStore } from "@react-three/xr"
@@ -25,10 +25,12 @@ const App = () => {
     </>)
 }
 
-ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+ReactDOM.createRoot(document.getElementById("arpas-root") as HTMLElement).render(
     <React.StrictMode>
         <HashRouter>
             <App />
         </HashRouter>
     </React.StrictMode>
 );
+
+export default App
