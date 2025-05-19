@@ -4,13 +4,14 @@ import * as THREE from "three";
 import { useThree } from "@react-three/fiber";
 import { gpsToMeters, getCompassHeading } from "../../utility/geolocation";
 import { MeshObject } from "../../components";
-import { Compass2D } from "../../components-ui/compass";
+import { Compass2D, Compass3D } from "../../components-ui/compass";
 import "./style.css";
 import { Position, Rotation, Scale } from "../../utility/transform";
 import geolocationConfig from "./geolocationConfig.json";
 import { SceneObjectData } from "../../types/SceneObjectData";
 import { getClosestObject, placeObjectAtWorldCoordinates, placeObjectsAtWorldCoordinates } from "../../utility/objects";
 import { normalizeAngleDifference } from "../../utility/angle";
+import { lerpValue } from "../../utility/interpolation";
 
 const defaultCoords: GeolocationCoordinates = {
     latitude: geolocationConfig.default_latitude ?? 0,
@@ -36,6 +37,10 @@ const defaultCoords: GeolocationCoordinates = {
 const initialObjects: SceneObjectData[] = geolocationConfig.initialObjects.map(obj => ({
     id: obj.id,
     gpsCoords: obj.gpsCoords,
+    heading: obj.heading,
+    relativePosition: obj.position ? new Position(...obj.position) : new Position(),
+    // relativeRotation: obj.rotation ? new Rotation(...obj.rotation) : new Rotation(),
+    scale: obj.scale ? new Scale(obj.scale) : new Scale(),
     bucket: obj.bucket,
     modelKey: obj.modelKey
 }));
@@ -98,7 +103,7 @@ const GeolocationPage = () => {
         return () => navigator.geolocation.clearWatch(watchId);
     }, []);
 
-    const MAX_CURRENT_LOCATION_HISTORY = 10;
+    const MAX_CURRENT_LOCATION_HISTORY = 5;
     useEffect(() => {
         if (!lastValidGeolocation) return;
 
@@ -108,7 +113,6 @@ const GeolocationPage = () => {
         });
     }, [lastValidGeolocation]);
 
-    const locationDriftTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const blockLocationUpdateTimeRef = useRef<number>(0);
     useEffect(() => {
         if (!locationHistory || locationHistory.length == 0) return;
@@ -128,14 +132,10 @@ const GeolocationPage = () => {
 
         const medianLatitude = getMedian(locationHistory.map(loc => loc.latitude));
         const medianLongitude = getMedian(locationHistory.map(loc => loc.longitude));
-
-        // Compute the average location to smooth out fluctuations
-        const avgLatitude = locationHistory.reduce((sum, loc) => sum + loc.latitude, 0) / locationHistory.length;
-        const avgLongitude = locationHistory.reduce((sum, loc) => sum + loc.longitude, 0) / locationHistory.length;
         const avgAccuracy = locationHistory.reduce((sum, loc) => sum + loc.accuracy, 0) / locationHistory.length;
 
-        // Define an average coordinates object
-        const averageCoords: GeolocationCoordinates = {
+        // Define a coordinates object
+        const coords: GeolocationCoordinates = {
             latitude: medianLatitude,
             longitude: medianLongitude,
             altitude: 0, // keep it 0 for now. newCoords.altitude
@@ -147,28 +147,27 @@ const GeolocationPage = () => {
         };
 
         // Update current Coordinates
-        setCurrentCoords(averageCoords);
+        setCurrentCoords(coords);
 
         // Check if reference needs to be updated
         if (!referenceLocation) {
-            setReferenceLocation({ coords: averageCoords, position: new Position() });
+            setReferenceLocation({ coords: coords, position: new Position() });
         }
         else { // Update coordinates if there is a string drift
-            const distanceThreshold = 10; // Meters before updating reference
+            const distanceThreshold = 5; // Meters before updating reference
             const timeThreshold = 5000; // Milliseconds before updating
 
             // Calculate distance between reference and averaged coordinates
-            const distance = gpsToMeters(referenceLocation.coords, averageCoords);
+            const distance = gpsToMeters(referenceLocation.coords, coords);
             const positionDriftDetected = Math.sqrt(distance.x ** 2 + distance.z ** 2) > distanceThreshold;
-
-            const currentTime = Date.now();
 
             if (positionDriftDetected) {
                 console.log("Large geolocation drift detected! Waiting...");
 
+                const currentTime = Date.now();
                 if (currentTime - blockLocationUpdateTimeRef.current > timeThreshold) {
-                    console.log("Updating reference coordinates due to sustained drift:", averageCoords);
-                    setReferenceLocation({ coords: averageCoords, position: new Position(distance.x, 0, distance.z) });
+                    console.log("Updating reference coordinates due to sustained drift:", coords);
+                    setReferenceLocation({ coords: coords, position: new Position(distance.x, 0, distance.z) });
 
                     blockLocationUpdateTimeRef.current = currentTime;
                     blockCompassUpdateTimeRef.current = currentTime;
@@ -231,16 +230,49 @@ const GeolocationPage = () => {
             setSceneObjects);
     }, [referenceLocation, referenceCompassHeading]);
 
-    const groupRotationEulerY = (referenceCompassHeading.phoneYaw - referenceCompassHeading.heading + 540) % 360;
-    const groupRotationY = THREE.MathUtils.degToRad(groupRotationEulerY);
+    // Example usage: Smoothly transition a position vector over 2 seconds
+    // const start = new THREE.Vector3(0, 0, 0);
+    // const end = new THREE.Vector3(10, 5, -3);
+    // lerpVectorOverTime(start, end, 2000, (vector) => {
+    //     console.log("Current vector:", vector);
+    // });
+
+    // Smooth world rotation
+    const [worldRotationEulerY, setWorldRotationEulerY] = useState<number>(180); // 180 = Start with North
+    useEffect(() => {
+        const currentWorldRotationEulerY = (referenceCompassHeading.phoneYaw - referenceCompassHeading.heading + 540) % 360
+        lerpValue(worldRotationEulerY ?? currentWorldRotationEulerY, currentWorldRotationEulerY, 500, (value) => {
+            const worldSmoothRotationEulerY = value;
+            setWorldRotationEulerY(worldSmoothRotationEulerY);
+        })
+    }, [worldRotationEulerY]);
+    const worldRotationY = THREE.MathUtils.degToRad(worldRotationEulerY);
+
+    const [savedCoords, saveCoords] = useState<{ latitude: number; longitude: number } | null>(null);
+    const saveLocation = () => {
+        navigator.geolocation.getCurrentPosition((position) => {
+            saveCoords({
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude
+            });
+        }, (error) => {
+            console.error("Error fetching location:", error);
+        });
+    };
 
     return (
         <>
-            <XRDomOverlay style={{ width: "100%", height: "100%" }}>
+            <XRDomOverlay style={{ width: "100%", height: "100%" }} >
                 <button id="exit-button" onClick={() => store.getState().session?.end()}>X</button>
                 <>
                     <Compass2D heading={compassHeading} cardinal={compassCardinal} />
                 </>
+                <button id="save-position-button" onClick={saveLocation}>Save Location</button>
+                {savedCoords && (
+                    <p id="save-position-text" style={{ position: "absolute", bottom: "80px", width: "100%", textAlign: "right", color: "white" }}>
+                        {savedCoords.latitude},<br />{savedCoords.longitude}
+                    </p>
+                )}
                 <p style={{ position: "absolute", bottom: "10px", width: "100%", textAlign: "center", color: "white" }}>
                     Closest Distance: {getClosestObject(referenceLocation.position, sceneObjects)?.distance.toFixed(2)} meters
                 </p>
@@ -250,7 +282,7 @@ const GeolocationPage = () => {
                 </p>
                 <p style={{ position: "absolute", bottom: "140px", width: "100%", textAlign: "left", color: "white" }}>
                     - Compass: {compassHeading.toFixed(1)}, {compassCardinal}, ref head: {referenceCompassHeading.heading.toFixed(2)},
-                    yaw: {referenceCompassHeading.phoneYaw.toFixed(2)}, EulerY: {groupRotationEulerY.toFixed(2)}
+                    yaw: {referenceCompassHeading.phoneYaw.toFixed(2)}, EulerY: {worldRotationEulerY?.toFixed(2)}
                 </p>
                 <p style={{ position: "absolute", bottom: "80px", width: "100%", textAlign: "left", color: "white" }}>
                     - GPS: {currentCoords.latitude}, {currentCoords.longitude}
@@ -262,11 +294,13 @@ const GeolocationPage = () => {
             <ambientLight intensity={5} />
             <directionalLight intensity={10} />
             <primitive object={new THREE.AxesHelper(0.25)} />
-            <group rotation={[0, groupRotationY, 0]}>
+            {/* <Compass3D heading={compassHeading}/> */}
+            <group rotation={[0, worldRotationY, 0]}>
                 <primitive object={new THREE.AxesHelper(0.15)} />
+
                 {sceneObjects.map((sceneObject) => (
                     <MeshObject key={sceneObject.id} bucketName={sceneObject.bucket} modelKey={sceneObject.modelKey}
-                        position={sceneObject.position} rotation={sceneObject.rotation} scale={sceneObject.scale} />
+                        position={sceneObject.relativePosition} rotation={sceneObject.relativeRotation} scale={sceneObject.scale} />
                 ))}
             </group>
         </>

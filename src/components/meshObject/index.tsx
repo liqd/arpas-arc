@@ -96,15 +96,15 @@ const MeshObject = ({
                 <LoadingSpheres position={position.clone().addY(loadingSpheresScale.y * .75)} scale={loadingSpheresScale} />
                 <RoundedPlane
                     position={position}
-                    rotation={new Rotation(rotation.x + 90, rotation.y, rotation.z)}
+                    rotation={new Rotation(90, 0, rotation.y)}
                     radius={1}
                     opacity={.2}
                 ></RoundedPlane>
                 {showLabel && (
                     <RoundedPlane
                         position={position.clone().addY(loadingSpheresScale.y * .65)}
-                        width={Math.max(0.1, modelName.length * (0.13 * scale.z))}
-                        height={0.2 * scale.z}
+                        width={Math.max(0.1, modelName.length * (0.13))}
+                        height={0.2}
                         radius={0.3}
                         color="black"
                         hoverColor="gray"
@@ -112,7 +112,7 @@ const MeshObject = ({
                         alwaysFaceCamera={true}
                         onlyFaceCameraAroundY={false}
                     >
-                        <Text fontSize={0.2 * scale.z} position={new THREE.Vector3(0, 0, 0.0001)}>
+                        <Text fontSize={0.2} position={new THREE.Vector3(0, 0, 0.0001)}>
                             {modelName}
                         </Text>
                     </RoundedPlane>
@@ -120,8 +120,6 @@ const MeshObject = ({
             </>
         );
     }
-
-    console.log(position instanceof THREE.Vector3);
 
     // Render the model using Suspense and the ModelComponent
     return (
@@ -143,7 +141,7 @@ const MeshObject = ({
 
 interface ModelComponentProps {
     modelUrl: string;
-    objectRef: React.RefObject<THREE.Group | null>;
+    objectRef: React.RefObject<THREE.Group>;
     position: Position;
     rotation: Rotation;
     scale: Scale;

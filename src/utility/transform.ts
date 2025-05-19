@@ -115,10 +115,18 @@ class Rotation extends BaseEuler {
                 ? xOrValue
                 : Array.isArray(xOrValue)
                     ? xOrValue
-                    : [xOrValue, 0, 0];
+                    : [0, xOrValue, 0];
 
             super(value);
         }
+    }
+
+    add(rotation: Rotation) {
+        if(!rotation) return this;
+        this.x += rotation.x;
+        this.y += rotation.y;
+        this.z += rotation.z;
+        return this;
     }
 
     toString(): string {
@@ -138,11 +146,13 @@ class Scale extends BaseVector {
                 ? xOrValue
                 : Array.isArray(xOrValue)
                     ? xOrValue
-                    : [xOrValue, 0, 0];
+                    : [xOrValue, xOrValue, xOrValue];
 
             super(value);
         }
     }
+
+
 
     toString(): string {
         return `Scale (x: ${this.x}, y: ${this.y}, z: ${this.z})`;
