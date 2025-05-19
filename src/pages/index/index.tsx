@@ -3,7 +3,8 @@ import { useXRHitTest, useXRInputSourceEvent, useXRStore, XRDomOverlay } from "@
 import * as THREE from "three";
 import { Matrix4 } from "three";
 import { offsetGpsByMeters, gpsToMeters, getCompassHeading } from "../../utility/geolocation";
-import { Reticle, MeshObject, Rotation, Position, Scale } from "../../components";
+import { Position, Rotation, Scale } from "../../utility/transform";
+import { Reticle, MeshObject } from "../../components";
 import { Compass } from "../../components-ui";
 import "./style.css";
 

@@ -1,7 +1,7 @@
 import React, { useMemo, useState, JSX } from "react";
 import * as THREE from "three";
 import { useFrame, useThree } from "@react-three/fiber";
-import { Position, Rotation, Scale } from "../../components";
+import { Position, Rotation, Scale } from "../../utility/transform";
 
 interface RoundedPlaneProps {
     position?: Position;

@@ -1,4 +1,4 @@
-import { Position, Rotation, Scale } from "../components";
+import { Position, Rotation, Scale } from "../utility/transform";
 
 export type SceneObjectData = {
     id: string;

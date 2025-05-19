@@ -1,4 +1,6 @@
 export { default as MeshObject } from "./meshObject";
-export * from "./locationObjects";
 export { default as Reticle } from "./reticle";
-export { Position, Rotation, Scale } from "./transforms";
+export { default as LoadingSpheres } from "./loadingSpheres";
+export { default as ObjectButton } from "./objectButton";
+export { default as RoundedPlane } from "./roundedPlane";
+export * from "./locationObjects";

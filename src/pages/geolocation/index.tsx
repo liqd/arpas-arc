@@ -6,7 +6,7 @@ import { gpsToMeters, getCompassHeading } from "../../utility/geolocation";
 import { MeshObject, GeolocationObject } from "../../components";
 import { Compass2D, Compass3D } from "../../components-ui/compass";
 import "./style.css";
-import { Position, Rotation, Scale } from "../../components";
+import { Position, Rotation, Scale } from "../../utility/transform";
 import geolocationConfig from "./geolocationConfig.json";
 import { SceneObjectData } from "../../types/SceneObjectData";
 import { getClosestObject, placeObjectAtWorldCoordinates, placeObjectsAtWorldCoordinates } from "../../utility/objects";

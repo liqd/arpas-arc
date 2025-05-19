@@ -3,8 +3,9 @@ import { useGLTF, Text } from "@react-three/drei";
 import * as THREE from "three";
 import { ThreeEvent } from "@react-three/fiber";
 import { fetchGLTFModel, releaseGLTFModel } from "../../utility/fetchGLTFModel";
-import { LoadingSpheres, RoundedPlane } from "../../components-3d-ui";
-import { Position, Rotation, Scale } from "../../components"
+import { Position, Rotation, Scale } from "../../utility/transform";
+import LoadingSpheres from "../loadingSpheres";
+import RoundedPlane from "../roundedPlane";
 
 interface MeshObjectProps {
     bucketName: string;
