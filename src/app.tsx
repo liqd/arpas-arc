@@ -4,11 +4,12 @@ import { IfInSessionMode, XR, createXRStore } from "@react-three/xr"
 import { Canvas } from "@react-three/fiber"
 import { SceneData } from "./types/sceneObjectData";
 import { BenchScene } from "./utility/mockData";
-import AnnotationsPage from "./pages/annotations";
+import IndexPage from "./pages/index";
 import "./style.css";
 
 if (import.meta.env.DEV) {
     import("../dev/scss/style.scss");
+    import("@fortawesome/fontawesome-free/css/all.min.css");
 }
 
 const store = createXRStore({ controller: false });
@@ -19,7 +20,7 @@ const App = ({ data }: { data: SceneData }) => {
         <Canvas style={{ width: "100%", height: "100%" }}>
             <XR store={store}>
                 <IfInSessionMode allow="immersive-ar">
-                    <AnnotationsPage data={data} />
+                    <IndexPage data={data} />
                 </IfInSessionMode>
             </XR>
         </Canvas>

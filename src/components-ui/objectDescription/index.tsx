@@ -1,37 +1,45 @@
 import { BottomSheet } from "../../components-ui";
-import { FaAngry, FaEllipsisV, FaRegComment, FaThumbsDown, FaThumbsUp, FaTimes, FaTimesCircle } from "react-icons/fa";
 import { ObjectData, VariantData } from "../../types/sceneObjectData";
 import "./style.css";
 
 const Comment = () => {
     return (
-        <div className="a4-comments__box top-border pt-3">
-            <div className="a4-comments__box--user row">
-                <div className="col-2 col-lg-1">
-                    <FaAngry size={50} />
-                </div>
-                <div className="col-7 col-md-8">
-                    <div className="a4-comments__author">Gilly Admin Bewland</div>
-                    <span className="a4-comments__moderator" style={{ fontSize: "0.8rem" }}>Moderator</span>
-                    <time className="a4-comments__submission-date">Feb. 9, 2022, 5:54 p.m.</time>
-                </div>
-                <div className="col-1 col-md-1 ms-auto me-3">
-                    <FaEllipsisV />
-                </div>
-            </div>
-            <div className="row">
-                <div className="col-12">
-                    <div className="a4-comments__text"><p>this is a test of the modalare</p></div>
-                </div>
-            </div>
-            <div className="row">
-                <div className="col-12 a4-comments__action-bar-container">
-                    <div className="rating">
-                        <button className="rating-button rating-up"><FaThumbsUp />0</button>
-                        <button className="rating-button rating-down"><FaThumbsDown />0</button>
+        <div className="row top-border">
+            <div className="a4-comments__box pt-3">
+                <div className="a4-comments__box--user row">
+                    <div className="col-2 col-lg-1 a4-comments__user-img">
+                        <i className="fa-solid fa-circle-user fa-2xl"></i>
                     </div>
-                    <div className="a4-comments__action-bar">
-                        <button className="btn btn--no-border a4-comments__action-bar__btn" type="button"><a href="#child-comment-form"><FaRegComment /> Reply</a></button>
+                    <div className="col-7 col-md-8">
+                        <div className="a4-comments__author">Max Müller</div>
+                        <span className="a4-comments__moderator" style={{ fontSize: "0.8rem" }}>Moderator</span>
+                        <time className="a4-comments__submission-date">Feb. 9, 2022, 5:54 p.m.</time>
+                    </div>
+                    <div className="col-1 col-md-1 ms-auto a4-comments__dropdown-container">
+                        <div className="dropdown a4-comments__dropdown"><button type="button" className="dropdown-toggle btn btn--link" aria-haspopup="true" aria-expanded="false" data-bs-toggle="dropdown"><i className="fas fa-ellipsis-h" aria-hidden="true"></i></button>
+                            <div className="dropdown-menu dropdown-menu-end"><button className="dropdown-item" type="button">Edit</button>
+                                <div className="divider"></div><a className="dropdown-item" href="#comment_delete_25" data-bs-toggle="modal" data-bs-target="#delete_modal">Delete</a>
+                                <div className="divider"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col-12">
+                        <div className="a4-comments__text"><p>This is a test comment</p></div>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col-12 a4-comments__action-bar-container">
+                        <div className="rating">
+                            <button className="rating-button rating-up"><i className="fa-regular fa-thumbs-up"></i>0</button>
+                            <button className="rating-button rating-down"><i className="fa-regular fa-thumbs-down"></i>0</button>
+                        </div>
+                        <div className="a4-comments__action-bar">
+                            <button className="btn btn--no-border a4-comments__action-bar__btn" type="button">
+                                <a href="#child-comment-form"><i className="fa-regular fa-comment"></i>Reply</a>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -58,39 +66,70 @@ const ObjectDescription = ({
             isVisible={true}
             onClose={onClose}
         >
-            <div className="object-description">
-                <div className="header">
-                    <h3 style={{ margin: 0 }}>{title}</h3>
-                    <FaTimes onClick={onClose} />
+            <div style={{ fontSize: "0.8rem" }}>
+                <div className="row align-items-center">
+                    <div className="col-10">
+                        <h3>{title}</h3>
+                    </div>
+                    <div className="col-2 d-flex justify-content-end align-items-center">
+                        <i
+                            className="fa-solid fa-xmark"
+                            onClick={onClose}
+                            style={{ cursor: "pointer", fontSize: "0.8rem" }}
+                        ></i>
+                    </div>
                 </div>
-                <div className="entry">
-                    {description}
+                <div className="row">
+                    <p>{description}</p>
                 </div>
-                <div className="entry">
-                    <h5>Variants</h5>
-                    {object.variants.map(({ id: variantLinkId, title }) => {
-                        const isActive = variantLinkId === variantId;
-                        return (
-                            <button
-                                key={variantLinkId}
-                                className={`variant-icon ${isActive ? "active" : ""}`}
-                                onClick={() => onSelectVariant(variantLinkId)}
-                                title={title}
-                            >
-                                <FaTimesCircle size={50} />
+
+                <div className="mb-3">
+                    <h6 className="mb-2">Variants</h6>
+                    <div className="d-flex flex-wrap gap-2">
+                        {object.variants.map(({ id: variantLinkId, title }) => {
+                            const isActive = variantLinkId === variantId;
+                            return (
+                                <button
+                                    key={variantLinkId}
+                                    className={`variant-icon ${isActive ? "active" : ""}`}
+                                    onClick={() => onSelectVariant(variantLinkId)}
+                                    title={title}
+                                >
+                                    <i className="fa-solid fa-circle fa-2xl"></i>
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                <div className="row top-border">
+                    <div className="col-12 a4-comments__action-bar-container">
+                        <div className="rating">
+                            <button className="rating-button rating-up"><i className="fa-regular fa-thumbs-up"></i>0</button>
+                            <button className="rating-button rating-down"><i className="fa-regular fa-thumbs-down"></i>0</button>
+                        </div>
+                        <div className="a4-comments__action-bar">
+                            <button className="btn btn--no-border a4-comments__action-bar__btn" type="button">
+                                <a href="#child-comment-form"><i className="fa-regular fa-comment"></i>Reply</a>
                             </button>
-                        );
-                    })}
+                        </div>
+                    </div>
                 </div>
-                <div className="entry reactions top-border">
-                    <div><FaThumbsUp /> 99</div>
-                    <div style={{ marginLeft: "30px" }}><FaThumbsDown /> 99</div>
-                    <div style={{ marginLeft: "auto" }}><FaRegComment /> 99</div>
+
+                <div className="commenting my-0">
+                    <h6>Join the discussion</h6>
+                    <div className="form-group commenting__content mb-0">
+                        <label for="id_chapters-local_1-name">
+                            Your comment
+                            <input id="id_chapters-local_1-name" name="chapters-local_1-name" type="text" value="" />
+                        </label>
+                        <button className="btn btn--default btn--full mb-0" type="button">Post</button>
+                    </div>
                 </div>
-                <div className="entry">
-                    <Comment />
-                    <Comment />
-                </div>
+
+                <h6 className="my-4">Discussion</h6>
+                <Comment />
+                <Comment />
             </div>
         </BottomSheet >
     );
