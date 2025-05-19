@@ -271,7 +271,7 @@ const GeolocationPage = () => {
                     - curr Acc: {currentCoords.accuracy.toFixed(5)}, loc his: {locationHistory.length}
                 </p>
             </XRDomOverlay>
-            {/* <Compass3D heading={compassHeading} /> */} // TODO: Not working yet
+            {/* <Compass3D heading={compassHeading} /> */}
             <ambientLight intensity={5} />
             <directionalLight intensity={10} />
             <primitive object={new THREE.AxesHelper(0.25)} />

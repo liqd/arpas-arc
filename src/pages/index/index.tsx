@@ -91,7 +91,7 @@ const IndexPage = () => {
         const modelKey = "bench.glb";
         const position = new Position().setFromMatrixPosition(matrix);
         const rotation = new Rotation().setFromRotationMatrix(matrix);
-        const scale = new Scale(0.06, 0.06, 0.06);
+        const scale = new Scale(1, 1, 1);
 
         setSceneObjects((prevObjects) => [
             ...prevObjects,

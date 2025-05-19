@@ -2,10 +2,11 @@ import React, { useMemo }  from "react";
 import * as THREE from "three";
 import { Text } from "@react-three/drei";
 import RoundedPlane from "../../components-3d-ui/roundedPlane";
+import { Position, Rotation } from "../../components/transforms";
 
 export interface ObjectButtonProps {
-    position: THREE.Vector3;
-    rotation?: THREE.Euler;
+    position: Position;
+    rotation?: Rotation;
     width?: number;
     height?: number;
     radius?: number;
@@ -17,8 +18,8 @@ export interface ObjectButtonProps {
 };
 
 const ObjectButton: React.FC<ObjectButtonProps> = ({
-    position = new THREE.Vector3(), 
-    rotation = new THREE.Euler(), 
+    position = new Position(), 
+    rotation = new Rotation(), 
     width = 5, height = 1, radius = 5, 
     color = "#ffffff", hoverColor = "#ff5555", 
     alwaysFaceCamera = false,
