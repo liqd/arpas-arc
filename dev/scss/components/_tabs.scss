@@ -1,0 +1,100 @@
+.tabpanel {
+    display: none;
+
+    &.active {
+        display: block;
+    }
+}
+
+.tablist {
+    border-bottom: 2px solid $brand-primary;
+    text-align: center;
+    margin-bottom: $spacer * 2;
+    z-index: 2;
+}
+
+.tab {
+    display: inline-block;
+    position: relative;
+    vertical-align: bottom;
+    text-decoration: none;
+    color: $text-color-gray;
+    padding: 0.6em 1em;
+    margin-right: 0.5em;
+    margin-bottom: -2px;
+
+    border: 2px solid transparent;
+    border-top-right-radius: 0;
+    border-top-left-radius: 0;
+    border-bottom: 0;
+
+    &:hover,
+    &:focus {
+        color: $text-color;
+    }
+
+    &.active {
+        border-color: $brand-primary;
+        background-color: $body-bg;
+    }
+}
+
+.tablist--right {
+    text-align: right;
+}
+
+.tablist__right {
+    float: right;
+}
+
+.tablist--left {
+    text-align: left;
+}
+
+.tablist__left {
+    float: left;
+}
+
+.tablist--background {
+    background-color: $bg-tertiary;
+    padding-top: $spacer;
+}
+
+.tablist--bg-secondary {
+    // border-bottom: 2px solid $bg-tertiary;
+}
+
+.tab--bg-secondary {
+    &.active {
+        border-color: $bg-tertiary;
+        background-color: $bg-tertiary;
+    }
+}
+
+.tabpanel--bg-secondary {
+    padding-top: $padding;
+    padding-bottom: 2 * $padding;
+
+    &.active {
+        background-color: $bg-tertiary;
+    }
+}
+
+@media (max-width: $breakpoint-xs) {
+    .tab {
+        margin-right: -4px;
+        padding-right: 0.5em;
+        padding-left: 0.5em;
+    }
+}
+
+@media (max-width: $breakpoint) {
+    .tabpanel--topnav {
+        margin-top: 2 * $spacer;
+    }
+
+    .tablist__right + nav,
+    .tablist__left + nav {
+        clear: both;
+    }
+}

@@ -1,0 +1,31 @@
+.user-profile__side {
+    padding: $padding;
+    background-color: $bg-tertiary;
+    min-height: 100%;
+}
+
+.user-profile__avatar {
+    border-radius: 50%;
+    shape-outside: circle();
+    box-shadow: 0 0 2 * $spacer rgba(0, 0, 0, 0.1);
+    position: relative;
+
+    ~ h2 {
+        clear: both;
+    }
+}
+
+.user-profile__main {
+    padding: 0 $padding;
+}
+
+@media (min-width: $breakpoint) {
+    /* Ensure that info sidebar is always visible in sm
+       and above and only a tab in sm
+     */
+
+    .user-profile__side {
+        display: block;
+        padding: 2 * $padding;
+    }
+}

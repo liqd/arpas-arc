@@ -1,0 +1,53 @@
+.organisation__header {
+    margin-top: $spacer;
+    margin-bottom: 4 * $spacer;
+}
+
+.organisation__description {
+    padding-top: 0.5 * $spacer;
+    padding-bottom: $spacer;
+}
+
+.organisation__logo-box {
+    display: inline-block;
+    position: relative;
+    margin-top: -3.5em;
+    box-shadow: 0 0 8px 0 $shadow;
+
+    padding: 1.25 * $padding;
+    background-color: $body-bg;
+}
+
+.organisation__logo-img {
+    display: block;
+    height: 6.5em;
+    width: auto;
+}
+
+@media (min-width: $breakpoint) {
+    .organisation__logo-box {
+        padding: $padding;
+    }
+
+    .organisation__description {
+        padding-top: $spacer;
+        padding-bottom: $spacer;
+    }
+}
+
+.organisation__social-link {
+    width: 2rem;
+    height: 2rem;
+    position: relative;
+    background-color: $brand-secondary;
+    border-radius: 8rem;
+
+    i {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 50%;
+        color: $white;
+    }
+}

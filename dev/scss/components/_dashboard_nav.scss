@@ -1,0 +1,141 @@
+.dashboard-nav {
+    border: 1px solid $border-color;
+    overflow: hidden;
+    margin-bottom: 0.5em;
+    flex-grow: 2;
+}
+
+.dashboard-nav__dropdown {
+    background-color: $bg-tertiary;
+    position: relative;
+    padding: 0.7 * $spacer 2.7 * $spacer 0.7 * $spacer 1.8 * $spacer;
+
+    .fa-exclamation-circle,
+    .fa-check-circle {
+        position: absolute;
+        left: 0.5 * $spacer;
+        top: $spacer;
+    }
+
+    .dropdown,
+    &.dropdown,
+    .dropdown-toggle {
+        margin: 0;
+    }
+
+    .dropdown-toggle {
+        width: 100%;
+        text-align: left;
+        border: 0;
+    }
+
+    i.fa-chevron-up {
+        position: absolute;
+        top: $spacer;
+        right: $spacer;
+        transition: transform 0.3s;
+
+        &.dashboard-nav-i-spacer {
+            right: 1.5 * $spacer;
+        }
+    }
+
+    &.collapsed i.fa-chevron-up {
+        transform: rotate(-180deg);
+    }
+}
+
+.dashboard-nav__item {
+    position: relative;
+    display: block;
+    padding: 0.7 * $spacer 0.7 * $spacer 0.7 * $spacer 1.8 * $spacer;
+    border-left: 0.2 * $spacer solid transparent;
+
+    color: $text-color;
+    text-decoration: none;
+
+    // overwrite default checkbox styling
+    .form-check {
+        padding: 0;
+        margin: 0;
+    }
+
+    .fa-exclamation-circle,
+    .fa-check-circle {
+        position: absolute;
+        left: 0.3 * $spacer;
+        top: $spacer;
+    }
+}
+
+.dashboard-nav__module-dropdown {
+    min-width: 1.5 * $spacer;
+    text-align: center;
+    position: absolute !important;
+    z-index: 5 !important;
+    right: 0;
+    top: 0.25 * $spacer;
+}
+
+// to ensure the switch is always toggled on button click
+.dashboard-nav__form--project {
+    position: relative;
+
+    .btn {
+        position: absolute;
+        inset: 0;
+    }
+
+    // Firefox fix to make switch button work
+    .btn:not([type="radio"], [type="checkbox"]) {
+        width: 100%;
+        margin-bottom: 0;
+    }
+}
+
+.dashboard-nav__pages {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.dashboard-nav__page {
+    border-top: 1px solid $border-color;
+}
+
+.dashboard-nav__item--interactive {
+    &:hover,
+    &:focus {
+        color: $brand-primary;
+    }
+
+    &.is-active {
+        color: $brand-primary;
+        border-left-color: $brand-primary;
+    }
+}
+
+.dashboard-nav__logo {
+    height: 2 * $spacer;
+}
+
+.dashboard-nav__toggle-label {
+    text-align: left;
+}
+
+.dashboard-nav__toggle-label:before {
+    height: 1.25 * $spacer !important;
+    width: 2 * $spacer !important;
+    border-radius: $spacer !important;
+}
+
+.form-check-input:checked ~ .dashboard-nav__toggle-label:before {
+    border-color: $brand-primary !important;
+    background-color: $brand-primary !important;
+}
+
+.dashboard-nav__toggle-label:after {
+    height: $spacer !important;
+    width: $spacer !important;
+    border-radius: $spacer !important;
+}

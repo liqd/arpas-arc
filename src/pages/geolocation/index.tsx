@@ -6,11 +6,11 @@ import { gpsToMeters, getCompassHeading } from "../../utility/geolocation";
 import { MeshObject } from "../../components";
 import { Compass2D } from "../../components-ui/compass";
 import "./style.css";
-import { Position, Rotation, Scale } from "../../utility/transform";
+import { Position, Rotation, Scale } from "../../types/transform";
 import geolocationConfig from "./geolocationConfig.json";
-import { SceneObjectData } from "../../types/SceneObjectData";
 import { getClosestObject, placeObjectAtWorldCoordinates, placeObjectsAtWorldCoordinates } from "../../utility/objects";
 import { normalizeAngleDifference } from "../../utility/angle";
+import { SceneObjectData } from "../../types/sceneObjectData";
 
 const defaultCoords: GeolocationCoordinates = {
     latitude: geolocationConfig.default_latitude ?? 0,

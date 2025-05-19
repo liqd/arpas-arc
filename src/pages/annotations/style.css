@@ -1,120 +1,80 @@
-#exit-button {
+.arc-header {
+    background-color: white;
     position: absolute;
-    top: 5%;
-    left: 2.5%;
-    width: 5vh;
-    height: 5vh;
-    z-index: 1000;
-    background-color: transparent;
-    font-size: 2vh;
-    color: white;
-    border: 0.05vh solid white;
-    border-radius: 5%;
+    top: 0;
+    left: 0;
+    right: 0;
+    color: black;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2.5% 3%;
 }
 
-#exit-button:hover {
-    background-color: #0056b3;
-}
-
-#spawn-button {
-    position: absolute;
-    bottom: 5%;
-    left: 2.5%;
-    right: 2.5%;
-    height: 5vh;
-    z-index: 1000;
-    background-color: transparent;
-    font-size: 2vh;
-    color: white;
-    border: 0.05vh solid white;
-    border-radius: 1%;
-}
-
-.popup-header {
+.arc-header button {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    text-transform: uppercase;
     font-weight: bold;
-    cursor: grab;
+    font-size: 0.75rem;
+}
+
+.object-description {
+    display: flex;
+    flex-direction: column;
+}
+
+.object-description .header {
+    font-weight: bold;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    margin-bottom: 0.5rem;
 }
 
-.popup-header button {
-    width: 3vh;
-    height: 3vh;
-    background-color: rgb(68, 68, 68);
-    color: white;
-    border: 0.05vh solid rgb(68, 68, 68);
-    border-radius: 15%;
-    margin-bottom: 20px;
+.object-description .entry {
+    font-size: 0.8rem;
+    margin-bottom: 1.125rem;
 }
 
-.popup-body {
-    display: flex;
-    flex-direction: column;
-}
-
-.popup-entry {
-    width: calc(100% - 5px);
-    min-height: 20px;
-    margin-bottom: 10px;
-    padding: 2% 1%;
-    background-color: transparent;
-    border: 0.2vh solid rgb(68, 68, 68);
-    border-radius: 13px;
-    color: white;
-    display: flex;
-    flex-direction: column;
-}
-
-.popup-entry h1 {
-    font-size: x-small;
+.object-description .entry h5 {
+    font-size: 0.8rem;
     margin: 0;
-    margin-left: 2px;
 }
 
-.popup-entry textarea {
-    flex-grow: 1;
-    background-color: transparent;
-    border: 0;
-    outline: none;
-    color: white;
-    resize: vertical;
-    font-family: monospace;
-    font-size: 13px;
+.object-description .reactions {
+    display: flex;
+    align-items: center;
+    padding-top: 1.125rem;
 }
 
-.popup-delete {
-    width: 80px;
-    height: 30px;
-    background-color: transparent;
-    border: 0.2vh solid rgb(68, 68, 68);
-    border-radius: 13px;
-    color: white;
+.object-description .reactions div {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
 }
 
-.icons {
+.top-border {
+    border-top: 2px solid #d8d8d8;
+}
+
+.comment {
+    padding: 1.125rem 0;
+}
+
+.comment .info {
     display: flex;
     flex-direction: row;
-    align-items: center;
-    gap: 15px;
-    font-family: monospace;
-    font-size: 13px;
 }
 
-.icon {
+.a4-comments__action-bar-container {
     display: flex;
-    flex-direction: row;
+    justify-content: space-between;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 5px;
-    border-radius: 5px;
-    padding: 1% 2%;
 }
 
-.icon:active {
-    background-color: #5c5c5c;
-}
-
-.icon-symbol {
-    padding: 5px;
-    border-radius: 50%;
+.rating-up svg, .rating-down svg {
+  margin-right: .3em;
 }

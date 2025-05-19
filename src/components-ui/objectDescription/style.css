@@ -1,0 +1,63 @@
+.object-description {
+    display: flex;
+    flex-direction: column;
+}
+
+.object-description .header {
+    font-weight: bold;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.object-description .entry {
+    font-size: 0.8rem;
+    margin-bottom: 1.125rem;
+}
+
+.object-description .entry h5 {
+    font-size: 0.8rem;
+    margin: 0;
+}
+
+.object-description .reactions {
+    display: flex;
+    align-items: center;
+    padding-top: 1.125rem;
+}
+
+.object-description .reactions div {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+}
+
+.top-border {
+    border-top: 2px solid #d8d8d8;
+}
+
+.comment {
+    padding: 1.125rem 0;
+}
+
+.comment .info {
+    display: flex;
+    flex-direction: row;
+}
+
+.a4-comments__action-bar-container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.rating-up svg,
+.rating-down svg {
+    margin-right: .3em;
+}
+
+.variant-icon.active svg {
+    color: #007bff;
+}

@@ -1,0 +1,57 @@
+.homepage-hero {
+    position: relative;
+    padding: 0;
+}
+
+.homepage-hero__image {
+    box-shadow: inset 2rem -8rem 8rem 2rem rgba(0, 0, 0, 0.68);
+    min-height: 235px;
+    width: 100%;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+
+    @media screen and (min-width: $breakpoint-xs) {
+        min-height: 40vmax;
+    }
+}
+
+.homepage-hero__container {
+    position: absolute;
+    inset: 0;
+
+    // positioning items at bottom of img
+    display: flex;
+    align-items: flex-end;
+}
+
+.homepage-hero__header {
+    padding-bottom: 3 * $spacer;
+    width: 100%;
+    color: $body-bg;
+    z-index: 1;
+}
+
+.homepage-hero__title,
+.homepage-hero__content {
+    text-align: center;
+    animation: fade 3s ease-in-out;
+}
+
+@keyframes fade {
+    0% {
+        opacity: 0%;
+    }
+
+    100% {
+        opacity: 100%;
+    }
+}
+
+.homepage-hero__btn--info {
+    border: 1px solid $text-color-inverted;
+    z-index: 2;
+    position: absolute;
+    bottom: $spacer;
+    right: $spacer;
+}

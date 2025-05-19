@@ -1,0 +1,26 @@
+.moderator-feedback {
+    // this block needs a bigger margin than the previous element can provide
+    margin-top: 2em;
+    padding: 0.6em;
+    background-color: $bg-tertiary;
+}
+
+.moderator-feedback__title {
+    margin-top: 0;
+}
+
+.moderator-feedback__subtitle {
+    margin-bottom: 0.5em;
+}
+
+.moderator-feedback__organisation {
+    margin-right: 0.7em;
+}
+
+.moderator-feedback__body {
+    overflow-wrap: anywhere;
+
+    p:last-child {
+        margin-bottom: 0;
+    }
+}

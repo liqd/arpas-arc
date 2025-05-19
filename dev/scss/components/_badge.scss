@@ -1,0 +1,74 @@
+.badge {
+    display: inline-block;
+    background-color: $text-color;
+    color: contrast-color($text-color);
+    font-size: $font-size-xs;
+    font-weight: normal;
+    border-radius: 0.4em;
+    padding: 0.2em 0.7em;
+    text-align: start;
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: anywhere;
+}
+
+.badge.badge--big {
+    padding: 0.4em 0.6em;
+    font-size: $font-size-sm;
+    border-radius: 0.3em;
+}
+
+.badge.badge--active {
+    background-color: $body-bg;
+    border: 2px solid $brand-primary;
+    color: $text-color;
+}
+
+.badge.badge--secondary {
+    background-color: $brand-secondary;
+    color: contrast-color($brand-secondary);
+}
+
+.badge.badge--danger {
+    background-color: $brand-danger;
+    color: contrast-color($brand-danger);
+}
+
+.badge.badge--live {
+    background-color: $body-bg;
+    border: 1px solid $brand-danger;
+    color: $brand-danger;
+    text-transform: uppercase;
+}
+
+.badge.badge--info {
+    background-color: $body-bg;
+    border: 1px solid $text-color;
+    color: $text-color;
+    text-transform: uppercase;
+}
+
+// stylelint-disable selector-class-pattern
+// class names are coming from django
+.badge.badge--CONSIDERATION {
+    background-color: $feedback-color-consideration;
+    color: contrast-color($feedback-color-consideration);
+}
+
+.badge.badge--REJECTED {
+    background-color: $feedback-color-rejected;
+    color: contrast-color($feedback-color-rejected);
+}
+
+.badge.badge--ACCEPTED {
+    background-color: $feedback-color-accepted;
+    color: contrast-color($feedback-color-accepted);
+}
+// stylelint-enable
+
+@media screen and (max-width: $breakpoint-xs-down) {
+    .badge.badge--big {
+        padding: 0.2em 0.7em;
+        font-size: $font-size-xs;
+    }
+}

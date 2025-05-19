@@ -1,36 +1,35 @@
-import React, { Suspense } from "react";
+import React from "react";
 import ReactDOM from "react-dom/client";
-import { HashRouter, Route, Routes } from "react-router-dom";
 import { IfInSessionMode, XR, createXRStore } from "@react-three/xr"
 import { Canvas } from "@react-three/fiber"
-import IndexPage from "./pages/index";
+import { SceneData } from "./types/sceneObjectData";
+import { BenchScene } from "./utility/mockData";
 import AnnotationsPage from "./pages/annotations";
-import "./style.css"
+import "./style.css";
+
+if (import.meta.env.DEV) {
+    import("../dev/scss/style.scss");
+}
 
 const store = createXRStore({ controller: false });
 
-const App = () => {
+const App = ({ data }: { data: SceneData }) => {
     return (<>
         <button id="start-button" onClick={() => store.enterAR()}>Enter AR</button>
         <Canvas style={{ width: "100%", height: "100%" }}>
             <XR store={store}>
                 <IfInSessionMode allow="immersive-ar">
-                    <Routes>
-                        <Route path="/" element={<IndexPage />} />
-                        <Route path="/annotations" element={<AnnotationsPage />} />
-                    </Routes>
+                    <AnnotationsPage data={data} />
                 </IfInSessionMode>
             </XR>
         </Canvas>
-    </>)
-}
+    </>);
+};
 
 ReactDOM.createRoot(document.getElementById("arpas-root") as HTMLElement).render(
     <React.StrictMode>
-        <HashRouter>
-            <App />
-        </HashRouter>
+        <App data={BenchScene} />
     </React.StrictMode>
 );
 
-export default App
+export default App;

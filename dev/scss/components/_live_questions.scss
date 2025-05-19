@@ -1,0 +1,110 @@
+// affiliation picker
+.live_questions__select > .select2-container {
+    min-width: 100%;
+    margin: 0 0 1rem;
+
+    @media screen and (min-width: $breakpoint-xs) {
+        min-width: 15rem;
+    }
+}
+
+.live_questions__char-count {
+    color: $text-color-gray;
+    font-size: $font-size-sm;
+    margin-bottom: $spacer;
+}
+
+.livequestion__control-bar--mod,
+.livequestion__control-bar--user {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+
+    .livequestion__action-bar,
+    .livequestion__filter-bar {
+        display: flex;
+        min-width: 100%;
+        flex-wrap: wrap;
+
+        @media screen and (min-width: $breakpoint-lg) {
+            display: block;
+            min-width: inherit;
+        }
+    }
+
+    .livequestion__action-bar--btn,
+    .livequestion__filter--btn {
+        display: block;
+        flex-basis: 100%;
+        margin-bottom: $spacer;
+
+        @media screen and (min-width: $breakpoint-md) {
+            display: inline-block;
+            flex-basis: 50%;
+        }
+    }
+
+    // ensure flex children fill space
+    .btn--light,
+    .checkbox-btn__text {
+        min-width: 100%;
+    }
+}
+
+.livequestion__control-bar--user {
+    .livequestion__action-bar--btn,
+    .livequestion__filter--btn {
+        min-width: 100%;
+    }
+}
+
+.livequestion__filter--open {
+    display: flex;
+    justify-content: flex-end;
+}
+
+@media screen and (min-width: $breakpoint-md) {
+    .livequestion__control-bar--mod {
+        .dropdown.livequestion__filter--btn {
+            margin-right: $spacer;
+        }
+    }
+}
+
+.livequestion__info-box-parent {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+
+    i {
+        color: $brand-primary;
+    }
+}
+
+.livequestion__info-box--open {
+    @extend .order-0;
+
+    width: 100%;
+}
+
+.livequestion__count {
+    @extend .order-1;
+    color: $text-color-gray;
+    padding-top: 0.5 * $spacer;
+}
+
+.livequestion__close {
+    display: block;
+    margin-left: auto;
+    padding-right: $spacer;
+    font-size: $font-size-xl;
+}
+
+.livequestion_anchor {
+    position: relative;
+    bottom: -7 * $spacer;
+}
+
+.livequestion-detail__image {
+    width: 100%;
+}

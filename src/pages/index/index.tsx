@@ -3,7 +3,7 @@ import { useXRHitTest, useXRInputSourceEvent, useXRStore, XRDomOverlay } from "@
 import * as THREE from "three";
 import { Matrix4 } from "three";
 import { offsetGpsByMeters, gpsToMeters, getCompassHeading } from "../../utility/geolocation";
-import { Position, Rotation, Scale } from "../../utility/transform";
+import { Position, Rotation, Scale } from "../../types/transform";
 import { Reticle, MeshObject } from "../../components";
 import { Compass } from "../../components-ui";
 import "./style.css";
@@ -118,7 +118,7 @@ const IndexPage = () => {
     return (<>
         <XRDomOverlay style={{ width: "100%", height: "100%" }}>
             <button id="exit-button" onClick={() => store.getState().session?.end()}>X</button>
-            <Compass heading={compassHeading}/>
+            <Compass heading={compassHeading} />
         </XRDomOverlay>
         <ambientLight intensity={5} />
         <directionalLight intensity={10} />

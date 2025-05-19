@@ -1,0 +1,42 @@
+// EditPollQuestions/EditPollOpenQuestions
+// NOTE: structure of edit poll styling to be found in _commenting.scss
+
+.editpoll__btn--question,
+.editpoll__btn--delete {
+    @extend .btn--light;
+}
+
+.editpoll__btn--dark {
+    @extend .btn--light;
+}
+
+.editpoll__btn--question,
+.editpoll__btn--dark {
+    margin-top: 0.5 * $spacer;
+    margin-right: 0.5 * $spacer;
+}
+
+.editpoll__help-text { // Question ID
+    color: $text-color-gray;
+}
+
+.editpoll__questions-options__form-check {
+    display: flex;
+    align-items: center;
+  
+    input {
+        margin: 0 0.5em 0 0;
+    }
+}
+
+.editpoll__btns--question {
+    display: flex;
+    flex-flow: column wrap;
+}
+
+
+@media (min-width: $breakpoint-md) {
+    .editpoll__btns--question {
+        flex-direction: row;
+    }
+}

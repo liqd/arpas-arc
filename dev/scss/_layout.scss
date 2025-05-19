@@ -1,0 +1,75 @@
+// should be used with ul/ol
+@mixin grid-tiles($n, $settings: ()) {
+    @include clearfix;
+
+    @supports (display: grid) {
+        display: grid;
+        grid-column-gap: $spacer;
+        grid-template-columns: repeat($n, 1fr);
+
+        > * {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            width: auto !important;
+        }
+    }
+}
+
+.container {
+    position: relative;
+    display: flow-root;
+}
+
+.container--shadow {
+    background-color: $body-bg;
+    box-shadow: 2px 4px 27px 0 rgba(0, 0, 0, 0.02), -2px -4px 27px 0 rgba(0, 0, 0, 0.05);
+    padding: 0 $spacer;
+
+    @media (min-width: $breakpoint) {
+        padding: 0;
+    }
+}
+
+.l-top-overlap {
+    position: relative;
+    z-index: 1;
+    bottom: -2.75 * $spacer;
+}
+
+.l-bottom-overlap {
+    position: relative;
+    z-index: 1;
+    top: -1em;
+}
+
+.l-tiles-2,
+.l-tiles-3,
+.l-tiles-4 {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+@media (min-width: $breakpoint) {
+    .l-tiles-2 {
+        @include grid-tiles(2);
+    }
+
+    .l-tiles-3 {
+        @include grid-tiles(2);
+    }
+
+    .l-tiles-4 {
+        @include grid-tiles(2);
+    }
+}
+
+@media (min-width: $breakpoint-md) {
+    .l-tiles-3 {
+        @include grid-tiles(3);
+    }
+
+    .l-tiles-4 {
+        @include grid-tiles(4);
+    }
+}
