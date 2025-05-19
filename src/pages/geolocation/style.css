@@ -1,0 +1,17 @@
+#exit-button {
+    position: absolute;
+    top: 5%;
+    left: 2.5%;
+    width: 5vh;
+    height: 5vh;
+    z-index: 1000;
+    background-color: transparent;
+    font-size: 2vh;
+    color: white;
+    border: 0.05vh solid white;
+    border-radius: 5%;
+}
+
+#exit-button:hover {
+    background-color: #0056b3;
+}

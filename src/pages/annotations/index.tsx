@@ -3,12 +3,13 @@ import * as THREE from "three";
 import { useThree } from "@react-three/fiber";
 import { Text } from "@react-three/drei";
 import { useXRStore, XRDomOverlay } from "@react-three/xr";
-import { Reticle, SceneObject, RoundedPlane } from "../../components";
+import { MeshObject, Position, Reticle, Rotation, Scale } from "../../components";
 import { BottomSheet, DirectionalArrow } from "../../components-ui";
 import { useHitTestMatrix } from "../../hooks";
 import { SlDislike, SlLike } from "react-icons/sl";
 import { LiaLightbulbSolid } from "react-icons/lia";
 import "./style.css";
+import { RoundedPlane } from "../../components-3d-ui";
 
 // NOTE : these are example annotations for debugging, should be replaced with database imports later
 const exampleAnnotations: AnnotationData[] = [{
@@ -224,7 +225,10 @@ const AnnotationsPage = () => {
 
             return (
                 <group key={sceneObjectId} position={position} rotation={rotation} scale={scale}>
-                    <SceneObject />
+                    <MeshObject 
+                     key={1}
+                     bucketName={"test"} modelKey={"bench.glb"}
+                     position={new Position()} rotation={new Rotation()} scale={new Scale()} />
                     {annotations.map((annotation) => {
                         const { id: annotationId, position, title, description } = annotation;
 
@@ -236,8 +240,8 @@ const AnnotationsPage = () => {
                                 </mesh>
                                 {activeAnnotation?.id == annotationId &&
                                     <RoundedPlane
-                                        position={new THREE.Vector3(0, 2, 0)}
-                                        rotation={new THREE.Euler(0, 1.5, 0)}
+                                        position={new Position(0, 2, 0)}
+                                        rotation={new Rotation(0, 1.5, 0)}
                                         width={4}
                                         height={2}
                                         radius={0.3}
