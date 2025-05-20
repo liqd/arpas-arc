@@ -1,17 +1,19 @@
-import React, { Suspense } from "react";
-import ReactDOM from "react-dom/client";
-import { HashRouter, Route, Routes } from "react-router-dom";
+import React from "react";
+import { Route, Routes } from "react-router-dom";
 import { IfInSessionMode, XR, createXRStore } from "@react-three/xr"
 import { Canvas } from "@react-three/fiber"
 import IndexPage from "./pages/index";
 import AnnotationsPage from "./pages/annotations";
-import "./style.css"
+
+interface AppProps {
+    buttonClassName?: string
+}
 
 const store = createXRStore({ controller: false });
 
-const App = () => {
-    return (<>
-        <button id="start-button" onClick={() => store.enterAR()}>Enter AR</button>
+const App = ({ buttonClassName = "start-button" }: AppProps) => {
+    return (<div className="arc-app">
+        <button className={buttonClassName} onClick={() => store.enterAR()}>Enter AR</button>
         <Canvas style={{ width: "100%", height: "100%" }}>
             <XR store={store}>
                 <IfInSessionMode allow="immersive-ar">
@@ -22,15 +24,7 @@ const App = () => {
                 </IfInSessionMode>
             </XR>
         </Canvas>
-    </>)
+    </div>)
 }
-
-ReactDOM.createRoot(document.getElementById("arpas-root") as HTMLElement).render(
-    <React.StrictMode>
-        <HashRouter>
-            <App />
-        </HashRouter>
-    </React.StrictMode>
-);
 
 export default App
