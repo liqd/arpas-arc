@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import { useXRStore, XRDomOverlay } from "@react-three/xr";
 import { HelpMenu, ObjectDescription } from "../../components-ui";
 import { ObjectData, SceneData } from "../../types/objectData";
-import "./style.scss";
+import "./style.css";
 
 const IndexPage = ({ data }: { data: SceneData }) => {
     const store = useXRStore();
@@ -26,27 +26,22 @@ const IndexPage = ({ data }: { data: SceneData }) => {
         }));
     };
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         const updateHeaderHeight = () => {
             const header = document.querySelector("#arc-header") as HTMLElement;
             if (header) {
-                setHeaderHeight(header.offsetTop + header.offsetHeight);
+                setHeaderHeight(header.offsetHeight);
             }
         };
 
         updateHeaderHeight();
-        window.addEventListener("resize", updateHeaderHeight); // Update on resize
-
+        window.addEventListener("resize", updateHeaderHeight);
         return () => window.removeEventListener("resize", updateHeaderHeight);
     }, []);
 
     return (<>
         <XRDomOverlay style={{ width: "100%", height: "100%" }}>
-            <div id="arc-logo-header">
-                <span className="border-0 fw-bold text-uppercase text-dark">ARPAS</span>
-            </div>
-
-            <div id="arc-header">
+            <div id="arc-header" className="py-1 px-2">
                 <button className="border-0 fw-bold text-uppercase text-dark" onClick={() => store.getState().session?.end()}>
                     <small><i className="fa fa-arrow-left" aria-hidden="true"></i> Leave AR</small>
                 </button>

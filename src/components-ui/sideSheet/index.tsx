@@ -41,7 +41,7 @@ const SideSheet = ({
             style={{ x }}
             initial={false}
         >
-            <div className="flex-shrink-0 py-1 px-2 d-flex justify-content-between align-items-center bg-white">
+            <div id="arc-header" className="py-1 px-2">
                 <button className="border-0 fw-bold text-uppercase text-dark" onClick={onLeave}>
                     <small><i className="fa fa-arrow-left" aria-hidden="true"></i> Leave AR</small>
                 </button>
@@ -49,6 +49,7 @@ const SideSheet = ({
                     <small><i className="fa-solid fa-xmark"></i></small>
                 </button>
             </div>
+
             <div className="flex-grow-1 overflow-auto px-3 pt-3 d-flex flex-column">
                 {children}
             </div>
