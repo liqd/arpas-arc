@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { useXRStore, XRDomOverlay } from "@react-three/xr";
-import { ObjectDescription } from "../../components-ui";
+import { HelpMenu, ObjectDescription } from "../../components-ui";
 import { ObjectData, SceneData } from "../../types/objectData";
-import "./style.css";
+import "./style.scss";
 
 const IndexPage = ({ data }: { data: SceneData }) => {
     const store = useXRStore();
+    const [isHelpVisible, setIsHelpVisible] = useState(false);
     const [selectedObject, setSelectedObject] = useState<ObjectData | null>(null);
     const [selectedVariants, setSelectedVariants] = useState<Record<number, number>>({});
     const [headerHeight, setHeaderHeight] = useState(0);
@@ -27,7 +28,7 @@ const IndexPage = ({ data }: { data: SceneData }) => {
 
     useEffect(() => {
         const updateHeaderHeight = () => {
-            const header = document.querySelector(".arc-header") as HTMLElement;
+            const header = document.querySelector("#arc-header") as HTMLElement;
             if (header) {
                 setHeaderHeight(header.offsetTop + header.offsetHeight);
             }
@@ -41,19 +42,24 @@ const IndexPage = ({ data }: { data: SceneData }) => {
 
     return (<>
         <XRDomOverlay style={{ width: "100%", height: "100%" }}>
-            <div className="arc-logo-header">
-                <span className="arc-text">ARPAS</span>
+            <div id="arc-logo-header">
+                <span className="border-0 fw-bold text-uppercase text-dark">ARPAS</span>
             </div>
 
-            <div className="arc-header">
-                <button onClick={() => store.getState().session?.end()}>
-                    <i className="fa fa-arrow-left" aria-hidden="true"></i> Leave AR
+            <div id="arc-header">
+                <button className="border-0 fw-bold text-uppercase text-dark" onClick={() => store.getState().session?.end()}>
+                    <small><i className="fa fa-arrow-left" aria-hidden="true"></i> Leave AR</small>
                 </button>
-                <button>
-                    <i className="fa-solid fa-circle-info"></i> Help
+                <button className="border-0 fw-bold text-uppercase text-dark" onClick={() => setIsHelpVisible(true)}>
+                    <small><i className="fa-solid fa-circle-info"></i> Help</small>
                 </button>
             </div>
 
+            <HelpMenu
+                isVisible={isHelpVisible}
+                onClose={() => setIsHelpVisible(false)}
+                onLeave={() => store.getState().session?.end()}
+            />
 
             <ObjectDescription
                 object={selectedObject}

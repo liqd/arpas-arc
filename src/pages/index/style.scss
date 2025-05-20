@@ -1,0 +1,27 @@
+#arc-logo-header {
+    background-color: white;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0% 3%;
+    height: 6%;
+}
+
+#arc-header {
+    position: absolute;
+    top: env(safe-area-inset-top, 6%);
+    left: 0;
+    width: 100%;
+    padding-top: 0.25rem !important;
+    padding-bottom: 0.25rem !important;
+    padding-right: 0.5rem !important;
+    padding-left: 0.5rem !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: white;
+}

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BottomSheet } from "../../components-ui";
+import { BottomSheet } from "..";
 import { CommentData, ObjectData, VariantData } from "../../types/objectData";
 import { formatTimestamp } from "../../utility/conversion";
 import "./style.css";
@@ -48,11 +48,25 @@ const Comment = ({ comment }: { comment: CommentData }) => {
                 </div>
             </div>
         </div>
-        {isShowingReplies && comment.replies.map((reply) => {
-            return (
-                <Comment key={reply.id} comment={reply} />
-            );
-        })}
+
+        {isShowingReplies && <>
+            {comment.replies.map((reply) => {
+                return (
+                    <Comment key={reply.id} comment={reply} />
+                );
+            })}
+            
+            <div className="commenting my-0">
+                <h6>Join the discussion</h6>
+                <div className="form-group commenting__content mb-0">
+                    <label>
+                        Your comment
+                        <input type="text" />
+                    </label>
+                    <button className="btn btn--default mb-0 btn--full" type="button">Post</button>
+                </div>
+            </div>
+        </>}
     </>);
 };
 
