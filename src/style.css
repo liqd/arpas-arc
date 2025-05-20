@@ -1,4 +1,4 @@
-#start-button {
+.start-button {
     top: 50%;
     left: calc(50% - 90px);
     position: absolute;
@@ -12,6 +12,6 @@
     z-index: 999;
 }
 
-#start-button:hover {
+.start-button:hover {
     background-color: #0056b3;
 }

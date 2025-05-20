@@ -1,22 +1,28 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
 import { IfInSessionMode, XR, createXRStore } from "@react-three/xr"
 import { Canvas } from "@react-three/fiber"
 import { SceneData } from "./types/objectData";
-import { BenchScene } from "./utility/mockData";
 import IndexPage from "./pages/index";
-import "./style.css";
 
 if (import.meta.env.DEV) {
     import("../dev/scss/style.scss");
     import("@fortawesome/fontawesome-free/css/all.min.css");
 }
 
+interface AppProps {
+    buttonClassName?: string,
+    buttonText?: string,
+    data: SceneData
+}
+
 const store = createXRStore({ controller: false });
 
-const App = ({ data }: { data: SceneData }) => {
-    return (<>
-        <button id="start-button" onClick={() => store.enterAR()}>Enter AR</button>
+const App = ({
+    buttonClassName = "start-button",
+    buttonText = "Enter AR",
+    data
+}: AppProps) => {
+    return (<div className="arc-app">
+        <button className={buttonClassName} onClick={() => store.enterAR()}>{ buttonText }</button>
         <Canvas style={{ width: "100%", height: "100%" }}>
             <XR store={store}>
                 <IfInSessionMode allow="immersive-ar">
@@ -24,13 +30,7 @@ const App = ({ data }: { data: SceneData }) => {
                 </IfInSessionMode>
             </XR>
         </Canvas>
-    </>);
-};
+    </div>)
+}
 
-ReactDOM.createRoot(document.getElementById("arpas-root") as HTMLElement).render(
-    <React.StrictMode>
-        <App data={BenchScene} />
-    </React.StrictMode>
-);
-
-export default App;
+export default App
