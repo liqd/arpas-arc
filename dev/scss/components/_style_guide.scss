@@ -1,0 +1,172 @@
+.font-serif {
+    font-family: $font-family-serif;
+}
+
+.cl-bold {
+    font-weight: bold;
+}
+
+.cl-demin-bold {
+    font-weight: $demi-bold;
+}
+
+.cl-fs-xxxl {
+    font-size: $font-size-xxl;
+}
+
+.cl-fs-xxl {
+    font-size: $font-size-xxl;
+}
+
+.cl-fs-xl {
+    font-size: $font-size-xl;
+}
+
+.cl-fs-lg {
+    font-size: $font-size-lg;
+}
+
+.cl-fs-base {
+    font-size: $font-size-base;
+}
+
+.cl-fs-sm {
+    font-size: $font-size-sm;
+}
+
+.cl-fs-xs {
+    font-size: $font-size-xs;
+}
+
+.colour-list {
+    line-height: 2 * $padding;
+}
+
+.colour-block {
+    padding: 0 $padding;
+    margin-left: $spacer;
+}
+
+.primary.colour-block {
+    background-color: $brand-primary;
+}
+
+.primary-tint.colour-block {
+    background-color: $brand-primary-tint;
+}
+
+.secondary.colour-block {
+    background-color: $brand-secondary;
+}
+
+.sucess.colour-block {
+    background-color: $brand-success;
+}
+
+.info.colour-block {
+    background-color: $brand-info;
+}
+
+.warning.colour-block {
+    background-color: $brand-warning;
+}
+
+.danger.colour-block {
+    background-color: $brand-danger;
+}
+
+.background.colour-block {
+    background-color: $body-bg;
+}
+
+.bg-secondary.colour-block {
+    background-color: $bg-tertiary;
+}
+
+.tertiary.colour-block {
+    background-color: $brand-tertiary;
+}
+
+.bg-tertiary.colour-block {
+    background-color: $bg-tertiary;
+}
+
+.gray.colour-block {
+    background-color: $gray;
+}
+
+.gray-light.colour-block {
+    background-color: $text-color-gray;
+}
+
+.gray-lighter.colour-block {
+    background-color: $text-color-gray;
+}
+
+.gray-lightest.colour-block {
+    background-color: $gray-lightest;
+}
+
+.text-colour.colour-block {
+    background-color: $text-color;
+}
+
+.text-inverted.colour-block {
+    background-color: $text-color-inverted;
+}
+
+.blue-light.colour-block {
+    background-color: $blue-light;
+}
+
+.purple-light.colour-block {
+    background-color: $purple-light;
+}
+
+.green-light.colour-block {
+    background-color: $green-light;
+}
+
+.print-black.colour-block {
+    background-color: $print-black;
+}
+
+.print-link.colour-block {
+    background-color: $print-link;
+}
+
+.link-color.colour-block {
+    background-color: $link-color;
+}
+
+.link-hover-color.colour-block {
+    background-color: $link-hover-color;
+}
+
+.border.colour-block {
+    background-color: $border-color;
+}
+
+.input-border.colour-block {
+    background-color: $input-border-color;
+}
+
+.feedback-accepted {
+    background-color: $feedback-color-accepted;
+}
+
+.feedback-rejected.colour-block {
+    background-color: $feedback-color-rejected;
+}
+
+.feedback-color-consideration.colour-block {
+    background-color: $feedback-color-consideration;
+}
+
+.idea-remark-bg.colour-block {
+    background-color: $idea-remark-bg;
+}
+
+.idea-remark.colour-block {
+    background-color: $idea-remark-color;
+}

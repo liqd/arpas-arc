@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { Position, Rotation } from "../../utility/transform";
+import { Position, Rotation } from "../../types/transform";
 import { gpsToMeters } from "../../utility/geolocation";
 
 class GeolocationObject {

@@ -1,0 +1,133 @@
+// subset of bootstrap variables
+$brand-primary: #2d40cc; // ultramarine
+
+$brand-secondary: #90efe4 !default; // terquoise
+
+$brand-tertiary: #008dc5 !default; // prussian blue
+
+/* Don't use variables but hex-values here as they should not be overwritten on organisation pages */
+$brand-success: #a3ef90 !default;
+$brand-info: $brand-primary !default; // $brand-primary from platform.scss
+$brand-warning: #ffc107 !default;
+$brand-danger: #a72b1e !default;
+
+$primary:       $brand-primary !default;
+$secondary:     $brand-secondary !default;
+$success:       $brand-success !default;
+$info:          $brand-info !default;
+$warning:       $brand-warning !default;
+$danger:        $brand-danger !default;
+
+$body-bg: #fff !default;
+
+$text-color: #1a1a1a !default;
+$text-color-inverted: $body-bg !default;
+$text-color-gray: #666 !default;
+$overlay: rgba(#000, 0.5) !default;
+
+$gray: #434343 !default;
+$gray-lightest: #d8d8d8;
+
+$light:         $gray-lightest !default;
+$dark:          $gray !default;
+
+$text-muted:    $text-color-gray !default;
+
+$blue-light: #d6eff9;
+$purple-light: #ecdbff;
+$green-light: #e0fbe2;
+
+$print-black: #000 !default;
+$print-link: #005cb4 !default;
+
+$brand-primary-tint: lighten($brand-primary, 47%) !default;
+$brand-secondary-tint: lighten($brand-secondary, 20%) !default;
+$brand-tertiary-tint: lighten($brand-tertiary, 55%) !default;
+
+$bg-light: #f7f7f7;
+$bg-tertiary: $brand-tertiary-tint !default;
+
+$demi-bold: 600;
+$headings-font-weight: $demi-bold !default;
+
+$link-color: $text-color !default;
+$link-hover-color: darken($link-color, 15%) !default;
+
+$border-radius: 0 !default;
+$border-color: $gray-lightest !default;
+$input-border-color: $border-color !default;
+
+$feedback-color-accepted: #0a820a !default;
+$feedback-color-rejected: #dc3818 !default;
+$feedback-color-consideration: #ffae00 !default;
+
+$font-family-base: "SourceSansPro", sans-serif !default;
+$font-family-serif: "SourceSerifPro", serif !default;
+
+$font-size-xxxl: 2.5rem !default; //40px
+$font-size-xxl: 2rem !default; // 32px
+$font-size-xl: 1.75rem !default; // 28px
+$font-size-lg: 1.5rem !default; // 24px
+$font-size-md: 1.25rem !default; // 20px
+$font-size-base: 1.125rem !default; //18px
+$font-size-sm: 1rem !default; // 16px
+$font-size-xs: 0.8rem !default; // 12.8px
+
+$mobile-headline-size: 0.8 !default;
+
+$shadow: rgba(#000, 0.25) !default;
+
+$spacer: 1rem !default;
+$r-spacer: 1rem !default;
+$padding: 1rem !default;
+
+$wrapper-width: 79rem !default;
+
+$grid-breakpoints: (
+    xs: 0,
+    sm: 576px,
+    md: 768px,
+    lg: 992px,
+    xl: 1200px,
+    xxl: 1440px,
+    xxxl: 2000px,
+) !default;
+
+// use for min-width media-queries
+$breakpoint-xs: map-get($grid-breakpoints, "sm") !default;
+$breakpoint: map-get($grid-breakpoints, "md") !default;
+$breakpoint-md: map-get($grid-breakpoints, "lg") !default;
+$breakpoint-lg: map-get($grid-breakpoints, "xl") !default;
+$breakpoint-xl: map-get($grid-breakpoints, "xxl") !default;
+$breakpoint-xxl: map-get($grid-breakpoints, "xxxl") !default;
+
+// use for max-width media queries
+$breakpoint-xs-down: $breakpoint-xs - 0.1px !default;
+$breakpoint-down: $breakpoint - 0.1px !default;  // sm
+$breakpoint-md-down: $breakpoint-md - 0.1px !default;
+$breakpoint-lg-down: $breakpoint-lg - 0.1px !default;
+$breakpoint-xl-down: $breakpoint-xl - 0.1px !default;
+// $breakpoint-xxl-down: $breakpoint-xxl - 0.1px !default;
+
+$hero-height: 25.5rem !default;
+$hero-height-secondary: 20rem !default;
+$hero-height-mobile: 12rem !default;
+
+$enable-caret: false;
+
+$idea-remark-bg: #faf5d1 !default;
+$idea-remark-color: #999 !default;
+
+// extra
+$facebook: #3b5999 !default;
+$google: #dd4b39 !default;
+$github: #333 !default;
+$project-holi: #fdfd80 !default;
+
+// set bootstrap modal variables
+$modal-inner-padding: 1.5 * $spacer !default;
+$modal-content-border-radius: 0 !default;
+$modal-header-padding-y: 0 !default;
+$modal-header-border-width: 0 !default;
+$modal-footer-border-width: 0 !default;
+$modal-footer-margin-between: .5rem !default;

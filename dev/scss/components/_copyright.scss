@@ -1,0 +1,12 @@
+.copyright {
+    background-color: $text-color-gray;
+    color: contrast-color($text-color-gray);
+    font-size: $font-size-xs;
+    padding: 0 0.2em;
+}
+
+.header__copyright {
+    position: absolute;
+    top: 0;
+    right: 0;
+}

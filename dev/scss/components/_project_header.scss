@@ -1,0 +1,128 @@
+.project-header {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    padding: 1.3 * $spacer 0;
+    margin: $spacer (-$spacer);
+
+    position: relative;
+
+    min-height: $hero-height-mobile;
+
+    @media (min-width: $breakpoint) {
+        min-height: ($hero-height-mobile + $hero-height-secondary) / 2;
+        margin: $spacer 0;
+    }
+
+    @media (min-width: $breakpoint-md) {
+        min-height: $hero-height;
+    }
+
+    @media print {
+        padding-top: 0;
+    }
+}
+
+.project-header__tabs {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -(2 * $spacer);
+    display: flex;
+    z-index: 1;
+    justify-content: flex-end;
+}
+
+.project-header__title {
+    overflow-wrap: break-word;
+
+    @media print {
+        padding-top: 0;
+    }
+}
+
+.project-header--image {
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    color: contrast-color($print-black);
+
+    .project-header__title,
+    .project-header__description {
+        text-shadow: 1px 1px 5px $print-black;
+    }
+
+    &:before {
+        content: "";
+        position: absolute;
+        inset: 0;
+
+        background-color: rgba($black, 0.5);
+    }
+
+    @media print {
+        min-height: 0;
+        color: $print-black;
+        background-image: none !important;
+
+        &:before {
+            content: none;
+        }
+    }
+
+    .btn--following,
+    .btn--follow {
+        color: $white;
+    }
+
+    .tab {
+        color: $white;
+        text-shadow: 1px 1px 5px $print-black;
+
+        &:focus,
+        &:hover {
+            color: $white;
+        }
+
+        &.active {
+            color: $text-color;
+            text-shadow: none;
+        }
+    }
+}
+
+.project-header__link {
+    text-decoration: none;
+    color: inherit;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: $font-size-sm;
+
+    &:focus,
+    &:hover {
+        color: inherit;
+    }
+}
+
+.project-header__logo {
+    border: 1px solid $border-color;
+}
+
+@media (min-width: $breakpoint) {
+    .project-header__logo-wrapper {
+        display: flex;
+        align-items: flex-start;
+        text-align: left;
+    }
+
+    .project-header__logo {
+        flex: 0 0 auto;
+        margin-right: $padding;
+    }
+
+    .project-header__logo-body {
+        flex: 1 1 auto;
+        align-self: center;
+    }
+}

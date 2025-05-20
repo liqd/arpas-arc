@@ -1,0 +1,11 @@
+.widget--datetimeinput {
+    @include clearfix;
+}
+
+.flatpickr-calendar {
+    // overwrite style from _form.scss
+    select {
+        display: unset;
+    }
+}
+

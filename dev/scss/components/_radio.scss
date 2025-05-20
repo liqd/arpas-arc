@@ -1,0 +1,75 @@
+.radio__input {
+    @include visually-hidden;
+}
+
+// use pixels here because otherwise the icon in the :after
+// could not have a smaller fontsize
+$checkbox-size: 20px;
+
+.radio__text {
+    display: block;
+    padding-left: $checkbox-size + 7px;
+
+    position: relative;
+
+    &:before,
+    &:after {
+        content: "";
+
+        position: absolute;
+        top: 4px;
+        left: 0;
+
+        width: $checkbox-size;
+        height: $checkbox-size;
+        border-radius: calc($checkbox-size / 2);
+    }
+
+    &:before {
+        background-color: $bg-tertiary;
+        border: 1px solid $border-color;
+    }
+
+    &:after {
+        transition: transform 0.3s, opacity 0.3s;
+        transform: scale(1.3);
+        opacity: 0%;
+
+        font-family: "Font Awesome 5 Free", sans-serif;
+        font-weight: 900;
+        background-color: $brand-tertiary;
+        color: contrast-color($print-black);
+        text-align: center;
+        font-size: $font-size-sm;
+    }
+}
+
+.poll-row__radio:checked + .radio__text:after,
+.radio__input:checked + .radio__text:after {
+    content: "\f00c"; // check
+    transform: scale(1);
+    opacity: 100%;
+}
+
+.radio__text--checkbox {
+    &:before,
+    &:after {
+        border-radius: 0;
+        line-height: 1.2;
+    }
+}
+
+.a4-comments__category__input:focus + .a4-comments__category__text,
+.poll-row__radio:focus + .radio__text:before,
+.radio__input:focus + .radio__text:before {
+    @include fake-focus-shadow;
+}
+
+.poll-row__radio:disabled + .radio__text,
+.radio__input:disabled + .radio__text {
+    &:before,
+    &:after {
+        background-color: $border-color;
+        cursor: not-allowed;
+    }
+}

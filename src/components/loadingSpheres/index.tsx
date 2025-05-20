@@ -1,7 +1,7 @@
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { useRef } from "react";
-import { Position, Scale } from "../../utility/transform";
+import { Position, Scale } from "../../types/transform";
 
 const LoadingSpheres = ({ position, scale }:
     {

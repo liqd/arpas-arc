@@ -1,0 +1,104 @@
+$map-colour: #0076ae;
+
+.leaflet-popup-content {
+    display: flex;
+    flex-direction: row-reverse;
+
+    min-height: 8em;
+    margin: 0;
+}
+
+.leaflet-popup-content-wrapper {
+    padding: 0;
+    border-radius: 0;
+}
+
+.leaflet-top {
+    z-index: 999; // reduced from 1000 to not clash with bootstrap
+}
+
+.maps-popups-popup-text-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    margin: 0.5em;
+    width: 14.5em;
+}
+
+.maps-popups-popup-name {
+    font-size: $font-size-lg;
+
+    line-height: normal;
+    page-break-inside: avoid;
+    overflow-wrap: break-word;
+
+    a {
+        color: $link-color;
+    }
+}
+
+.maps-popups-popup-meta {
+    padding: 1em;
+}
+
+.map-popup-upvotes i {
+    color: $brand-success;
+}
+
+.map-popup-downvotes i {
+    color: $brand-danger;
+}
+
+.map-popup-upvotes,
+.map-popup-downvotes,
+.map-popup-comments-count {
+    margin-right: 2em;
+}
+
+.maps-popups-popup-image {
+    width: 8em;
+
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+
+.maps-popups-popup-no-image {
+    display: none;
+}
+
+.map-list {
+    position: relative;
+    z-index: 0;
+    margin: $spacer (-$spacer);
+
+    @media (min-width: $breakpoint) {
+        margin: $spacer 0;
+    }
+}
+
+.map-list__controls {
+    position: absolute;
+    inset: 0;
+    padding: 1.5 * $padding 0;
+}
+
+.marker-cluster {
+    background-clip: padding-box;
+    border-radius: 20px;
+    background-color: rgba($map-colour, 0.6);
+
+    div {
+        width: 30px;
+        height: 30px;
+        margin-left: 5px;
+        margin-top: 5px;
+        text-align: center;
+        border-radius: 15px;
+        font-size: 12px $font-family-base;
+        background-color: $map-colour;
+        color: $text-color-inverted;
+        line-height: 30px;
+    }
+}

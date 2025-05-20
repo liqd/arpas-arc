@@ -1,0 +1,333 @@
+// filled buttons with active lighter colour
+@mixin button-bg($bg, $border, $color, $hover) {
+    background-color: $bg;
+    border-color: $border;
+    color: $color;
+
+    &:hover {
+        background-color: lighten($bg, $hover);
+        border-color: lighten($bg, $hover);
+        color: $color;
+        transition: all 0.3s ease;
+    }
+
+    &:active {
+        background-color: darken($bg, 25%);
+        color: $color;
+    }
+}
+
+// light buttons with active tinted background
+@mixin button($bg, $border, $color, $percentage) {
+    background-color: $body-bg;
+    border-color: $border;
+    color: $color;
+
+    &:hover {
+        background-color: lighten($bg, $percentage);
+        border-color: $border;
+        color: $color;
+        transition: all 0.3s ease;
+    }
+
+    &:active {
+        background-color: lighten($bg, $percentage);
+        color: $color;
+    }
+}
+
+%button-base {
+    line-height: 1.7;
+    font-family: inherit;
+    font-size: inherit;
+    margin-bottom: 0;
+}
+
+.btn,
+.a4-btn {
+    @extend %button-base;
+
+    &:disabled,
+    &[disabled="disabled"] {
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    &:focus-visible {
+        @include fake-focus-shadow;
+    }
+}
+
+// button used for adding things, ideas, files ect.
+.btn.btn--default {
+    @include button-bg($print-black, $print-black, $body-bg, 15%);
+}
+
+.btn.btn--light {
+    @include button($brand-tertiary, $text-color, $text-color, 57%);
+}
+
+.btn.btn--primary {
+    @include button($brand-primary, $brand-primary, $text-color, 47%);
+    min-width: 10 * $spacer;
+}
+
+.btn.btn--secondary {
+    @include button($text-color-gray, $text-color, $text-color, 55%);
+    min-width: 10 * $spacer;
+}
+
+.btn.btn--secondary-filled {
+    @include button-bg($brand-secondary, $brand-secondary, $print-black, 10%);
+}
+
+.btn.btn--bg-tertiary {
+    @include button-bg($brand-tertiary-tint, $brand-tertiary-tint, $print-black, 2%);
+}
+
+.btn.btn--transparent {
+    @extend .btn--light;
+
+    background-color: transparent;
+    border-color: $border-color;
+
+    &:focus,
+    &:hover,
+    &:active {
+        background-color: transparent !important;
+        text-decoration: underline;
+    }
+}
+
+.btn.btn--none {
+    background-color: transparent;
+    border: none;
+
+    &:focus,
+    &:hover,
+    &:active,
+    &:disabled,
+    &.is-disabled {
+        box-shadow: none;
+        background-color: $bg-light;
+    }
+
+    // needed for toggle switch
+    &.btn--none-reset:hover {
+        background-color: transparent;
+    }
+}
+
+.btn.btn--text-color-inverted {
+    @extend .btn--transparent;
+
+    &,
+    &:focus,
+    &:hover,
+    &:active,
+    &:disabled,
+    &.is-disabled {
+        color: $text-color-inverted !important;
+        border-color: $text-color-inverted !important;
+    }
+}
+
+.btn.btn--danger-light {
+    @include button-bg(#dc3545, #dc3545, $body-bg, 10%);
+}
+
+.btn--align-left {
+    text-align: left;
+}
+
+.btn--danger {
+    @extend .btn-danger;
+}
+
+.btn--link {
+    @extend .btn-link;
+
+    // horizontal paddings would make the button look off on mobile
+    padding-left: 0;
+    padding-right: 0;
+
+    &:hover {
+        text-decoration: none;
+    }
+
+    &.collapsible {
+        .link--less {
+            display: none;
+        }
+
+        .link--more {
+            display: block;
+        }
+    }
+
+    .show + &.collapsible {
+        .link--less {
+            display: block;
+        }
+
+        .link--more {
+            display: none;
+        }
+    }
+}
+
+.btn--close {
+    @extend .btn-close;
+
+    margin-bottom: auto;
+}
+
+.modal--close {
+    text-align: right;
+}
+
+.btn--select {
+    @include text-truncate;
+
+    // leave space for caret
+    padding-right: 2.2em;
+    position: relative;
+    text-align: left;
+
+    i {
+        position: absolute;
+        top: 0.7em;
+        right: 0.7em;
+    }
+}
+
+.btn--small {
+    padding: 0.3em 0.6em;
+}
+
+.btn--huge {
+    padding: 0.6em 2em;
+}
+
+.btn--full {
+    display: block;
+    width: 100%;
+    margin-bottom: $spacer;
+}
+
+.btn--round {
+    border-radius: 6.25rem;
+}
+
+.btn--attached-top {
+    position: relative;
+    top: -(0.5 * $spacer);
+}
+
+.btn--group {
+    @extend .btn-group;
+
+    .dropdown {
+        display: inline-block;
+    }
+
+    > *,
+    .dropdown-toggle {
+        border-radius: 0;
+        margin-left: -1px !important;
+
+        &:focus,
+        &:hover {
+            position: relative;
+        }
+    }
+
+    > :first-child {
+        margin-left: 0;
+    }
+}
+
+@media print {
+    .btn {
+        background-color: contrast-color($print-black);
+        color: $print-black;
+        border-color: $border-color;
+    }
+}
+
+.btn--apple,
+.btn--facebook,
+.btn--google,
+.btn--twitter,
+.btn--github,
+.btn--project-holi {
+    width: 100%;
+}
+
+
+.btn.btn--facebook {
+    @include button($facebook, $facebook, $print-black, 50%);
+}
+
+.btn.btn--google {
+    @include button($google, $google, $print-black, 40%);
+}
+
+.btn.btn--github {
+    @include button($github, $github, $print-black, 70%);
+}
+
+.btn.btn--project-holi {
+    @include button($project-holi, $print-black, $print-black, 19%);
+}
+
+.checkbox-btn {
+    display: inline-block;
+    position: relative;
+}
+
+.checkbox-btn__input {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(1px, 1px, 1px, 1px);
+    white-space: nowrap;
+    border: 0;
+}
+
+.checkbox-btn__label--light {
+    .checkbox-btn__text--icon,
+    .checkbox-btn__text--colour {
+        @extend .btn;
+        @extend .btn--light;
+    }
+
+    input[type="checkbox"]:checked + .checkbox-btn__text--icon:before {
+        font-family: "Font Awesome\ 5 Free", sans-serif;
+        font-weight: 900;
+        content: "\f00c"; // tick
+        padding-right: 0.5 * $spacer;
+    }
+
+    input[type="checkbox"]:checked + .checkbox-btn__text--colour {
+        background-color: $brand-primary-tint;
+    }
+
+    input[type="checkbox"]:disabled + .checkbox-btn__text--colour,
+    input[type="checkbox"]:disabled + .checkbox-btn__text--icon {
+        opacity: 17%;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+}
+
+.btn--icon {
+    i {
+        padding-right: 0.5rem;
+    }
+}

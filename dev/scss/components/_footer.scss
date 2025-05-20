@@ -1,0 +1,57 @@
+.footer {
+    border-top: 2px solid $brand-primary;
+}
+
+.footer--cms {
+    background-color: $bg-light;
+}
+
+.footer__link {
+    padding-right: $padding;
+
+    a {
+        font-weight: normal;
+    }
+}
+
+.footer__description {
+    font-family: $font-family-serif;
+}
+
+.footer__no-banner > .row {
+    justify-content: center;
+}
+
+.footer__margin-for-banner {
+    margin-bottom: 3.5 * $spacer;
+
+    @media screen and (min-width: $breakpoint) and (max-width: $breakpoint-md-down) {
+        margin-bottom: 5.5 * $spacer;
+    }
+}
+
+.navbar-brand {
+    font-size: $font-size-md;
+}
+
+.footer-upper__text {
+    font-weight: $demi-bold;
+    color: $text-color-gray;
+}
+
+.footer-upper__navbar-nav {
+    text-align: center;
+
+    @media screen and (min-width: $breakpoint) {
+        flex-flow: row wrap;
+        justify-content: space-evenly;
+    }
+
+    .nav-item {
+        padding-right: $spacer;
+    }
+
+    .navi-link {
+        color: $text-color-gray;
+    }
+}

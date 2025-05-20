@@ -1,0 +1,14 @@
+.bg--light {
+    padding-top: 2 * $spacer;
+    padding-bottom: 2 * $spacer;
+    margin-top: $spacer;
+
+    background-color: $bg-light;
+}
+
+.bg--top-border {
+    padding-top: $spacer;
+    padding-bottom: $spacer;
+    border-top: 2px solid $gray-lightest;
+    margin-top: $spacer;
+}

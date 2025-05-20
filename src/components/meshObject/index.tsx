@@ -3,7 +3,7 @@ import { useGLTF, Text } from "@react-three/drei";
 import * as THREE from "three";
 import { ThreeEvent } from "@react-three/fiber";
 import { fetchGLTFModel, releaseGLTFModel } from "../../utility/fetchGLTFModel";
-import { Position, Rotation, Scale } from "../../utility/transform";
+import { Position, Rotation, Scale } from "../../types/transform";
 import LoadingSpheres from "../loadingSpheres";
 import RoundedPlane from "../roundedPlane";
 

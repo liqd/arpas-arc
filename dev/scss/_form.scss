@@ -1,0 +1,197 @@
+label {
+    display: block;
+    margin-bottom: 0.2em;
+}
+
+%input-base {
+    border: 1px solid $input-border-color;
+    padding: 0.4em 0.6em;
+    line-height: 1.6;
+    font-family: inherit;
+    font-size: inherit;
+    border-radius: 0;
+}
+
+
+textarea,
+select,
+input {
+    @extend %input-base;
+    display: block;
+    max-width: 100%;
+    background-color: $body-bg;
+    color: contrast-color($body-bg);
+    box-shadow: 0 0 1px $brand-primary-tint inset;
+    border-radius: 0;
+    border-width: 1px;
+
+    &:invalid {
+        color: contrast-color($body-bg);
+    }
+
+    &:disabled {
+        color: $input-border-color;
+        box-shadow: none;
+        cursor: not-allowed;
+    }
+
+    &:focus {
+        border-color: $brand-primary;
+    }
+
+    &::placeholder {
+        opacity: 0.5;
+    }
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+    padding: 0;
+    box-shadow: none;
+}
+
+.form-switch {
+    .form-check-input {
+        height: 1.25 * $spacer;
+    }
+}
+
+div.cke_focus {
+    border-color: $brand-secondary;
+}
+
+.field-error,
+.errorlist {
+    margin: 0 0 $spacer;
+    padding: $padding;
+    list-style: none;
+    text-align: center;
+    background-color: $brand-danger;
+    color: $text-color-inverted;
+}
+
+.ck-editor-container {
+    margin-top: $spacer;
+}
+
+.form-check,
+.form-group {
+    .ck-editor-container,
+    %input-base:not([type="radio"], [type="checkbox"]) {
+        width: 100%;
+
+        // FIXME: Generally, we would prefer to use .form-group everywhere and
+        // not have a margin on inputs at all. We do not control all HTML
+        // though (e.g. django standard forms or react components from
+        // adhocracy4 core).
+        margin-bottom: 0;
+    }
+}
+
+.form-fieldset {
+    padding: 0;
+    border: none;
+}
+
+.form-group--narrow {
+    width: 85%;
+
+    .btn--append {
+        line-height: 1.2;
+    }
+}
+
+.form-check__label {
+    input {
+        display: inline;
+        width: auto;
+        margin-left: -1.5em; // em used as there is a em default that is overwritten
+        margin-right: 0.5em;
+    }
+}
+
+.form-hint {
+    font-style: italic;
+    color: $text-color-gray;
+    font-size: $font-size-sm;
+    margin-bottom: 0.4em;
+}
+
+.widget--radioselect,
+.widget--checkboxselectmultiple {
+    ul {
+        list-style: none;
+    }
+
+    label {
+        @extend .form-check__label;
+    }
+}
+
+.form-control {
+    height: auto !important;
+    border-radius: 0 !important;
+    margin-bottom: 0;
+
+    &:focus {
+        box-shadow: none;
+        border-color: $brand-primary;
+    }
+}
+
+.form-check {
+    margin-bottom: $spacer;
+}
+
+.input-group {
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+.form-group {
+    margin-bottom: 1.5 * $spacer;
+}
+
+// kept from before bootstrap for datepicker
+.input-group__input {
+    flex: 1 1 auto;
+    box-shadow: none;
+}
+
+.input-group__after {
+    flex: 0 1 0%;
+    margin-left: -2px !important;
+}
+
+.filter-bar__spaced {
+    margin-bottom: 0.5 * $spacer;
+    display: flex;
+    flex-wrap: wrap;
+
+    div,
+    .dropdown > button {
+        min-width: 100%;
+    }
+}
+
+.form-select {
+    border-radius: 0;
+}
+
+.form__section-title {
+    font-family: $font-family-base;
+    font-size: $font-size-base;
+    font-weight: normal;
+}
+
+@media (min-width: $breakpoint-md) {
+    .filter-bar__spaced {
+        margin-bottom: 0.5 * $spacer;
+        display: flex;
+
+        div,
+        .dropdown > button {
+            min-width: revert;
+        }
+    }
+}

@@ -1,0 +1,186 @@
+.u-overlap-top {
+    margin-top: (-1.5 * $padding);
+}
+
+.u-bg-body {
+    background-color: $body-bg;
+    padding: $padding;
+}
+
+.u-bg-secondary {
+    background-color: $bg-tertiary;
+}
+
+.u-bg-light {
+    background-color: $bg-light;
+}
+
+.u-first-heading {
+    margin-top: 0;
+}
+
+.u-body {
+    color: $body-bg;
+}
+
+.u-spacer-bottom {
+    margin-bottom: $spacer;
+}
+
+.u-spacer-bottom-double {
+    margin-bottom: ($spacer * 2);
+}
+
+.u-spacer-bottom-4 {
+    margin-bottom: ($spacer * 4);
+}
+
+.u-list-reset {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    > li {
+        display: block;
+    }
+}
+
+.u-if-collapsed {
+    display: none;
+
+    [aria-expanded="false"] > & {
+        display: inline;
+    }
+}
+
+.u-if-not-collapsed {
+    display: none;
+
+    [aria-expanded="true"] > & {
+        display: inline;
+    }
+}
+
+.u-inline {
+    display: inline;
+}
+
+.u-inline-flex {
+    display: inline-flex;
+}
+
+.u-align-right {
+    text-align: right;
+}
+
+.u-no-border,
+.u-no-border:first-child,
+.u-no-border:last-child {
+    border: none;
+}
+
+.u-top-divider {
+    padding-top: $padding;
+    border-top: 2px solid $border-color;
+}
+
+.u-bottom-divider {
+    margin-bottom: $spacer * 2;
+    border-bottom: 1px solid $border-color;
+}
+
+.u-overflow-ellipsis {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.u-word-break-all {
+    word-break: break-all;
+}
+
+.u-word-break {
+    word-break: break-word;
+}
+
+.u-overflow-word {
+    overflow-wrap: break-word;
+}
+
+.u-fontweight-normal {
+    font-weight: normal;
+}
+
+.u-page-ribbon {
+    background: linear-gradient(to right, $brand-primary, $brand-primary 33%, $brand-secondary 66%, $brand-secondary);
+    height: 0.5em;
+}
+
+.u-z-index--0 {
+    z-index: 0;
+}
+
+.u-no-underline {
+    text-decoration: none !important;
+}
+
+.u-font-size-lg {
+    font-size: $font-size-lg;
+}
+
+.u-font-size-xs {
+    font-size: $font-size-xs;
+}
+
+.u-heading--sm {
+    font-size: $font-size-sm;
+    letter-spacing: 0.1em;
+}
+
+.u-text-tertiary {
+    color: $brand-tertiary;
+}
+
+.u-text--gray {
+    color: $gray;
+}
+
+.u-no-transition {
+    transition: none;
+}
+
+.u-text-line-through {
+    text-decoration: line-through;
+}
+
+.u-border {
+    border: 1px solid $border-color;
+}
+
+// Utility classes from a4
+
+.a4-muted {
+    color: $text-muted;
+}
+
+.a4-sr-only {
+    @extend .visually-hidden;
+}
+
+// FIXME BS5.1 changed text- and bg- classes are created requires additional SASS map
+.text-info {
+    color: $brand-info;
+}
+
+.text-danger {
+    color: $brand-danger;
+}
+
+.u-capitalise:first-letter {
+    text-transform: capitalize;
+}
+
+.u-spinner__container {
+    text-align: center;
+    margin: auto;
+}
