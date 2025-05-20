@@ -1,7 +1,7 @@
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { useRef } from "react";
-import { Position, Scale } from "../../utility/transform";
+import { Position, Scale } from "../../types/transform";
 
 const LoadingSpheres = ({ position, scale }:
     {
@@ -43,7 +43,7 @@ const LoadingSpheres = ({ position, scale }:
                 ref={(el) => (spheresRef.current[index] = el!)} // Assign each sphere to the array
             >
                 <sphereGeometry args={[0.2, 32, 32]} />
-                <meshStandardMaterial color={getColor(index)} />
+                <meshStandardMaterial color={getColor(index)} roughness={.7} metalness={.5} />
             </mesh>
         ))}
         </group>
@@ -52,7 +52,7 @@ const LoadingSpheres = ({ position, scale }:
 
 // Helper function to pick a color for each sphere
 const getColor = (index: number): string => {
-    const colors = ["red", "green", "blue", "yellow"];
+    const colors = ["#2d40cc", "#80ffb5", "#666666", "#008dc5"];
     return colors[index % colors.length];
 };
 

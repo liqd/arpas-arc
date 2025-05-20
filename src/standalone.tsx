@@ -1,13 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { HashRouter } from "react-router-dom";
-import "./style.css"
+import { BenchScene } from "./utility/mockData";
 import App from "./app";
+import "./style.css"
 
 ReactDOM.createRoot(document.getElementById("arpas-root") as HTMLElement).render(
     <React.StrictMode>
-        <HashRouter>
-            <App />
-        </HashRouter>
+        <App data={BenchScene} />
     </React.StrictMode>
 );

@@ -1,0 +1,18 @@
+.richtext-image {
+    display: block;
+    margin-bottom: 2 * $spacer;
+    margin-left: auto;
+    margin-right: auto;
+
+    &.left {
+        margin-left: 0;
+    }
+
+    &.right {
+        margin-right: 0;
+    }
+
+    @media screen and (max-width: $breakpoint-xs-down) {
+        margin-bottom: 0.5 * $spacer;
+    }
+}

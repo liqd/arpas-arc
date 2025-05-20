@@ -1,0 +1,64 @@
+// bootstrap overwrites
+.dropdown-menu {
+    position: relative;
+    padding: 0;
+    margin: 0;
+    border-radius: 0;
+    border: 1px solid $text-color;
+    min-width: 100%; // ensure filter widths align with buttons
+
+    a,
+    button {
+        display: block;
+        width: 100%;
+        padding: 0.5em;
+        color: inherit;
+        white-space: nowrap;
+        text-decoration: none;
+
+        &:hover,
+        &:focus {
+            text-decoration: none;
+            background-color: $bg-tertiary;
+            color: $text-color;
+        }
+
+        i {
+            display: inline-block;
+            width: 1.5em;
+        }
+    }
+
+    &.show {
+        margin-top: -2px !important; // to ensure no gap for dropdown and up placement
+        margin-bottom: -2px !important;
+    }
+
+    img { // for category icons in dropdown
+        display: inline-block;
+        height: 1.5 * $spacer;
+        width: auto;
+        vertical-align: middle;
+        margin-right: 0.5 * $spacer;
+    }
+
+    @media print {
+        display: none;
+    }
+}
+
+// icon in module categories dropdown
+.dropdown-item__icon {
+    max-width: 2 * $spacer;
+}
+
+.dropdown-toggle > .dropdown-item__icon {
+    display: none;
+}
+
+// comments customization
+.a4-comments__dropdown {
+    .dropdown-item {
+        padding: 0;
+    }
+}

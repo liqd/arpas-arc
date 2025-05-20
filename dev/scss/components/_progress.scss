@@ -1,0 +1,60 @@
+.progress-line {
+    list-style: none;
+    padding: $padding 0 $padding 2 * $padding;
+
+    &__entry {
+        display: flex;
+        color: $text-color-gray;
+        margin-top: 4 * $padding;
+        position: relative;
+
+        &:first-child {
+            padding-top: 0;
+        }
+    }
+
+    &__entry--active {
+        color: $brand-primary;
+    }
+
+    &__entry--published {
+        display: flex;
+        position: relative;
+        font-weight: bold;
+        color: $text-color;
+    }
+
+    &__icon {
+        color: $border-color;
+    }
+
+    &__icon--active {
+        color: $brand-primary;
+        background-color: $body-bg;
+    }
+
+    &__icon--success {
+        color: $brand-primary;
+    }
+
+    i {
+        margin-right: $spacer;
+    }
+}
+
+.progress-line__line--top,
+.progress-line__line--bottom {
+    position: absolute;
+    border-left: 2px solid $border-color;
+    left: 7px;
+}
+
+.progress-line__line--top {
+    top: -(3.5 * $padding);
+    height: 3 * $padding;
+}
+
+.progress-line__line--bottom {
+    top: 1.5 * $padding;
+    bottom: -$padding;
+}

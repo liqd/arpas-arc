@@ -11,7 +11,35 @@
     border: 0.05vh solid white;
     border-radius: 5%;
 }
-
 #exit-button:hover {
-    background-color: #0056b3;
+    background-color: #008dc5;
+}
+
+#save-position-button {
+    position: absolute;
+    top: 5%;
+    right: 17%;
+    width: 15vh;
+    height: 5vh;
+    z-index: 1000;
+    background-color: transparent;
+    font-size: 2vh;
+    color: white;
+    border: 0.05vh solid white;
+    border-radius: 5%;
+}
+#save-position-button:hover {
+    background-color: #008dc5;
+}
+
+#save-position-text {
+    position: absolute;
+    top: 10%;
+    right: 17%;
+    width: 10vh;
+    height: 5vh;
+    z-index: 1000;
+    background-color: transparent;
+    font-size: 2vh;
+    color: white;
 }

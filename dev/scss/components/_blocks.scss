@@ -1,0 +1,264 @@
+$block-padding: 3.5 * $padding;
+$block-padding-md: 7.5 * $padding;
+
+// non block specific styles
+.block-col-6 {
+    @extend .col-sm-4;
+    @extend .col-md-2;
+}
+
+.block-col-4 {
+    @extend .col-md-3;
+}
+
+.block-col-3 {
+    @extend .col-md-4;
+}
+
+.block-col-2 {
+    @extend .col-md-6;
+}
+
+.block-col-1 {
+    @extend .col-12;
+    text-align: center;
+}
+
+.block-col_cta-btn {
+    padding: $padding;
+
+    @media screen and (min-width: $breakpoint-xs) {
+        padding-bottom: $block-padding;
+    }
+}
+
+// multi col cta with content styling
+.block-columns_cta {
+    text-align: center;
+
+    .block-col_cta-btn {
+        width: 100%;
+        margin: auto;
+
+        @media screen and (min-width: $breakpoint) {
+            width: 75%;
+        }
+    }
+}
+
+// image/list cta block
+
+.block-image_cta_block {
+    text-align: left;
+}
+
+.block-img-col-1 {
+    @extend .col-md-7;
+
+    img {
+        display: inline-block;
+        float: left;
+        padding-right: $padding;
+    }
+}
+
+.block-img-col-2 {
+    @extend .col-md-5;
+
+    .block-img-col__image {
+        width: 100%;
+        position: relative;
+
+        @media screen and (min-width: $breakpoint-xxl) {
+            margin-top: 2 * $spacer;
+        }
+    }
+}
+
+// old block styling, still used in activity block
+.block--bordered {
+    padding: 1em;
+    border: 1px solid $border-color;
+
+    @media (max-width: $breakpoint-down) {
+        margin: 0;
+        width: 100%;
+    }
+}
+
+// responsive padding for image, 2 col cta
+.homepage__wrapper {
+    .block-img-col-1,
+    .block-row-2 {
+        padding: 2 * $padding;
+
+        @media screen and (min-width: $breakpoint-xs) {
+            padding: $block-padding;
+        }
+
+        @media screen and (min-width: $breakpoint-md) {
+            padding: $block-padding-md;
+        }
+    }
+}
+
+// general styling
+.block {
+    @include clearfix;
+    page-break-inside: avoid;
+
+    h2 {
+        font-family: $font-family-serif;
+        font-weight: normal;
+        display: inline-block;
+        position: relative;
+        margin: 1.5 * $r-spacer 0;
+
+        b {
+            font-family: $font-family-base;
+        }
+    }
+
+    // border on section headings
+    h2:after {
+        content: "";
+        position: absolute;
+        left: calc(50% - 40px);
+        bottom: -20px;
+        width: 80px;
+        border-bottom: solid 8px $brand-secondary;
+    }
+
+    .block-img-col-1 {
+        h2:after {
+            left: 0;
+        }
+    }
+}
+
+// coloured background block
+.block-background_cta_block .block > :first-child {
+    background-color: $brand-secondary;
+}
+
+.block-background_cta_block .block > :last-child {
+    background-color: $brand-primary;
+    color: $text-color-inverted;
+}
+
+// linked for specificity
+.btn.btn--transparent.block-bg__btn--1 {
+    border-color: $text-color;
+}
+
+// linked for specificity
+.btn.btn--transparent.block-bg__btn--2 {
+    @extend .btn--text-color-inverted;
+}
+
+.block-background_cta_block {
+    background-color: $body-bg;
+    margin-left: -0.25 * $r-spacer;
+    margin-right: -0.25 * $r-spacer;
+    padding-left: $padding;
+    padding-right: $padding;
+    text-align: center;
+
+    .block {
+        h2:after {
+            border-bottom: none;
+        }
+    }
+
+    .block-col-2 {
+        justify-content: space-between;
+        display: flex;
+        flex-direction: column;
+        padding: $padding;
+        padding-bottom: $block-padding;
+
+        @media screen and (min-width: $breakpoint-xs) {
+            padding: $block-padding;
+        }
+
+        @media screen and (min-width: $breakpoint-md) {
+            padding: $block-padding-md;
+        }
+    }
+
+    .block-col_cta-content {
+        @media screen and (min-width: $breakpoint-md) {
+            width: 70%;
+            margin: auto;
+        }
+    }
+}
+
+.block-usecase {
+    padding-bottom: 2 * $padding;
+
+    @media screen and (min-width: $breakpoint) {
+        padding-bottom: $block-padding;
+    }
+
+    @media screen and (min-width: $breakpoint-md) {
+        padding-bottom: $block-padding-md;
+    }
+}
+
+.block-news {
+    @media screen and (min-width: $breakpoint-xs) {
+        padding: $block-padding 0 $block-padding 0;
+    }
+}
+
+.block-paragraph {
+    @extend .py-3;
+}
+
+.block-download {
+    a {
+        font-weight: bold;
+    }
+
+    position: relative;
+    border-bottom: 2px solid $text-color;
+}
+
+.block-download__icon {
+    position: absolute;
+    right: 7px;
+    top: 7px;
+}
+
+.block-download__info {
+    color: $text-color-gray;
+    text-transform: uppercase;
+}
+
+.block-quote {
+    padding: 3 * $padding $padding;
+}
+
+.block-quote--turquoise {
+    background-color: $brand-secondary;
+    color: $text-color;
+}
+
+.block-quote--blue {
+    background-color: $brand-primary;
+    color: $text-color-inverted;
+
+    .btn.block-bg_btn {
+        @extend .btn--text-color-inverted;
+    }
+}
+
+.block-quote__text {
+    font-size: $font-size-xl;
+    font-family: $font-family-serif;
+}
+
+.block-quote__author {
+    font-family: $font-family-serif;
+}

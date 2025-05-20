@@ -1,0 +1,206 @@
+.tile {
+    display: flex;
+    flex-direction: column;
+    page-break-inside: avoid;
+    overflow-wrap: break-word;
+    background-color: $body-bg;
+    border: 1px solid $gray-lightest;
+    position: relative;
+    margin-bottom: $spacer;
+}
+
+.tile__head {
+    position: relative;
+
+    @media print {
+        display: none;
+    }
+}
+
+// more accessible method for card links
+// ref: https://inclusive-components.design/cards/
+.tile__link {
+    // to ensure correct focus ring
+    position: absolute;
+    inset: 0;
+
+    &:before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        box-shadow: 0 2px 26px 0 rgba(0, 0, 0, 0.12);
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+    }
+
+    &:hover:before {
+        opacity: 1;
+    }
+
+    &:focus-visible {
+        text-decoration: underline;
+    }
+}
+
+.tile__image {
+    display: block;
+    min-height: 13rem;
+    height: 100%;
+
+    background-size: cover;
+    background-position: 50%;
+    background-repeat: no-repeat;
+    background-color: $brand-info;
+}
+
+.tile__image--sm {
+    min-height: 5rem;
+    background-size: contain;
+    background-position: center;
+}
+
+.tile__image--fill {
+    background-size: cover;
+}
+
+.tile__image__copyright {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+
+.tile__private-badge {
+    position: relative;
+
+    i {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        color: $gray-lightest;
+    }
+}
+
+.tile__private-badge--top {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-left: 30px solid transparent;
+    border-right: 30px solid transparent;
+
+    border-top: 30px solid rgba($gray, 0.6);
+}
+
+.tile__private-badge--left {
+    width: 0;
+    height: 0;
+    border-top: 30px solid transparent;
+    border-bottom: 30px solid transparent;
+
+    border-left: 30px solid rgba($gray, 0.6);
+}
+
+.tile__body {
+    position: relative; // needed for the past phase styling
+    flex: 1 1 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: (1 * $padding) (1.5 * $padding);
+}
+
+.tile__body--status {
+    padding: (1.5 * $padding) (1.5 * $padding) (0.5 * $padding);
+
+    > :last-child {
+        margin-bottom: 0;
+    }
+
+    > .status-bar__past {
+        margin-bottom: -(0.5 * $padding);
+        margin-left: -(1.5 * $padding);
+        margin-right: -(1.5 * $padding);
+    }
+}
+
+.tile__text {
+    flex: 1 0 auto;
+}
+
+.tile__title {
+    font-size: $font-size-md;
+    overflow-wrap: anywhere;
+    overflow: hidden;
+    max-height: 8ch;
+    margin-top: 0;
+    line-height: 1.3;
+
+    a {
+        text-decoration: none;
+        color: inherit;
+    }
+}
+
+.tile__title,
+.tile__date {
+    margin: 0;
+}
+
+.tile__date {
+    color: $gray;
+}
+
+.tile__list-header {
+    width: 100%;
+    text-align: center;
+    padding-top: $spacer;
+}
+
+.tile__extra-info {
+    display: flex;
+    align-items: center;
+    color: $gray;
+    font-size: $font-size-sm;
+
+    i {
+        padding-right: 0.5 * $padding;
+    }
+}
+
+.tile__module-icon {
+    display: inline-block;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-right: 0.5 * $padding;
+}
+
+@media (min-width: $breakpoint) {
+    .tile {
+        min-height: 15rem;
+    }
+
+    .tile--vertical {
+        margin: $r-spacer;
+    }
+
+    .tile--horizontal {
+        min-height: 10rem;
+        flex-direction: row;
+
+        .tile__head {
+            flex: 0 1 30%;
+        }
+
+        .tile__head--wide {
+            flex: 0 1 20%;
+        }
+    }
+
+    // .tile__image {
+    //     min-height: 20rem;
+    // }
+
+    .tile__image--sm {
+        min-height: 5rem;
+    }
+}

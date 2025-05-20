@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { GeolocationObject } from "../components";
 import { SceneObjectData } from "../types/SceneObjectData";
-import { Position, Scale } from "./transform";
+import { Position, Rotation, Scale } from "./transform";
 
 export function placeObjectAtWorldCoordinates(
     referenceLocation: { coords: GeolocationCoordinates; position: Position },
@@ -11,15 +11,21 @@ export function placeObjectAtWorldCoordinates(
     bucket: string,
     modelKey: string,
     setSceneObjects: React.Dispatch<React.SetStateAction<SceneObjectData[]>>,
+    relativePosition?: Position,
+    relativeRotation?: Rotation,
+    scale?: Scale
 ) {
     try {
-        const { position, rotation } = geolocationObject.placeAtWorldCoords(referenceLocation.coords, referenceLocation.position, true, groundMesh);
+        let { position, rotation } = geolocationObject.placeAtWorldCoords(referenceLocation.coords, referenceLocation.position, true, groundMesh);
         console.log(`Placing/updating object at ${position}.`);
+
+        if(relativePosition) position.add(relativePosition);
+        if(relativeRotation) rotation.add(relativeRotation);
 
         setSceneObjects((prevObjects) => {
             return prevObjects.some((obj) => obj.id === id)
-                ? prevObjects.map((obj) => (obj.id === id ? { ...obj, position, rotation } : obj))
-                : [...prevObjects, { id, position, rotation, scale: new Scale(1, 1, 1), bucket, modelKey }];
+                ? prevObjects.map((obj) => (obj.id === id ? { ...obj, relativePosition: position, relativeRotation: rotation } : obj))
+                : [...prevObjects, { id, relativePosition: position, relativeRotation: rotation, scale: scale ?? new Scale(1, 1, 1), bucket, modelKey }];
         });
     } catch (error) {
         console.error("Error placing object:", error);
@@ -46,7 +52,8 @@ export function placeObjectDataAtWorldCoordinates(
     );
 
     placeObjectAtWorldCoordinates(referenceLocation, groundMesh, geolocationObject,
-        objectData.id, objectData.bucket, objectData.modelKey, setSceneObjects);
+        objectData.id, objectData.bucket, objectData.modelKey, setSceneObjects, 
+        objectData.relativePosition, objectData.relativeRotation, objectData.scale);
 }
 
 export function placeObjectsAtWorldCoordinates(
@@ -69,9 +76,9 @@ export function getClosestObject(referencePosition: Position, sceneObjects: Scen
     let closestDistance = Infinity;
 
     sceneObjects.forEach((obj) => {
-        if (obj.position) {
-            const dx = obj.position.x - referencePosition.x;
-            const dy = obj.position.z - referencePosition.z;
+        if (obj.relativePosition) {
+            const dx = obj.relativePosition.x - referencePosition.x;
+            const dy = obj.relativePosition.z - referencePosition.z;
             const distance = Math.sqrt(dx * dx + dy * dy); // Simple Euclidean distance approximation
 
             if (distance < closestDistance) {

@@ -1,0 +1,56 @@
+.item-detail {
+    margin-bottom: $spacer;
+    overflow-wrap: break-word;
+}
+
+.item-detail--bottom-divider {
+    padding-bottom: $spacer * 1.5;
+    border-bottom: 2px solid $brand-primary;
+}
+
+.item-detail__labels {
+    margin-bottom: 1em;
+}
+
+.item-detail__labels .label {
+    display: inline-block;
+    margin-bottom: 0.4em;
+}
+
+.item-detail__meta {
+    padding-bottom: 0.6em;
+    font-size: $font-size-sm;
+}
+
+.item-detail__actions {
+    padding-top: 0.6em;
+    border-top: 2px solid $border-color;
+}
+
+.item-detail__creator {
+    margin-right: 0.5em;
+    word-break: break-word;
+}
+
+.item-detail__content {
+    margin-bottom: 1em;
+    position: relative;
+    z-index: 0;
+}
+
+.item-detail__basic-content {
+    @include clearfix;
+    margin-bottom: 1em;
+}
+
+.item-detail__image {
+    margin-bottom: 0.5em;
+    width: 100%;
+
+    @media screen and (min-width: $breakpoint-xs) {
+        display: inline-block;
+        float: right;
+        margin-left: 0.5em;
+        width: auto;
+    }
+}

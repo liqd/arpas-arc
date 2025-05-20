@@ -1,0 +1,15 @@
+.side-sheet {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 100vw;
+    height: 100vh;
+    background: white;
+    box-shadow: -4px 0 10px rgba(0, 0, 0, 0.2);
+    z-index: 2000;
+    touch-action: none;
+    overflow: hidden;
+    color: black;
+    border-radius: 0;
+}

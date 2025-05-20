@@ -1,0 +1,64 @@
+.header-upper {
+    min-height: 100px;
+    position: relative;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.02), 0 2px 27px 0 rgba(0, 0, 0, 0.05);
+}
+
+.header-upper__brand {
+    font-size: $font-size-lg;
+    line-height: inherit;
+}
+
+.header-upper__brand-img {
+    display: block;
+    height: 2rem;
+    width: auto;
+}
+
+.header-upper__lang {
+    margin-right: 2 * $spacer;
+    margin-top: 0.5 * $spacer;
+
+    .dropdown-menu.show {
+        top: 100% !important; // overwriting the general dropdown overwrite
+    }
+}
+
+.header-upper__nav {
+    flex-direction: row;
+
+    // bootstrap overwrites
+    .dropdown-menu {
+        position: absolute;
+    }
+}
+
+.header-upper__mobile-toggle {
+    font-weight: bold;
+}
+
+// so it doesn't look misallighned when menu open
+.header-upper__mobile-toggle.show {
+    z-index: 1001;
+    background: transparent;
+}
+
+.header-upper__mobile-toggle:after {
+    z-index: 5;
+    font-family: "Font Awesome 5 Free", sans-serif;
+    font-style: normal;
+    font-weight: 900;
+    content: "\f0c9";
+    background-color: inherit;
+    font-size: $font-size-md;
+}
+
+.header-upper__mobile-toggle.show:after {
+    content: "\f00d";
+}
+
+@media screen and (min-width: $breakpoint) {
+    .header-upper__brand-img {
+        height: 2.5rem;
+    }
+}

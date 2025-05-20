@@ -1,17 +1,13 @@
-#exit-button {
+#arc-header {
     position: absolute;
-    top: 5%;
-    left: 2.5%;
-    width: 5vh;
-    height: 5vh;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: white;
+    padding-top: env(safe-area-inset-top, 0px) !important;
     z-index: 1000;
-    background-color: transparent;
-    font-size: 2vh;
-    color: white;
-    border: 0.05vh solid white;
-    border-radius: 5%;
-}
-
-#exit-button:hover {
-    background-color: #0056b3;
 }

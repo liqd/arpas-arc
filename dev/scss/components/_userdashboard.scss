@@ -1,0 +1,96 @@
+.userdashboard-profile__side {
+    min-height: 100%;
+    display: block; // tabpanel se display to none?!
+}
+
+.userdashboard-profile__user {
+    border: 1px solid $border-color;
+    text-align: center;
+    padding-bottom: 2 * $padding;
+}
+
+.userdashboard-profile__avatar {
+    max-width: 120px;
+    border-radius: 50%;
+    shape-outside: circle();
+    position: relative;
+}
+
+.userdashboard-profile__name {
+    font-family: $font-family-base;
+    font-size: $font-size-md;
+    font-weight: $demi-bold;
+    overflow-wrap: break-word;
+    margin-top: 0;
+}
+
+.userdashboard-profile__main {
+    padding: 0 $padding;
+}
+
+.userdashboard__mobile-nav-toggle {
+    width: 100%;
+}
+
+.userdashboard__collapsible {
+    position: relative;
+    width: 100%;
+    font-size: inherit;
+    font-family: inherit;
+
+    i.fa-chevron-up {
+        position: absolute;
+        right: 0;
+        transition: transform 0.3s;
+    }
+
+    &.collapsed i.fa-chevron-up {
+        transform: rotate(-180deg);
+    }
+}
+
+.userdashboard__mobile-nav-link {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding-left: $spacer;
+    padding-right: $spacer;
+
+    i.fa-caret-down {
+        align-self: center;
+    }
+}
+
+.userdashboard-mod-feedback {
+    border-top: 1px solid $gray-lightest;
+    margin: $spacer (1.5 * -$spacer) 0 (1.5 * -$spacer);
+    padding: (1.5 * $spacer) (1.5 * $spacer) 0;
+}
+
+.userdashboard-mod-feedback__header {
+    font-weight: $demi-bold;
+    display: flex;
+    align-items: center;
+}
+
+.userdashboard-mod-feedback__text {
+    overflow-wrap: anywhere;
+}
+
+.userdashboard-mod-notification__btn {
+    @extend .btn--none;
+    border: 1px solid $gray-lightest;
+
+    @media (min-width: $breakpoint) {
+        border: none;
+    }
+}
+
+.userdashboard-mod-notification__btn,
+.userdashboard-mod-notification__btn + div {
+    min-width: 100%;
+
+    @media (min-width: $breakpoint) {
+        min-width: revert;
+    }
+}

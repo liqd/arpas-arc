@@ -1,0 +1,49 @@
+.accordion {
+    border-top: solid 1px $border-color;
+    overflow: hidden;
+
+    &:last-child {
+        border-bottom: solid 1px $border-color;
+    }
+}
+
+.accordion__title {
+    display: block;
+    position: relative;
+    padding: ($padding / 2) (3 * $padding) ($padding / 2) $padding;
+    color: inherit;
+    border-bottom: solid 1px $border-color;
+
+    &.collapsed {
+        border-bottom: none;
+    }
+
+    i {
+        font-family: "Font Awesome 5 Free", sans-serif;
+        font-weight: 900;
+        font-size: 1.7rem;
+        position: absolute;
+        top: 1.25 * $padding;
+        right: $padding;
+        transition: transform 0.3s;
+    }
+
+    &[aria-expanded="true"] i {
+        transform: rotate(45deg);
+    }
+}
+
+.accordion__body {
+    padding: $padding;
+
+    li {
+        margin-bottom: 0.2em;
+    }
+
+    a[href^="/documents"]:before {
+        content: "\f016"; // file-o
+        font-family: "Font Awesome 5 Free", sans-serif;
+        font-weight: 900;
+        margin-right: 0.3em;
+    }
+}

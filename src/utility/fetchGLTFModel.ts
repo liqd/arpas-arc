@@ -31,7 +31,7 @@ export const fetchGLTFModel = async (bucket: string, key: string): Promise<strin
         // Convert the response to a Blob and create a Blob URL
         const blob = await new Response(response.Body).blob();
         const blobUrl = URL.createObjectURL(blob);
-        console.log("Blob URL for .glb file created:", blobUrl);
+        console.log(`Blob URL for ${key} file created:`, blobUrl);
 
         // Store the Blob URL and instance count in the cache
         modelCache.set(cacheKey, { blobUrl, instances: 1 });
