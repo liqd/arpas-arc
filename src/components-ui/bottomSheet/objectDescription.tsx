@@ -92,7 +92,7 @@ const ObjectDescription = ({
             onClose={onClose}
             headerHeight={headerHeight}
         >
-            <div style={{ fontSize: "0.8rem" }}>
+            <div className="minh-100 d-flex flex-column" style={{ fontSize: "0.8rem" }}>
                 <div className="row align-items-center">
                     <div className="col-10">
                         <h3>{title}</h3>

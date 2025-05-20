@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { motion, useMotionValue, animate } from "framer-motion";
+import { motion, useMotionValue, useDragControls, animate, useTransform } from "framer-motion";
 import "./style.css";
 
 const BottomSheet = ({
@@ -15,22 +15,24 @@ const BottomSheet = ({
 }) => {
     const screenHeight = typeof window !== "undefined" ? window.innerHeight : 800;
 
-    // Define snapping positions
-    const positions = [
-        screenHeight, // Closed
-        100, // Default (Short info)
-        screenHeight - 80, // Minimized
-        screenHeight / 2, // Half screen
-        headerHeight + 25, // Full Screen
+    const relativePositions = [
+        1.0,                            // Closed
+        0.9,                            // Minimized
+        0.5,                            // Half screen
+        (headerHeight) / screenHeight,  // Full screen
     ];
 
-    const y = useMotionValue(positions[0]);
+    const positions = relativePositions.map(p => p * screenHeight);
+
+    const y = useMotionValue(screenHeight);
+    const dragControls = useDragControls();
     const [shouldRender, setShouldRender] = useState(isVisible);
+    const height = useTransform(y, (value) => `${screenHeight - value}px`);
 
     useEffect(() => {
         if (isVisible) {
             setShouldRender(true);
-            animate(y, positions[1], { duration: 0.2, ease: "easeOut" });
+            animate(y, positions[2], { duration: 0.2, ease: "easeOut" });
         } else {
             animate(y, positions[0], {
                 duration: 0.2,
@@ -43,12 +45,14 @@ const BottomSheet = ({
 
     if (!shouldRender) return null;
 
-    // TODO: Only detect dragging on the handle, not on the content to move the sheet
     return (
-        <motion.div className="bottom-sheet"
-            style={{ y }}
+        <motion.div
+            className="bottom-sheet"
+            style={{ y, height }}
             drag="y"
-            dragConstraints={{ bottom: positions[2], top: positions[4] }}
+            dragControls={dragControls}
+            dragListener={false}
+            dragConstraints={{ top: positions[3], bottom: positions[1] }}
             dragElastic={0.2}
             dragMomentum={false}
             onDragEnd={(e, info) => {
@@ -57,18 +61,33 @@ const BottomSheet = ({
 
                 const direction = Math.sign(velocityY); // -1 for up, 1 for down
 
-                // Get possible next positions based on swipe direction
-                const closestPossiblePositions = positions
-                    .filter(pos => direction === -1 ? pos < currentY : pos > currentY) // Filter based on direction
-                    .sort((a, b) => Math.abs(a - currentY) - Math.abs(b - currentY)); // Sort by closest distance
+                // get closest snap point in the swipe direction
+                const closest = positions
+                    .filter(pos => direction === -1 ? pos < currentY : pos > currentY)
+                    .sort((a, b) => Math.abs(a - currentY) - Math.abs(b - currentY));
 
-                // Pick next position or default to the closest one
-                const nextPosition = Math.max(positions[4], Math.min(closestPossiblePositions[0], positions[2]));
+                const nextPosition = closest[0] ?? positions[1];
 
-                animate(y, nextPosition, { duration: 0.2, ease: "easeOut" });
+                if (nextPosition === positions[0]) {
+                    animate(y, positions[0], {
+                        duration: 0.2,
+                        ease: "easeOut",
+                        onComplete: () => {
+                            setShouldRender(false);
+                            onClose?.();
+                        },
+                    });
+                } else {
+                    animate(y, nextPosition, { duration: 0.2, ease: "easeOut" });
+                }
             }}
         >
-            <div className="bottom-sheet-handle" />
+            <div
+                className="bottom-sheet-handle"
+                onPointerDown={(e) => dragControls.start(e)}
+            >
+                <div></div>
+            </div>
             <div className="bottom-sheet-content">{children}</div>
         </motion.div>
     );

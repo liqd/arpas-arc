@@ -1,4 +1,4 @@
-import { useLayoutEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useXRStore, XRDomOverlay } from "@react-three/xr";
 import { HelpMenu, ObjectDescription } from "../../components-ui";
 import { ObjectData, SceneData } from "../../types/objectData";
@@ -9,7 +9,24 @@ const IndexPage = ({ data }: { data: SceneData }) => {
     const [isHelpVisible, setIsHelpVisible] = useState(false);
     const [selectedObject, setSelectedObject] = useState<ObjectData | null>(null);
     const [selectedVariants, setSelectedVariants] = useState<Record<number, number>>({});
+
     const [headerHeight, setHeaderHeight] = useState(0);
+    const [headerEl, setHeaderEl] = useState<HTMLDivElement | null>(null);
+
+    const headerRef = useCallback((node: HTMLDivElement | null) => {
+        setHeaderEl(node);
+    }, []);
+
+    useEffect(() => {
+        if (!headerEl) return;
+
+        const updateHeight = () => setHeaderHeight(headerEl.offsetHeight);
+
+        updateHeight();
+        const observer = new ResizeObserver(() => updateHeight());
+        observer.observe(headerEl);
+        return () => observer.disconnect();
+    }, [headerEl]);
 
     const getCurrentVariant = (object: ObjectData) => {
         const index = selectedVariants[object.id] ?? 0;
@@ -26,22 +43,9 @@ const IndexPage = ({ data }: { data: SceneData }) => {
         }));
     };
 
-    useLayoutEffect(() => {
-        const updateHeaderHeight = () => {
-            const header = document.querySelector("#arc-header") as HTMLElement;
-            if (header) {
-                setHeaderHeight(header.offsetHeight);
-            }
-        };
-
-        updateHeaderHeight();
-        window.addEventListener("resize", updateHeaderHeight);
-        return () => window.removeEventListener("resize", updateHeaderHeight);
-    }, []);
-
     return (<>
         <XRDomOverlay style={{ width: "100%", height: "100%" }}>
-            <div id="arc-header" className="py-1 px-2">
+            <div ref={headerRef} id="arc-header" className="py-1 px-2">
                 <button className="border-0 fw-bold text-uppercase text-dark" onClick={() => store.getState().session?.end()}>
                     <small><i className="fa fa-arrow-left" aria-hidden="true"></i> Leave AR</small>
                 </button>
