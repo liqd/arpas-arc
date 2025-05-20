@@ -1,0 +1,24 @@
+$block-padding: 3.5 * $padding;
+$block-padding-md: 7.5 * $padding;
+
+// nasty hack until forms are refactored
+.contact_form {
+    .form-control {
+        background-color: $bg-light !important;
+        box-shadow: none;
+        border-color: $gray-lightest;
+    }
+}
+
+.contact_form__divider {
+    height: 2px;
+    width: 75%;
+    border-bottom: 2px solid $body-bg;
+    position: absolute;
+    bottom: 0;
+    left: 10%;
+
+    @media screen and (min-width: $breakpoint-xl) {
+        left: 20%;
+    }
+}

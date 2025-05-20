@@ -103,13 +103,9 @@ export function getCompassHeading(geoPosition: GeolocationPosition | null,
 
         const magneticDeclination = 0;
         if (heading !== undefined) {
-            function normalizeClockwise(heading: number): number {
-                return (360 - ((heading + 360) % 360)) % 360;
-            }
-
             // Apply magnetic declination and manual offset corrections
             const adjustedHeading =
-                (normalizeClockwise(heading) + magneticDeclination + 360) % // + offsetRef.current) %
+                (heading + magneticDeclination + 360) % // + offsetRef.current) %
                 360;
 
             let cardinalDirection = getCardinalDirection(adjustedHeading);

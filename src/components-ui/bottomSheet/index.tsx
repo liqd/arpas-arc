@@ -1,29 +1,40 @@
 import { useEffect, useState } from "react";
-import { motion, useMotionValue, animate } from "framer-motion";
+import { motion, useMotionValue, useDragControls, animate, useTransform } from "framer-motion";
 import "./style.css";
 
 const BottomSheet = ({
     isVisible,
+    headerHeight,
     onClose,
     children,
 }: {
     isVisible: boolean;
+    headerHeight: number;
     onClose?: () => void;
     children?: React.ReactNode;
 }) => {
     const screenHeight = typeof window !== "undefined" ? window.innerHeight : 800;
-    const openY = screenHeight * 0.7;
-    const closedY = screenHeight;
 
-    const y = useMotionValue(closedY);
+    const relativePositions = [
+        1.0,                            // Closed
+        0.9,                            // Minimized
+        0.5,                            // Half screen
+        (headerHeight) / screenHeight,  // Full screen
+    ];
+
+    const positions = relativePositions.map(p => p * screenHeight);
+
+    const y = useMotionValue(screenHeight);
+    const dragControls = useDragControls();
     const [shouldRender, setShouldRender] = useState(isVisible);
+    const height = useTransform(y, (value) => `${screenHeight - value}px`);
 
     useEffect(() => {
         if (isVisible) {
             setShouldRender(true);
-            animate(y, openY, { duration: 0.2, ease: "easeOut" });
+            animate(y, positions[2], { duration: 0.2, ease: "easeOut" });
         } else {
-            animate(y, closedY, {
+            animate(y, positions[0], {
                 duration: 0.2,
                 ease: "easeOut",
                 onComplete: () => setShouldRender(false),
@@ -31,20 +42,34 @@ const BottomSheet = ({
         }
     }, [isVisible]);
 
+
     if (!shouldRender) return null;
 
     return (
         <motion.div
             className="bottom-sheet"
-            style={{ y }}
+            style={{ y, height }}
             drag="y"
-            dragConstraints={{ top: 0, bottom: closedY }}
+            dragControls={dragControls}
+            dragListener={false}
+            dragConstraints={{ top: positions[3], bottom: positions[1] }}
             dragElastic={0.2}
             dragMomentum={false}
             onDragEnd={(e, info) => {
                 const currentY = y.get();
-                if (currentY > openY + 100) {
-                    animate(y, closedY, {
+                const velocityY = info.velocity.y;
+
+                const direction = Math.sign(velocityY); // -1 for up, 1 for down
+
+                // get closest snap point in the swipe direction
+                const closest = positions
+                    .filter(pos => direction === -1 ? pos < currentY : pos > currentY)
+                    .sort((a, b) => Math.abs(a - currentY) - Math.abs(b - currentY));
+
+                const nextPosition = closest[0] ?? positions[1];
+
+                if (nextPosition === positions[0]) {
+                    animate(y, positions[0], {
                         duration: 0.2,
                         ease: "easeOut",
                         onComplete: () => {
@@ -52,10 +77,17 @@ const BottomSheet = ({
                             onClose?.();
                         },
                     });
+                } else {
+                    animate(y, nextPosition, { duration: 0.2, ease: "easeOut" });
                 }
             }}
         >
-            <div className="bottom-sheet-handle" />
+            <div
+                className="bottom-sheet-handle"
+                onPointerDown={(e) => dragControls.start(e)}
+            >
+                <div></div>
+            </div>
             <div className="bottom-sheet-content">{children}</div>
         </motion.div>
     );

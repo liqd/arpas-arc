@@ -1,0 +1,195 @@
+*,
+*:before,
+*:after {
+    box-sizing: inherit;
+}
+
+p,
+address,
+blockquote,
+pre,
+table,
+dl,
+ul,
+ol,
+figure,
+fieldset {
+    margin-top: 0;
+    margin-bottom: $spacer;
+}
+
+fieldset {
+    border: none;
+}
+
+html {
+    overflow: hidden scroll;  // stops horizontal scroll
+    background-color: $body-bg;
+    color: contrast-color($body-bg);
+    box-sizing: border-box;
+    font-family: $font-family-base;
+    line-height: 1.5;
+}
+
+body {
+    margin: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    line-height: 1.2;
+    margin-bottom: 0.8 * $r-spacer;
+    margin-top: 1.5 * $r-spacer;
+    font-weight: 600;
+}
+
+h1,
+h2 {
+    font-family: $font-family-serif;
+    font-weight: normal;
+}
+
+h1 {
+    font-size: $font-size-xxxl;
+}
+
+h2 {
+    font-size: $font-size-xxl;
+}
+
+h3 {
+    font-size: $font-size-xl;
+}
+
+h4 {
+    font-size: $font-size-lg;
+}
+
+h5 {
+    font-size: $font-size-md;
+}
+
+h6 {
+    font-size: $font-size-sm;
+}
+
+@media screen and (max-width: $breakpoint-md-down) {
+    h1 {
+        font-size: $mobile-headline-size * $font-size-xxl;
+    }
+
+    h2 {
+        font-size: $mobile-headline-size * $font-size-xl;
+    }
+
+    h3,
+    h4,
+    h5 {
+        font-size: $font-size-md;
+    }
+}
+
+@media screen and (max-width: $breakpoint-xs-down) {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        line-height: 1.1;
+        margin-bottom: 0.5 * $spacer;
+        margin-top: 0.75 * $spacer;
+    }
+
+    h1 {
+        font-size: $font-size-lg;
+    }
+
+    h2 {
+        font-size: $font-size-md;
+    }
+
+    h3,
+    h4,
+    h5 {
+        font-size: $font-size-base;
+    }
+}
+
+a {
+    color: $link-color;
+    text-decoration: underline;
+
+    &:hover,
+    &:focus {
+        text-decoration: none;
+    }
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+
+    .rich-text & {
+        height: auto !important;
+    }
+}
+
+a:not([href]) {
+    color: inherit;
+    text-decoration: inherit;
+
+    &:hover,
+    &:focus {
+        color: inherit;
+    }
+}
+
+textarea,
+select[multiple] {
+    resize: vertical;
+}
+
+ol,
+ul {
+    padding-left: 1.5rem;
+}
+
+dd {
+    margin: 0;
+}
+
+dt {
+    font-weight: bold;
+    margin-bottom: $spacer / 2;
+    margin-top: $spacer;
+}
+
+button {
+    appearance: none;
+    padding: 0;
+    margin: 0;
+    color: inherit;
+    background: inherit;
+    font-size: inherit;
+    font-family: $font-family-base;
+    line-height: inherit;
+    border: 0;
+    text-align: left;
+    cursor: pointer;
+}
+
+abbr {
+    position: relative;
+    z-index: 1;
+    text-decoration: none;
+}
+
+// ensure footer at bottom of page even for short content
+.min-height__wrapper {
+    min-height: 100vh;
+}

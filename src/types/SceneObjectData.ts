@@ -8,8 +8,8 @@ export type SceneObjectData = {
         altitude: number;
     };
     heading?: number;
-    position?: Position;
-    rotation?: Rotation;
+    relativePosition?: Position;
+    relativeRotation?: Rotation;
     scale?: Scale;
     bucket: string;
     modelKey: string;

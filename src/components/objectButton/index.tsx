@@ -2,7 +2,7 @@ import React, { useMemo }  from "react";
 import * as THREE from "three";
 import { Text } from "@react-three/drei";
 import RoundedPlane from "../roundedPlane";
-import { Position, Rotation } from "../../utility/transform";
+import { Position, Rotation } from "../../types/transform";
 
 export interface ObjectButtonProps {
     position: Position;

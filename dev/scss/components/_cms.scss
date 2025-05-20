@@ -1,0 +1,140 @@
+.cms__wrapper {
+    margin-left: $r-spacer;
+    margin-right: $r-spacer;
+    background-color: $bg-light;
+
+    @media screen and (min-width: $breakpoint-xl) {
+        margin-left: 2 * $r-spacer;
+        margin-right: 2 * $r-spacer;
+    }
+}
+
+.cms__title--underlined {
+    position: relative;
+    margin-bottom: 3 * $r-spacer;
+
+    &:after {
+        content: "";
+        position: absolute;
+        left: calc(50% - 40px);
+        bottom: -20px;
+        width: 80px;
+        border-bottom: solid 8px $brand-secondary;
+    }
+}
+
+.cms__text {
+    font-size: $font-size-md;
+    font-family: $font-family-base;
+
+    @media screen and (max-width: $breakpoint-xs-down) {
+        font-size: $font-size-sm;
+    }
+}
+
+.cms__text--serif {
+    font-family: $font-family-serif;
+}
+
+.cms__tile-link {
+    text-decoration-line: none;
+
+    &:hover,
+    &:focus {
+        text-decoration-line: none;
+
+        h3 {
+            text-decoration-line: underline;
+        }
+    }
+}
+
+.cms__tile-link--inverted {
+    background-color: $brand-primary;
+    color: $text-color-inverted;
+
+    &:hover,
+    &:focus {
+        color: $text-color-inverted;
+    }
+}
+
+.cms-page__header-margin {
+    margin-top: $r-spacer;
+    margin-bottom: $r-spacer;
+
+    @media screen and (min-width: $breakpoint-md) {
+        margin-top: 2 * $r-spacer;
+        margin-bottom: 2 * $r-spacer;
+    }
+}
+
+.cms-page__hero-image {
+    width: 100%;
+    object-fit: cover;
+}
+
+.cms-news__tile {
+    padding-bottom: 3 * $r-spacer;
+}
+
+.cms-use-case__tile {
+    margin-bottom: 3 * $r-spacer;
+}
+
+// tablet size
+.cms-use-case__category {
+    font-size: $font-size-sm;
+    font-family: $font-family-base;
+    z-index: 1;
+}
+
+.cms-use-case__category-square {
+    width: 130px;
+    height: 130px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.cms-use-case__category-selected-square {
+    width: 130px;
+    height: 130px;
+    background-color: $brand-primary;
+    position: relative;
+    color: $text-color-inverted;
+}
+
+.cms-use-case__category-selected-arrow {
+    position: absolute;
+    left: 50px;
+    bottom: -15px;
+    width: 30px;
+    height: 30px;
+    background-color: $brand-primary;
+    transform: rotate(45deg);
+}
+
+// desktop size
+@media screen and (min-width: $breakpoint-lg) {
+    .cms-use-case__category {
+        font-size: $font-size-base;
+    }
+
+    .cms-use-case__category-selected-square {
+        width: 140px;
+        height: 130px;
+    }
+
+    .cms-use-case__category-selected-arrow {
+        left: 55px;
+        bottom: -15px;
+        width: 30px;
+        height: 30px;
+    }
+}
+
+.cms-usecase__dropdown {
+    width: 100%;
+}

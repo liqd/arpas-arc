@@ -1,0 +1,39 @@
+.status-item {
+    text-align: left;
+}
+
+.status-item_spacer {
+    height: 3 * $r-spacer;
+}
+
+.status-bar__active {
+    position: relative;
+    height: 5px;
+    background-color: $gray-lightest;
+    margin-bottom: 0.5 * $r-spacer;
+}
+
+.status-bar__active-fill {
+    background-color: $brand-primary;
+    display: block;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.status-bar__past {
+    padding: 0.65 * $padding; // same height as status bar
+    background-color: $bg-tertiary;
+    color: $text-color;
+    text-align: center;
+    position: relative;
+}
+
+.status-bar__status {
+    color: $text-color-gray;
+
+    i {
+        padding-right: 0.5 * $padding;
+        color: $text-color-gray;
+    }
+}
