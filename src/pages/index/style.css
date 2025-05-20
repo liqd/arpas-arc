@@ -1,7 +1,31 @@
-.arc-header {
+.arc-logo-header {
     background-color: white;
     position: absolute;
     top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: env(safe-area-inset-top, 10px) 3%; /* Adjust for notch */
+    height: 20px;
+}
+
+.arc-text {
+    position: absolute;
+    top: 0;
+    color: black;
+    padding: 2.5% 5%;
+    gap: 0.2rem;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 0.75rem;
+}
+
+.arc-header {
+    background-color: white;
+    position: absolute;
+    top: env(safe-area-inset-top, 60px);
     left: 0;
     right: 0;
     color: black;

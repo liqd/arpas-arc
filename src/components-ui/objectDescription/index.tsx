@@ -59,21 +59,24 @@ const Comment = ({ comment }: { comment: CommentData }) => {
 const ObjectDescription = ({
     object,
     variant,
+    headerHeight,
     onSelectVariant,
     onClose,
 }: {
-    object: ObjectData | null,
-    variant: VariantData | null,
+    object: ObjectData | null;
+    variant: VariantData | null;
+    headerHeight: number;
     onSelectVariant: (variantId: number) => void;
     onClose: () => void,
 }) => {
-    if (!object || !variant) return <BottomSheet isVisible={false} />;
+    if (!object || !variant) return <BottomSheet isVisible={false} headerHeight={headerHeight} />;
     const { id: variantId, title, description } = variant;
 
     return (
         <BottomSheet
             isVisible={true}
             onClose={onClose}
+            headerHeight={headerHeight}
         >
             <div style={{ fontSize: "0.8rem" }}>
                 <div className="row align-items-center">
@@ -130,7 +133,7 @@ const ObjectDescription = ({
                     <div className="form-group commenting__content mb-0">
                         <label>
                             Your comment
-                            <input id="id_chapters-local_1-name" name="chapters-local_1-name" type="text"/>
+                            <input id="id_chapters-local_1-name" name="chapters-local_1-name" type="text" />
                         </label>
                         <button className="btn btn--default btn--full mb-0" type="button">Post</button>
                     </div>

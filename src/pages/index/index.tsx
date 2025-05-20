@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useXRStore, XRDomOverlay } from "@react-three/xr";
 import { ObjectDescription } from "../../components-ui";
 import { ObjectData, SceneData } from "../../types/objectData";
@@ -8,6 +8,7 @@ const IndexPage = ({ data }: { data: SceneData }) => {
     const store = useXRStore();
     const [selectedObject, setSelectedObject] = useState<ObjectData | null>(null);
     const [selectedVariants, setSelectedVariants] = useState<Record<number, number>>({});
+    const [headerHeight, setHeaderHeight] = useState(0);
 
     const getCurrentVariant = (object: ObjectData) => {
         const index = selectedVariants[object.id] ?? 0;
@@ -24,8 +25,26 @@ const IndexPage = ({ data }: { data: SceneData }) => {
         }));
     };
 
+    useEffect(() => {
+        const updateHeaderHeight = () => {
+            const header = document.querySelector(".arc-header") as HTMLElement;
+            if (header) {
+                setHeaderHeight(header.offsetTop + header.offsetHeight);
+            }
+        };
+
+        updateHeaderHeight();
+        window.addEventListener("resize", updateHeaderHeight); // Update on resize
+
+        return () => window.removeEventListener("resize", updateHeaderHeight);
+    }, []);
+
     return (<>
         <XRDomOverlay style={{ width: "100%", height: "100%" }}>
+            <div className="arc-logo-header">
+                <span className="arc-text">ARPAS</span>
+            </div>
+
             <div className="arc-header">
                 <button onClick={() => store.getState().session?.end()}>
                     <i className="fa fa-arrow-left" aria-hidden="true"></i> Leave AR
@@ -35,9 +54,11 @@ const IndexPage = ({ data }: { data: SceneData }) => {
                 </button>
             </div>
 
+
             <ObjectDescription
                 object={selectedObject}
                 variant={selectedObject ? getCurrentVariant(selectedObject) : null}
+                headerHeight={headerHeight}
                 onClose={() => setSelectedObject(null)}
                 onSelectVariant={(variantId) => {
                     if (!selectedObject) return;

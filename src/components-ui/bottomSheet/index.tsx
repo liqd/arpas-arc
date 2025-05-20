@@ -4,26 +4,35 @@ import "./style.css";
 
 const BottomSheet = ({
     isVisible,
+    headerHeight,
     onClose,
     children,
 }: {
     isVisible: boolean;
+    headerHeight: number;
     onClose?: () => void;
     children?: React.ReactNode;
 }) => {
     const screenHeight = typeof window !== "undefined" ? window.innerHeight : 800;
-    const openY = screenHeight * 0.7;
-    const closedY = screenHeight;
 
-    const y = useMotionValue(closedY);
+    // Define snapping positions
+    const positions = [
+        screenHeight, // Closed
+        100, // Default (Short info)
+        screenHeight - 80, // Minimized
+        screenHeight / 2, // Half screen
+        headerHeight + 25, // Full Screen
+    ];
+
+    const y = useMotionValue(positions[0]);
     const [shouldRender, setShouldRender] = useState(isVisible);
 
     useEffect(() => {
         if (isVisible) {
             setShouldRender(true);
-            animate(y, openY, { duration: 0.2, ease: "easeOut" });
+            animate(y, positions[1], { duration: 0.2, ease: "easeOut" });
         } else {
-            animate(y, closedY, {
+            animate(y, positions[0], {
                 duration: 0.2,
                 ease: "easeOut",
                 onComplete: () => setShouldRender(false),
@@ -31,28 +40,32 @@ const BottomSheet = ({
         }
     }, [isVisible]);
 
+
     if (!shouldRender) return null;
 
+    // TODO: Only detect dragging on the handle, not on the content to move the sheet
     return (
-        <motion.div
-            className="bottom-sheet"
+        <motion.div className="bottom-sheet"
             style={{ y }}
             drag="y"
-            dragConstraints={{ top: 0, bottom: closedY }}
+            dragConstraints={{ bottom: positions[2], top: positions[4] }}
             dragElastic={0.2}
             dragMomentum={false}
             onDragEnd={(e, info) => {
                 const currentY = y.get();
-                if (currentY > openY + 100) {
-                    animate(y, closedY, {
-                        duration: 0.2,
-                        ease: "easeOut",
-                        onComplete: () => {
-                            setShouldRender(false);
-                            onClose?.();
-                        },
-                    });
-                }
+                const velocityY = info.velocity.y;
+
+                const direction = Math.sign(velocityY); // -1 for up, 1 for down
+
+                // Get possible next positions based on swipe direction
+                const closestPossiblePositions = positions
+                    .filter(pos => direction === -1 ? pos < currentY : pos > currentY) // Filter based on direction
+                    .sort((a, b) => Math.abs(a - currentY) - Math.abs(b - currentY)); // Sort by closest distance
+
+                // Pick next position or default to the closest one
+                const nextPosition = Math.max(positions[4], Math.min(closestPossiblePositions[0], positions[2]));
+
+                animate(y, nextPosition, { duration: 0.2, ease: "easeOut" });
             }}
         >
             <div className="bottom-sheet-handle" />
