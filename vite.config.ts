@@ -5,9 +5,6 @@ import path from "path";
 export default defineConfig({
     base: "/static/",
     plugins: [react()],
-    define: {
-        __DEV__: process.env.NODE_ENV === "development"
-    },
     server: {
         cors: {
             origin: '*',

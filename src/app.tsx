@@ -3,11 +3,6 @@ import { Canvas } from "@react-three/fiber"
 import { SceneData } from "./types/objectData";
 import IndexPage from "./pages/index";
 
-if (import.meta.env.DEV) {
-    import("../dev/scss/style.scss");
-    import("@fortawesome/fontawesome-free/css/all.min.css");
-}
-
 interface AppProps {
     buttonClassName?: string,
     buttonText?: string,
