@@ -6,14 +6,18 @@ import IndexPage from "./pages/index";
 import AnnotationsPage from "./pages/annotations";
 
 interface AppProps {
-    buttonClassName?: string
+    buttonClassName?: string,
+    buttonText?: string
 }
 
 const store = createXRStore({ controller: false });
 
-const App = ({ buttonClassName = "start-button" }: AppProps) => {
+const App = ({
+    buttonClassName = "start-button",
+    buttonText = "Enter AR",
+}: AppProps) => {
     return (<div className="arc-app">
-        <button className={buttonClassName} onClick={() => store.enterAR()}>Enter AR</button>
+        <button className={buttonClassName} onClick={() => store.enterAR()}>{ buttonText }</button>
         <Canvas style={{ width: "100%", height: "100%" }}>
             <XR store={store}>
                 <IfInSessionMode allow="immersive-ar">
