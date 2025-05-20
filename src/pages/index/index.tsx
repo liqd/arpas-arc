@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useXRStore, XRDomOverlay } from "@react-three/xr";
-import { ObjectDescription } from "../../components-ui";
+import { HelpMenu, ObjectDescription } from "../../components-ui";
 import { ObjectData, SceneData } from "../../types/objectData";
 import "./style.css";
 
 const IndexPage = ({ data }: { data: SceneData }) => {
     const store = useXRStore();
+    const [isHelpVisible, setIsHelpVisible] = useState(false);
     const [selectedObject, setSelectedObject] = useState<ObjectData | null>(null);
     const [selectedVariants, setSelectedVariants] = useState<Record<number, number>>({});
 
@@ -26,14 +27,20 @@ const IndexPage = ({ data }: { data: SceneData }) => {
 
     return (<>
         <XRDomOverlay style={{ width: "100%", height: "100%" }}>
-            <div className="arc-header">
-                <button onClick={() => store.getState().session?.end()}>
-                    <i className="fa fa-arrow-left" aria-hidden="true"></i> Leave AR
+            <div className="position-absolute top-0 start-0 w-100 py-1 px-2 d-flex justify-content-between align-items-center bg-white">
+                <button className="border-0 fw-bold text-uppercase text-dark" onClick={() => store.getState().session?.end()}>
+                    <small><i className="fa fa-arrow-left" aria-hidden="true"></i> Leave AR</small>
                 </button>
-                <button>
-                    <i className="fa-solid fa-circle-info"></i> Help
+                <button className="border-0 fw-bold text-uppercase text-dark" onClick={() => setIsHelpVisible(true)}>
+                    <small><i className="fa-solid fa-circle-info"></i> Help</small>
                 </button>
             </div>
+
+            <HelpMenu
+                isVisible={isHelpVisible}
+                onClose={() => setIsHelpVisible(false)}
+                onLeave={() => store.getState().session?.end()}
+            />
 
             <ObjectDescription
                 object={selectedObject}
