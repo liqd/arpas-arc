@@ -1,10 +1,10 @@
 import * as THREE from "three";
 import { GeolocationObject } from "../components";
 import { SceneObjectData } from "../types/SceneObjectData";
-import { Position, Rotation, Scale } from "./transform";
+import { Position, Rotation, Scale } from "../types/transform";
 
 export function placeObjectAtWorldCoordinates(
-    referenceLocation: { coords: GeolocationCoordinates; position: Position },
+    referenceLocation: { coordinates: GeolocationCoordinates; position: Position },
     groundMesh: THREE.Mesh,
     geolocationObject: GeolocationObject,
     id: string,
