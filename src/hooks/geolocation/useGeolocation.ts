@@ -1,25 +1,35 @@
+import { useEffect, useState } from "react";
+
 export default function useGeolocation(
-    updateCurrentPosition: (currentPosition: GeolocationPosition | null) => void
-) {
-    const onSuccess = (position: GeolocationPosition) => {
-        if (position.coords.accuracy > 20) {
-            console.log("Received inaccurate geolocation:", position.coords.accuracy);
-            return;
-        }
+    updateValideGeoposition?: (currentPosition: GeolocationPosition | null) => void
+): [GeolocationPosition | null] {
+    
+    const [valideGeolocation, setValideGeolocation] = useState<GeolocationPosition | null>(null);
 
-        console.log("Received accurate and valid geolocation:", position);
-        updateCurrentPosition(position);
-    };
+    useEffect(() => {
+        const onSuccess = (position: GeolocationPosition) => {
+            if (position.coords.accuracy > 20) {
+                console.log("Received inaccurate geolocation:", position.coords.accuracy);
+                return null;
+            }
 
-    const onError = (error: GeolocationPositionError) => {
-        console.error("Geolocation error:", error);
-    };
+            console.log("Received accurate and valid geolocation:", position);
+            setValideGeolocation(position);
+            if (updateValideGeoposition) updateValideGeoposition(position);
+        };
 
-    const watchId = navigator.geolocation.watchPosition(onSuccess, onError, {
-        enableHighAccuracy: true,
-        maximumAge: 10000,
-        timeout: 5000,
-    });
+        const onError = (error: GeolocationPositionError) => {
+            console.error("Geolocation error:", error);
+        };
 
-    return () => navigator.geolocation.clearWatch(watchId);
+        const watchId = navigator.geolocation.watchPosition(onSuccess, onError, {
+            enableHighAccuracy: true,
+            maximumAge: 10000,
+            timeout: 5000,
+        });
+
+        return () => navigator.geolocation.clearWatch(watchId);
+    }, []);
+
+    return [valideGeolocation];
 }
