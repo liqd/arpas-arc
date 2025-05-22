@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 
 export default function useGeolocation(
+    defaultGeolocation: GeolocationPosition | null = null,
     updateValideGeoposition?: (currentPosition: GeolocationPosition | null) => void
 ): [GeolocationPosition | null] {
     
-    const [valideGeolocation, setValideGeolocation] = useState<GeolocationPosition | null>(null);
+    const [valideGeolocation, setValideGeolocation] = useState<GeolocationPosition | null>(defaultGeolocation);
 
     useEffect(() => {
         const onSuccess = (position: GeolocationPosition) => {

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import * as THREE from "three";
 import { normalizeAngleDifference } from "../../utility/angle";
 
-export default function useCompassStabilization(
+export default function useCompassReference(
     phoneTilt: any, compassHeading: number, camera: THREE.Camera,
     updateReferenceCompassHeading?: (referenceCompassHeading: { heading: number, phoneYaw: number }) => void
 ) : [{ heading: number, phoneYaw: number } | null] {

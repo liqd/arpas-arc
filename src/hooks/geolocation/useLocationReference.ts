@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Position } from "../../types/transform";
 import { gpsToMeters } from "../../utility/geolocation";
 
-export default function useLocationHistory (
+export default function useLocationReference (
     coordinatesHistory: GeolocationCoordinates[],
     updateCurrentCoordinates?: (coordinates: GeolocationCoordinates) => void,
     updateReferenceLocation?: (referenceLocation: { coordinates: GeolocationCoordinates; position: Position }) => void
