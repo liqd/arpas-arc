@@ -11,6 +11,7 @@ import { getClosestObject, placeObjectsAtWorldCoordinates } from "../../utility/
 import { Compass2D, Compass3D } from "../../components-ui/compass";
 import "./style.css";
 import { gpsToMeters } from "../../utility/geolocation";
+import useWorldPosition from "../../hooks/geolocation/useWorldPosition";
 
 const defaultCoords: GeolocationPosition = {
     coords: {
@@ -56,6 +57,7 @@ const IndexPage = ({ data }: { data: SceneData }) => {
     const [valideGeolocation] = useGeolocation(defaultCoords);
     const [locationHistory] = useGeolocationHistory(valideGeolocation);
     const [currentCoordinates, referenceLocation] = useLocationReference(locationHistory);
+    const [worldPosition] = useWorldPosition(referenceLocation);
 
     // Compass values
     const [compassHeading, compassCardinal, phoneTilt] = useCompassHeading();
@@ -159,7 +161,7 @@ const IndexPage = ({ data }: { data: SceneData }) => {
         ></RoundedPlane>
 
         <group
-            position={referenceLocation?.position.toArray()}
+            position={worldPosition.toArray()}
             rotation={[0, worldRotation, 0]}
         >
             <primitive object={new THREE.AxesHelper(0.25)} /> {/* Add visual scene center */}

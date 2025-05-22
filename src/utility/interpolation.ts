@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { Position } from "../types/transform";
 
 export function lerpValue(start: number, end: number, duration: number, onUpdate: (value: number) => void) {
     const startTime = performance.now();
@@ -37,3 +38,10 @@ export function lerpVector(start: THREE.Vector3, end: THREE.Vector3, duration: n
 
     requestAnimationFrame(update);
 }
+export function lerpPosition(start: Position, end: Position, duration: number, onUpdate: (value: Position) => void
+) {
+    lerpVector(start, end, duration, (vector) => {
+        onUpdate(new Position(...vector));
+    });
+}
+
