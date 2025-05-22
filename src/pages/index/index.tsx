@@ -147,7 +147,7 @@ const IndexPage = ({ data }: { data: SceneData }) => {
 
         <ambientLight intensity={5} />
         <directionalLight intensity={10} />
-        <Compass3D heading={worldRotation} cardinal={compassCardinal} camera={camera} />
+        <Compass3D headingInRad={worldRotation} cardinal={compassCardinal} camera={camera} />
 
         <primitive object={new THREE.AxesHelper(0.15)} /> {/* Add visual start position */}
         <RoundedPlane

@@ -4,11 +4,13 @@ export default function useGeolocation(
     defaultGeolocation: GeolocationPosition | null = null,
     updateValideGeoposition?: (currentPosition: GeolocationPosition | null) => void
 ): [GeolocationPosition | null] {
-    
+
     const [valideGeolocation, setValideGeolocation] = useState<GeolocationPosition | null>(defaultGeolocation);
 
     useEffect(() => {
         const onSuccess = (position: GeolocationPosition) => {
+            if (!position.coords.latitude && !position.coords.longitude) return;
+
             if (position.coords.accuracy > 20) {
                 console.log("Received inaccurate geolocation:", position.coords.accuracy);
                 return null;
