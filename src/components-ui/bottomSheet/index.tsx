@@ -17,7 +17,7 @@ const BottomSheet = ({
 
     const relativePositions = [
         1.0,                            // Closed
-        0.9,                            // Minimized
+        0.91,                            // Minimized
         0.5,                            // Half screen
         (headerHeight) / screenHeight,  // Full screen
     ];
@@ -66,20 +66,10 @@ const BottomSheet = ({
                     .filter(pos => direction === -1 ? pos < currentY : pos > currentY)
                     .sort((a, b) => Math.abs(a - currentY) - Math.abs(b - currentY));
 
-                const nextPosition = closest[0] ?? positions[1];
+                const nextPosition = Math.max(positions[3], Math.min(positions[1], closest[0] ?? positions[3]));
 
-                if (nextPosition === positions[0]) {
-                    animate(y, positions[0], {
-                        duration: 0.2,
-                        ease: "easeOut",
-                        onComplete: () => {
-                            setShouldRender(false);
-                            onClose?.();
-                        },
-                    });
-                } else {
-                    animate(y, nextPosition, { duration: 0.2, ease: "easeOut" });
-                }
+
+                animate(y, nextPosition, { duration: 0.2, ease: "easeOut" });
             }}
         >
             <div
