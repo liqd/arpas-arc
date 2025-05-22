@@ -52,10 +52,10 @@ class SceneObject {
     }
 
     getScenePosition(): Position {
-        return (this._geoScenePosition ?? new Position()).add(new Position(this.getCurrentVariant().offset_position));
+        return (this._geoScenePosition?.clone() ?? new Position()).add(new Position(this.getCurrentVariant().offset_position));
     }
     getSceneRotation(): Rotation {
-        return (this._geoSceneRotation ?? new Rotation()).add(new Rotation(this.getCurrentVariant().offset_rotation));
+        return (this._geoSceneRotation?.clone() ?? new Rotation()).add(new Rotation(this.getCurrentVariant().offset_rotation));
     }
     getScale(): Scale {
         return new Scale(this.getCurrentVariant().offset_scale);
