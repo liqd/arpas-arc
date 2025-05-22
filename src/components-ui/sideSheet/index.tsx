@@ -43,10 +43,10 @@ const SideSheet = ({
         >
             <div id="arc-header" className="py-1 px-2">
                 <button className="border-0 fw-bold text-uppercase text-dark" onClick={onLeave}>
-                    <small><i className="fa fa-arrow-left" aria-hidden="true"></i> Leave AR</small>
+                    <small><i className="fas fa-arrow-left" aria-hidden="true"></i> Leave AR</small>
                 </button>
                 <button className="border-0 fw-bold text-uppercase text-dark" onClick={onClose}>
-                    <small><i className="fa-solid fa-xmark"></i></small>
+                    <small><i className="fas fa-times"></i></small>
                 </button>
             </div>
 

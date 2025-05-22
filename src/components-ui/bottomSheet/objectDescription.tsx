@@ -12,7 +12,7 @@ const Comment = ({ comment }: { comment: CommentData }) => {
             <div className="a4-comments__box pt-3">
                 <div className="a4-comments__box--user row">
                     <div className="col-2 col-lg-1 a4-comments__user-img">
-                        <i className="fa-solid fa-circle-user fa-2xl"></i>
+                        <i className="fas fa-user-circle fa-3x"></i>
                     </div>
                     <div className="col-7 col-md-8">
                         <div className="a4-comments__author">{comment.username}</div>
@@ -36,12 +36,12 @@ const Comment = ({ comment }: { comment: CommentData }) => {
                 <div className="row">
                     <div className="col-12 a4-comments__action-bar-container">
                         <div className="rating">
-                            <button className="rating-button rating-up"><i className="fa-regular fa-thumbs-up"></i>{comment.likes}</button>
-                            <button className="rating-button rating-down"><i className="fa-regular fa-thumbs-down"></i>{comment.dislikes}</button>
+                            <button className="rating-button rating-up"><i className="far fa-thumbs-up"></i>{comment.likes}</button>
+                            <button className="rating-button rating-down"><i className="far fa-thumbs-down"></i>{comment.dislikes}</button>
                         </div>
                         <div className="a4-comments__action-bar">
                             <button className="btn btn--no-border a4-comments__action-bar__btn" type="button" onClick={() => setIsShowingReplies((prev) => !prev)}>
-                                <i className="fa-regular fa-comment"></i>Reply
+                                <i className="far fa-comment"></i>Reply
                             </button>
                         </div>
                     </div>
@@ -84,7 +84,7 @@ const ObjectDescription = ({
     onClose: () => void,
 }) => {
     if (!object || !variant) return <BottomSheet isVisible={false} headerHeight={headerHeight} />;
-    const { id: variantId, title, description } = variant;
+    const { id: variantId, name, description } = variant;
 
     return (
         <BottomSheet
@@ -95,11 +95,11 @@ const ObjectDescription = ({
             <div className="minh-100 d-flex flex-column" style={{ fontSize: "0.8rem" }}>
                 <div className="row align-items-center">
                     <div className="col-10">
-                        <h3>{title}</h3>
+                        <h3>{name}</h3>
                     </div>
                     <div className="col-2 d-flex justify-content-end align-items-center">
                         <i
-                            className="fa-solid fa-xmark"
+                            className="fas fa-times"
                             onClick={onClose}
                             style={{ cursor: "pointer", fontSize: "0.8rem" }}
                         ></i>
@@ -112,16 +112,15 @@ const ObjectDescription = ({
                 <div className="mb-3">
                     <h6 className="mb-2">Variants</h6>
                     <div className="d-flex flex-wrap gap-2">
-                        {object.variants.map(({ id: variantLinkId, title }) => {
+                        {object.variants.map(({ id: variantLinkId }) => {
                             const isActive = variantLinkId === variantId;
                             return (
                                 <button
                                     key={variantLinkId}
                                     className={`variant-icon ${isActive ? "active" : ""}`}
                                     onClick={() => onSelectVariant(variantLinkId)}
-                                    title={title}
                                 >
-                                    <i className="fa-solid fa-circle fa-2xl"></i>
+                                    <i className="fas fa-circle fa-3x"></i>
                                 </button>
                             );
                         })}
@@ -131,12 +130,12 @@ const ObjectDescription = ({
                 <div className="row top-border">
                     <div className="col-12 a4-comments__action-bar-container">
                         <div className="rating">
-                            <button className="rating-button rating-up"><i className="fa-regular fa-thumbs-up"></i>0</button>
-                            <button className="rating-button rating-down"><i className="fa-regular fa-thumbs-down"></i>0</button>
+                            <button className="rating-button rating-up"><i className="far fa-thumbs-up"></i>0</button>
+                            <button className="rating-button rating-down"><i className="far fa-thumbs-down"></i>0</button>
                         </div>
                         <div className="a4-comments__action-bar">
                             <button className="btn btn--no-border a4-comments__action-bar__btn" type="button">
-                                <a href="#child-comment-form"><i className="fa-regular fa-comment"></i>Reply</a>
+                                <a href="#child-comment-form"><i className="far fa-comment"></i>Reply</a>
                             </button>
                         </div>
                     </div>

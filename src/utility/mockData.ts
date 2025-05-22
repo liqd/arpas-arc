@@ -54,7 +54,7 @@ export const BenchScene: SceneData = {
                     mesh_id: "wooden_bench_standard",
                     offset_position: [-1,0,0],
                     offset_rotation: [0,0,0],
-                    offset_scale: [0,0,0],
+                    offset_scale: [1,1,1],
                     weight: 0,
                 },
                 {
@@ -64,7 +64,7 @@ export const BenchScene: SceneData = {
                     mesh_id: "wooden_bench_varnished",
                     offset_position: [-1,0,0],
                     offset_rotation: [0,0,0],
-                    offset_scale: [0,0,0],
+                    offset_scale: [1,1,1],
                     weight: 1
                 }
             ]
@@ -105,7 +105,7 @@ export const BenchScene: SceneData = {
                     mesh_id: "metal_bench_green",
                     offset_position: [1,0,0],
                     offset_rotation: [0,0,0],
-                    offset_scale: [0,0,0],
+                    offset_scale: [1,1,1],
                     weight: 0
                 }
             ]
