@@ -14,8 +14,8 @@ import { gpsToMeters } from "../../utility/geolocation";
 
 const defaultCoords: GeolocationPosition = {
     coords: {
-        longitude: 0,
-        latitude: 0,
+        longitude: import.meta.env.VITE_DEFAULT_LONG,
+        latitude: import.meta.env.VITE_DEFAULT_LAT,
         altitude: 0,
         heading: 0,
         accuracy: 0,

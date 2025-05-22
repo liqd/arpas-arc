@@ -11,7 +11,7 @@ export const BenchScene: SceneData = {
         {
             id: 1,
             name: "Wooden Bench",
-            coordinates: [-0.1276, 51.5074, 0],
+            coordinates: [52.4549510444344, 13.525327491067365, 0],
             qr_id: "wooden_bench_1",
             comments: [
                 {
@@ -72,7 +72,7 @@ export const BenchScene: SceneData = {
         {
             id: 2,
             name: "Metal Bench",
-            coordinates: [-0.1280, 51.5076, 0],
+            coordinates: [52.454902800595924, 13.525516366726961, 0],
             qr_id: "metal_bench_1",
             comments: [
                 {
