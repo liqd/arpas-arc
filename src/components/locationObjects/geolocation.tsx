@@ -38,7 +38,7 @@ class GeolocationObject {
             const groundHeight = this.getGroundHeight(position.addY(1), groundMesh);
             position.y = groundHeight + 0.03; // Adjust height above ground
         }
-        
+
         const rotation = new Rotation(0, this.heading, 0);
         return { position, rotation };
     }

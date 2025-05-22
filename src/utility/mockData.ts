@@ -11,7 +11,7 @@ export const BenchScene: SceneData = {
         {
             id: 1,
             name: "Wooden Bench",
-            coordinates: [-0.1276, 51.5074, 0],
+            coordinates: [52.4549510444344, 13.525327491067365, 0],
             qr_id: "wooden_bench_1",
             comments: [
                 {
@@ -51,7 +51,7 @@ export const BenchScene: SceneData = {
                     id: 1,
                     name: "Standard Finish",
                     description: "A plain wooden bench with a natural wood texture. The surface is untreated, showcasing the raw grain and organic color variations of the timber. Ideal for rustic or traditional outdoor settings.",
-                    mesh_id: "wooden_bench_standard",
+                    mesh_id: "test/bench/bench.glb",
                     offset_position: [-1,0,0],
                     offset_rotation: [0,0,0],
                     offset_scale: [1,1,1],
@@ -61,7 +61,7 @@ export const BenchScene: SceneData = {
                     id: 2,
                     name: "Varnished",
                     description: "A shiny varnished version of the wooden bench that enhances the natural wood grain while providing a protective glossy coating. Resistant to weathering and ideal for maintaining a polished look in exposed environments.",
-                    mesh_id: "wooden_bench_varnished",
+                    mesh_id: "test/bench/bench.glb",
                     offset_position: [-1,0,0],
                     offset_rotation: [0,0,0],
                     offset_scale: [1,1,1],
@@ -72,7 +72,7 @@ export const BenchScene: SceneData = {
         {
             id: 2,
             name: "Metal Bench",
-            coordinates: [-0.1280, 51.5076, 0],
+            coordinates: [52.454902800595924, 13.525516366726961, 0],
             qr_id: "metal_bench_1",
             comments: [
                 {
@@ -102,7 +102,7 @@ export const BenchScene: SceneData = {
                     id: 3,
                     name: "Green Painted",
                     description: "A durable metal bench coated with a dark green paint finish. Designed to blend well with park and garden surroundings while providing excellent resistance to rust and environmental wear.",
-                    mesh_id: "metal_bench_green",
+                    mesh_id: "test/bench/bench.glb",
                     offset_position: [1,0,0],
                     offset_rotation: [0,0,0],
                     offset_scale: [1,1,1],

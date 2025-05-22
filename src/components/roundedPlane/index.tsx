@@ -67,7 +67,6 @@ const RoundedPlane: React.FC<RoundedPlaneProps> = ({
     useFrame(() => {
         if (planeRef.current) {
             if (alwaysFaceCamera) {
-                // Make it face the camera
                 if (onlyFaceCameraAroundY) {
                     const cameraPosition = camera.position.clone();
                     cameraPosition.y = planeRef.current.position.y;
@@ -78,13 +77,14 @@ const RoundedPlane: React.FC<RoundedPlaneProps> = ({
             } else {
                 // Apply manual rotation
                 planeRef.current.rotation.set(
-                    THREE.MathUtils.degToRad(rotation.x),
+                    THREE.MathUtils.degToRad(rotation.x + 90),
                     THREE.MathUtils.degToRad(rotation.y),
                     THREE.MathUtils.degToRad(rotation.z)
                 );
             }
         }
     });
+
 
     return (
         <mesh

@@ -129,6 +129,7 @@ class Rotation extends BaseEuler {
         return this;
     }
 
+
     toString(): string {
         return `Rotation (x: ${this.x}, y: ${this.y}, z: ${this.z})`;
     }

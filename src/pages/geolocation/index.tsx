@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useXRStore, XRDomOverlay } from "@react-three/xr";
 import * as THREE from "three";
 import { useThree } from "@react-three/fiber";
-import { gpsToMeters, getCompassHeading } from "../../utility/geolocation";
+import { gpsToMeters } from "../../utility/geolocation";
 import { MeshObject } from "../../components";
 import { Compass2D, Compass3D } from "../../components-ui/compass";
 import "./style.css";
@@ -10,7 +10,7 @@ import { Position, Rotation, Scale } from "../../types/transform";
 import geolocationConfig from "./geolocationConfig.json";
 import { getClosestObject, placeObjectAtWorldCoordinates, placeObjectsAtWorldCoordinates } from "../../utility/objects";
 import { normalizeAngleDifference } from "../../utility/angle";
-import { SceneObjectData } from "../../types/SceneObjectData";
+import { SceneObjectData } from "../../types/objectData";
 
 const defaultCoords: GeolocationCoordinates = {
     latitude: geolocationConfig.default_latitude ?? 0,

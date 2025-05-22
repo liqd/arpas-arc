@@ -10,7 +10,7 @@ export type ObjectData = {
     name: string,
     qr_id: string,
     variants: Array<VariantData>,
-    coordinates: [number, number, number],
+    coordinates: [number, number, number], // [latitude, longitude, altitude]
     comments: Array<CommentData> // not given by django as of now
 }
 

@@ -5,6 +5,8 @@ interface ImportMetaEnv {
     readonly VITE_MINIO_ACCESS_KEY: string;
     readonly VITE_MINIO_SECRET_KEY: string;
     readonly VITE_PUBLIC_NOAA_API_KEY: string;
+    readonly VITE_DEFAULT_LAT: number;
+    readonly VITE_DEFAULT_LONG: number;
 
     readonly DEV: boolean;
     readonly PROD: boolean;
