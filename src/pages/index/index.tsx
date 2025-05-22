@@ -1,51 +1,105 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { useXRStore, XRDomOverlay } from "@react-three/xr";
+import * as THREE from "three";
 import { HelpMenu, ObjectDescription } from "../../components-ui";
-import { ObjectData, SceneData } from "../../types/objectData";
+import { SceneData } from "../../types/objectData";
+import { lerpValue } from "../../utility/interpolation";
+import { MeshObject, RoundedPlane, SceneObject } from "../../components";
+import { useLocationReference, useGeolocation, useCompassHeading, useCompassReference, useGeolocationHistory, useWorldRotation } from "../../hooks";
+import { useThree } from "@react-three/fiber";
+import { Position, Rotation, Scale } from "../../types/transform";
+import { getClosestObject, placeObjectsAtWorldCoordinates } from "../../utility/objects";
+import { Compass2D, Compass3D } from "../../components-ui/compass";
 import "./style.css";
+import { gpsToMeters } from "../../utility/geolocation";
+
+const defaultCoords: GeolocationPosition = {
+    coords: {
+        longitude: 0,
+        latitude: 0,
+        altitude: 0,
+        heading: 0,
+        accuracy: 0,
+        altitudeAccuracy: null,
+        speed: 0,
+        toJSON: function () {
+            return {
+                longitude: this.longitude,
+                latitude: this.latitude,
+                altitude: this.altitude,
+                heading: this.heading,
+                accuracy: this.accuracy,
+                altitudeAccuracy: this.altitudeAccuracy,
+                speed: this.speed
+            };
+        }
+    },
+    timestamp: Date.now(),
+    toJSON: function () {
+        return {
+            coords: this.coords,
+            timestamp: this.timestamp
+        };
+    }
+};
 
 const IndexPage = ({ data }: { data: SceneData }) => {
+    // XR objects and values
     const store = useXRStore();
+    const { camera } = useThree();
+    const groundMesh = store.getState().groundMesh;
+
+    // UI values
     const [isHelpVisible, setIsHelpVisible] = useState(false);
-    const [selectedObject, setSelectedObject] = useState<ObjectData | null>(null);
-    const [selectedVariants, setSelectedVariants] = useState<Record<number, number>>({});
-
     const [headerHeight, setHeaderHeight] = useState(0);
-    const [headerEl, setHeaderEl] = useState<HTMLDivElement | null>(null);
 
-    const headerRef = useCallback((node: HTMLDivElement | null) => {
-        setHeaderEl(node);
-    }, []);
+    // Location values
+    const [valideGeolocation] = useGeolocation(defaultCoords);
+    const [locationHistory] = useGeolocationHistory(valideGeolocation);
+    const [currentCoordinates, referenceLocation] = useLocationReference(locationHistory);
 
+    // Compass values
+    const [compassHeading, compassCardinal, phoneTilt] = useCompassHeading();
+    const [referenceCompassHeading] = useCompassReference(phoneTilt, compassHeading ?? 0, camera);
+    const [worldRotation] = useWorldRotation(referenceCompassHeading, camera);
+
+    // Scene values
+    const [sceneObjects, setSceneObjects] = useState<SceneObject[]>([]);
+    const [selectedObject, setSelectedObject] = useState<SceneObject | null>(null);
+
+    // Smooth world position
+    // TODO
+
+    // Place objects
     useEffect(() => {
-        if (!headerEl) return;
+        if (!data) {
+            console.warn("No scene data provided to place objects.");
+            return;
+        }
 
-        const updateHeight = () => setHeaderHeight(headerEl.offsetHeight);
+        if (referenceLocation)
+            placeObjectsAtWorldCoordinates(referenceLocation, groundMesh, data.objects, setSceneObjects);
+    }, [referenceLocation, referenceCompassHeading]);
 
-        updateHeight();
-        const observer = new ResizeObserver(() => updateHeight());
-        observer.observe(headerEl);
-        return () => observer.disconnect();
-    }, [headerEl]);
+    useLayoutEffect(() => {
+        const updateHeaderHeight = () => {
+            const header = document.querySelector("#arc-header") as HTMLElement;
+            if (header) {
+                setHeaderHeight(header.offsetTop + header.offsetHeight);
+            }
+        };
 
-    const getCurrentVariant = (object: ObjectData) => {
-        const index = selectedVariants[object.id] ?? 0;
-        return object.variants[index];
-    };
-
-    const changeVariant = (objectId: number, variantIndex: number) => {
-        const object = data.objects.find((obj) => obj.id === objectId);
-        if (!object || variantIndex < 0 || variantIndex >= object.variants.length) return;
-
-        setSelectedVariants((prev) => ({
-            ...prev,
-            [objectId]: variantIndex,
-        }));
-    };
+        updateHeaderHeight();
+        window.addEventListener("resize", updateHeaderHeight);
+        return () => window.removeEventListener("resize", updateHeaderHeight);
+    }, []);
 
     return (<>
         <XRDomOverlay style={{ width: "100%", height: "100%" }}>
-            <div ref={headerRef} id="arc-header" className="py-1 px-2">
+            <div id="arc-logo-header" className="py-1 px-2">
+                <span className="border-0 fw-bold text-uppercase text-dark">ARPAS</span>
+            </div>
+            <div id="arc-header" className="py-1 px-2">
                 <button className="border-0 fw-bold text-uppercase text-dark" onClick={() => store.getState().session?.end()}>
                     <small><i className="fa fa-arrow-left" aria-hidden="true"></i> Leave AR</small>
                 </button>
@@ -53,6 +107,26 @@ const IndexPage = ({ data }: { data: SceneData }) => {
                     <small><i className="fa-solid fa-circle-info"></i> Help</small>
                 </button>
             </div>
+            <div style={{ top: `${headerHeight}px` }}>
+                <Compass2D heading={compassHeading} cardinal={compassCardinal} />
+            </div>
+
+            {referenceLocation &&
+                <p style={{ position: "absolute", bottom: "10px", width: "100%", textAlign: "center", color: "white" }}>
+                    Closest Distance: {getClosestObject(referenceLocation.position, sceneObjects)?.distance.toFixed(2)} meters
+                </p>}
+            {referenceLocation && currentCoordinates &&
+                <p style={{ position: "absolute", bottom: "220px", width: "100%", textAlign: "left", color: "white" }}>
+                    - Pos: {gpsToMeters(referenceLocation.coordinates, currentCoordinates).x.toFixed(2)} ,
+                    {gpsToMeters(referenceLocation?.coordinates, currentCoordinates).z.toFixed(2)}
+                </p>}
+            {currentCoordinates &&
+                <p style={{ position: "absolute", bottom: "80px", width: "100%", textAlign: "left", color: "white" }}>
+                    - GPS: {currentCoordinates.latitude}, {currentCoordinates.longitude}
+                </p> &&
+                <p style={{ position: "absolute", bottom: "40px", width: "100%", textAlign: "left", color: "white" }}>
+                    - curr Acc: {currentCoordinates.accuracy.toFixed(5)}, loc his: {locationHistory.length}
+                </p>}
 
             <HelpMenu
                 isVisible={isHelpVisible}
@@ -61,40 +135,64 @@ const IndexPage = ({ data }: { data: SceneData }) => {
             />
 
             <ObjectDescription
-                object={selectedObject}
-                variant={selectedObject ? getCurrentVariant(selectedObject) : null}
+                object={selectedObject?.objectData ?? null}
+                variant={selectedObject?.getCurrentVariant() ?? null}
                 headerHeight={headerHeight}
                 onClose={() => setSelectedObject(null)}
                 onSelectVariant={(variantId) => {
                     if (!selectedObject) return;
-                    const index = selectedObject.variants.findIndex(v => v.id === variantId);
-                    if (index !== -1) changeVariant(selectedObject.id, index);
+                    selectedObject.changeVariant(variantId);
                 }}
             />
         </XRDomOverlay>
 
         <ambientLight intensity={5} />
         <directionalLight intensity={10} />
+        <Compass3D heading={worldRotation} cardinal={compassCardinal} camera={camera} />
 
-        {data.objects.map((sceneObject) => {
-            const variant = getCurrentVariant(sceneObject);
-            if (!variant) return null;
+        <primitive object={new THREE.AxesHelper(0.15)} /> {/* Add visual start position */}
+        <RoundedPlane
+            position={new Position()}
+            rotation={new Rotation(0, worldRotation, 0)}
+            scale={new Scale(0.5)}
+            radius={1}
+            opacity={.2}
+        ></RoundedPlane>
 
-            const { offsetPosition, offsetRotation, offsetScale } = variant;
+        <group
+            position={referenceLocation?.position.toArray()}
+            rotation={[0, worldRotation, 0]}
+        >
+            <primitive object={new THREE.AxesHelper(0.25)} /> {/* Add visual scene center */}
+            {/* {sceneObjects.map((sceneObject) => {
+                const variant = sceneObject.getCurrentVariant();
+                if (!variant) return null;
 
-            return (
-                <mesh
-                    key={sceneObject.id}
-                    position={offsetPosition.toArray()}
-                    rotation={offsetRotation.toArray()}
-                    scale={offsetScale.toArray()}
-                    onClick={() => setSelectedObject(sceneObject)}
-                >
-                    <boxGeometry args={[1, 1, 1]} />
-                    <meshStandardMaterial color="#248cb5" />
-                </mesh>
-            );
-        })}
+                return (
+                    <mesh
+                        key={sceneObject.id}
+                        position={sceneObject.getScenePosition().toArray()}
+                        rotation={sceneObject.getSceneRotation().toArray()}
+                        scale={sceneObject.getScale().toArray()}
+                        onClick={() => setSelectedObject(sceneObject)}
+                    >
+                        {variant.meshId === "primitive_cube" ? (
+                            <>
+                                <boxGeometry args={[1, 1, 1]} />
+                                <meshStandardMaterial color="#248cb5" />
+                            </>
+                        ) : variant.meshId === "primitive_sphere" ? (
+                            <>
+                                <sphereGeometry args={[1, 1, 1]} />
+                                <meshStandardMaterial color="#248cb5" />
+                            </>
+                        ) : (
+                            <MeshObject key={sceneObject.id} meshObjectId={variant.meshId} />
+                        )}
+                    </mesh>
+                );
+            })} */}
+        </group>
     </>);
 };
 

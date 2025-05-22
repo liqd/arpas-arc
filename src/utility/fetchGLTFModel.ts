@@ -4,23 +4,26 @@ import minioClient from "./minioClient";
 // Cache to store Blob URLs and instance counts for models
 const modelCache = new Map<string, { blobUrl: string; instances: number }>();
 
-export const fetchGLTFModel = async (bucket: string, key: string): Promise<string> => {
+export const fetchGLTFModel = async (modelId: string): Promise<string> => {
     try {
         // Generate a unique cache key
-        const cacheKey = `${bucket}/${key}`;
+        const cacheKey = modelId;
 
         // Check if the model is already in the cache
         if (modelCache.has(cacheKey)) {
-            console.log(`Cache hit for model: ${cacheKey}`);
             const cachedEntry = modelCache.get(cacheKey)!;
-
+            
             // Increment instance count
             cachedEntry.instances += 1;
+            console.log(`Cache hit for model: ${cacheKey} with ${cachedEntry.instances} entry/ies.`);
             return cachedEntry.blobUrl; // Return the cached Blob URL
         }
 
         // Cache miss: Fetch the model from database
         console.log(`Cache miss for model: ${cacheKey}. Fetching from database...`);
+
+
+        const {bucket, key} = getBucketAndKeyFromString(modelId);
         const command = new GetObjectCommand({ Bucket: bucket, Key: key });
         const response = await minioClient.send(command);
 
@@ -43,8 +46,8 @@ export const fetchGLTFModel = async (bucket: string, key: string): Promise<strin
 };
 
 // Decrement instance count and clean up if all instances are removed
-export const releaseGLTFModel = (bucket: string, key: string): void => {
-    const cacheKey = `${bucket}/${key}`;
+export const releaseGLTFModel = (modelId: string): void => {
+    const cacheKey = modelId;
 
     if (modelCache.has(cacheKey)) {
         const cachedEntry = modelCache.get(cacheKey)!;
@@ -61,3 +64,21 @@ export const releaseGLTFModel = (bucket: string, key: string): void => {
         }
     }
 };
+
+export function getBucketAndKeyFromString(bucketAndKey: string): { bucket: string, key: string } {
+    if (!bucketAndKey) {
+        console.warn(`MeshId is empty. Could not extract bucket and key!`);
+        return { bucket: "fallback", key: "meshObject" };
+    }
+
+    let bucket = "fallback"; // Default bucket
+    let key = bucketAndKey; // Default key
+
+    if (bucketAndKey.includes("/")) {
+        const parts = bucketAndKey.split("/");
+        bucket = parts[0]; // Get the first part as bucket
+        key = parts.slice(1).join("/"); // Get the rest as key
+    }
+
+    return { bucket, key };
+}

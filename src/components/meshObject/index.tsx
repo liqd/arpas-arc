@@ -8,8 +8,7 @@ import LoadingSpheres from "../loadingSpheres";
 import RoundedPlane from "../roundedPlane";
 
 interface MeshObjectProps {
-    bucketName: string;
-    modelKey: string;
+    meshObjectId: string;
     position?: Position;
     rotation?: Rotation;
     scale?: Scale;
@@ -19,9 +18,10 @@ interface MeshObjectProps {
 }
 
 const MeshObject = ({
-    bucketName, modelKey,
+    meshObjectId,
     position = new Position(), rotation = new Rotation(), scale = new Scale(),
     onClick, showOutline = false, userData }: MeshObjectProps) => {
+        
     const [modelUrl, setModelUrl] = useState<string | null>(null); // State to store the Blob URL for the model
     const [showLabel, setShowLabel] = useState(false);
     const objectRef = useRef<THREE.Group | null>(null); // Ref for managing the scene object
@@ -31,7 +31,7 @@ const MeshObject = ({
 
         const loadModel = () => {
             // Fetch the model URL and increment its instance count
-            fetchGLTFModel(bucketName, modelKey)
+            fetchGLTFModel(meshObjectId)
                 .then((url) => {
                     if (isMounted) {
                         setModelUrl(url);
@@ -39,7 +39,7 @@ const MeshObject = ({
                     }
                 })
                 .catch(() => {
-                    console.warn(`Failed to load model: ${modelKey}, retrying...`);
+                    console.warn(`Failed to load model: ${meshObjectId}, retrying...`);
                 });
         };
 
@@ -53,9 +53,9 @@ const MeshObject = ({
             // clearTimeout(labelTimeout);
             clearInterval(loadModelInterval);
             clearInterval(toggleLabelInterval);
-            releaseGLTFModel(bucketName, modelKey); // Decrement instance count
+            releaseGLTFModel(meshObjectId); // Decrement instance count
         };
-    }, [bucketName, modelKey]);
+    }, [meshObjectId]);
 
     // Add event listeners for highlighting and unhighlighting
     useEffect(() => {
@@ -87,7 +87,7 @@ const MeshObject = ({
     }, []);
 
     const loadingSpheresScale = new Scale(.5, .5, .5);
-    const modelName = modelKey.replace(/\.[^/.]+$/, ""); // Removes the file extension
+    const modelName = meshObjectId.replace(/\.[^/.]+$/, ""); // Removes the file extension
 
     // Render loading visuals while the model URL is being fetched
     if (!modelUrl) {
@@ -96,7 +96,7 @@ const MeshObject = ({
                 <LoadingSpheres position={position.clone().addY(loadingSpheresScale.y * .75)} scale={loadingSpheresScale} />
                 <RoundedPlane
                     position={position}
-                    rotation={new Rotation(90, 0, rotation.y)}
+                    rotation={new Rotation(0, rotation.y, 0)}
                     radius={1}
                     opacity={.2}
                 ></RoundedPlane>

@@ -1,14 +1,15 @@
 #compass-container {
     position: absolute;
-    top: 5%;
+    top: env(safe-area-inset-top, 0px);
     right: 2.5%;
     width: 5vh;
     height: 5vh;
     border-radius: 50%;
-    border: 0.05vh solid white;
+    border: 0.2vh solid white;
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-top: 15%;
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 1000;
 }
@@ -44,7 +45,7 @@
 
 #compass-cardinal {
     position: absolute;
-    bottom: -4vh;
+    bottom: -5vh;
     width: 100%;
     text-align: center;
     font-size: 1.5vh;
