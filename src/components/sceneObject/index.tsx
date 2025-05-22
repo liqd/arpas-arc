@@ -1,4 +1,3 @@
-import React, { useEffect, useState, Suspense, useRef } from "react";
 import * as THREE from "three";
 
 import { Position, Rotation, Scale } from "../../types/transform";
@@ -23,11 +22,11 @@ class SceneObject {
         this._objectData = objectData;
         this._currentVariantIndex = currentVariant
 
-        if (objectData.latitude && objectData.longitude) {
+        if (objectData.coordinates) {
             this._geolocationObject = new GeolocationObject(
-                objectData.latitude,
-                objectData.longitude,
-                objectData.altitude ?? 0,
+                objectData.coordinates[0], // Latitude
+                objectData.coordinates[1], // Longitude
+                objectData.coordinates[2] ?? 0, // Altitude
                 0 // Default north-facing rotation
             );
 
@@ -53,13 +52,13 @@ class SceneObject {
     }
 
     getScenePosition(): Position {
-        return (this._geoScenePosition ?? new Position()).add(this.getCurrentVariant().offsetPosition);
+        return (this._geoScenePosition ?? new Position()).add(new Position(this.getCurrentVariant().offset_position));
     }
     getSceneRotation(): Rotation {
-        return (this._geoSceneRotation ?? new Rotation()).add(this.getCurrentVariant().offsetRotation);
+        return (this._geoSceneRotation ?? new Rotation()).add(new Rotation(this.getCurrentVariant().offset_rotation));
     }
     getScale(): Scale {
-        return this.getCurrentVariant().offsetScale;
+        return new Scale(this.getCurrentVariant().offset_scale);
     }
 
     getCurrentVariant(): VariantData {
@@ -77,7 +76,6 @@ class SceneObject {
     previousVariant(): VariantData {
         return this.changeVariant(Math.max(this._currentVariantIndex - 1, 0));
     }
-
 };
 
 export default SceneObject;

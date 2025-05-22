@@ -1,29 +1,28 @@
-import { Position, Rotation, Scale } from "./transform";
-
 export type SceneData = {
     id: number,
-    topicId: number,
+    object_id: number,
+    content_type: number,
     objects: Array<ObjectData>
 }
 
 export type ObjectData = {
     id: number,
     name: string,
+    qr_id: string,
     variants: Array<VariantData>,
-    longitude: number,
-    latitude: number,
-    altitude: number,
-    comments: Array<CommentData>
+    coordinates: [number, number, number], // [latitude, longitude, altitude]
+    comments: Array<CommentData> // not given by django as of now
 }
 
 export type VariantData = {
     id: number,
-    title: string,
+    name: string,
     description: string,
-    meshId: string,
-    offsetPosition: Position,
-    offsetRotation: Rotation,
-    offsetScale: Scale,
+    mesh_id: string,
+    offset_position: [number, number, number],
+    offset_rotation: [number, number, number],
+    offset_scale: [number, number, number],
+    weight: number,
 }
 
 export type CommentData = {

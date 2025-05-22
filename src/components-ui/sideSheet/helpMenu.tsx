@@ -9,7 +9,7 @@ const Accordion = ({ title, children }: { title: string, children: React.ReactNo
             <a className={`accordion__title ${isExpanded && "collapsed"}`} onClick={() => setIsExpanded((prev) => !prev)} aria-haspopup="true" aria-expanded="false" data-bs-toggle="collapse">
                 <h6>
                     {title}
-                    <i className="fa fa-chevron-down" aria-hidden="true"></i>
+                    <i className="fas fa-chevron-down" aria-hidden="true"></i>
                 </h6>
             </a>
             <div className={`accordion__body collapse ${isExpanded && "show"}`} id="accordion-complib-body" aria-labelledby="accordion-complib-title">

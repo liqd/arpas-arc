@@ -3,7 +3,6 @@ import { useXRStore, XRDomOverlay } from "@react-three/xr";
 import * as THREE from "three";
 import { HelpMenu, ObjectDescription } from "../../components-ui";
 import { SceneData } from "../../types/objectData";
-import { lerpValue } from "../../utility/interpolation";
 import { MeshObject, RoundedPlane, SceneObject } from "../../components";
 import { useLocationReference, useGeolocation, useCompassHeading, useCompassReference, useGeolocationHistory, useWorldRotation } from "../../hooks";
 import { useThree } from "@react-three/fiber";
@@ -101,10 +100,10 @@ const IndexPage = ({ data }: { data: SceneData }) => {
             </div>
             <div id="arc-header" className="py-1 px-2">
                 <button className="border-0 fw-bold text-uppercase text-dark" onClick={() => store.getState().session?.end()}>
-                    <small><i className="fa fa-arrow-left" aria-hidden="true"></i> Leave AR</small>
+                    <small><i className="fas fa-arrow-left" aria-hidden="true"></i> Leave AR</small>
                 </button>
                 <button className="border-0 fw-bold text-uppercase text-dark" onClick={() => setIsHelpVisible(true)}>
-                    <small><i className="fa-solid fa-circle-info"></i> Help</small>
+                    <small><i className="fas fa-info-circle"></i> Help</small>
                 </button>
             </div>
             <div style={{ top: `${headerHeight}px` }}>
@@ -164,7 +163,7 @@ const IndexPage = ({ data }: { data: SceneData }) => {
             rotation={[0, worldRotation, 0]}
         >
             <primitive object={new THREE.AxesHelper(0.25)} /> {/* Add visual scene center */}
-            {/* {sceneObjects.map((sceneObject) => {
+            {sceneObjects.map((sceneObject) => {
                 const variant = sceneObject.getCurrentVariant();
                 if (!variant) return null;
 
@@ -176,22 +175,22 @@ const IndexPage = ({ data }: { data: SceneData }) => {
                         scale={sceneObject.getScale().toArray()}
                         onClick={() => setSelectedObject(sceneObject)}
                     >
-                        {variant.meshId === "primitive_cube" ? (
+                        {variant.mesh_id === "primitive_cube" ? (
                             <>
                                 <boxGeometry args={[1, 1, 1]} />
                                 <meshStandardMaterial color="#248cb5" />
                             </>
-                        ) : variant.meshId === "primitive_sphere" ? (
+                        ) : variant.mesh_id === "primitive_sphere" ? (
                             <>
                                 <sphereGeometry args={[1, 1, 1]} />
                                 <meshStandardMaterial color="#248cb5" />
                             </>
                         ) : (
-                            <MeshObject key={sceneObject.id} meshObjectId={variant.meshId} />
+                            <MeshObject key={sceneObject.id} meshObjectId={variant.mesh_id} />
                         )}
                     </mesh>
                 );
-            })} */}
+            })}
         </group>
     </>);
 };
