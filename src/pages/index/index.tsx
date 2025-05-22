@@ -135,16 +135,18 @@ const IndexPage = ({ data }: { data: SceneData }) => {
                 onLeave={() => store.getState().session?.end()}
             />
 
-            <ObjectDescription
-                object={selectedObject?.objectData ?? null}
-                variant={selectedObject?.getCurrentVariant() ?? null}
-                headerHeight={headerHeight}
-                onClose={() => setSelectedObject(null)}
-                onSelectVariant={(variantId) => {
-                    if (!selectedObject) return;
-                    selectedObject.changeVariant(variantId);
-                }}
-            />
+            {selectedObject && selectedObject.objectData &&
+                <ObjectDescription
+                    object={selectedObject.objectData}
+                    variant={selectedObject.getCurrentVariant() ?? null}
+                    headerHeight={headerHeight}
+                    onClose={() => setSelectedObject(null)}
+                    onSelectVariant={(variantId) => {
+                        if (!selectedObject) return;
+                        selectedObject.changeVariant(variantId);
+                    }}
+                />
+            }
         </XRDomOverlay>
 
         <ambientLight intensity={5} />
@@ -188,7 +190,7 @@ const IndexPage = ({ data }: { data: SceneData }) => {
                                 <meshStandardMaterial color="#248cb5" />
                             </>
                         ) : (
-                            <MeshObject key={sceneObject.id} meshObjectId={variant.mesh_id} />
+                            <MeshObject key={`${sceneObject.id}_${variant.id}`} meshObjectId={variant.mesh_id} />
                         )}
                     </mesh>
                 );

@@ -5,11 +5,13 @@ import "./style.css";
 const BottomSheet = ({
     isVisible,
     headerHeight,
+    variantName,
     onClose,
     children,
 }: {
     isVisible: boolean;
     headerHeight: number;
+    variantName: string;
     onClose?: () => void;
     children?: React.ReactNode;
 }) => {
@@ -17,7 +19,7 @@ const BottomSheet = ({
 
     const relativePositions = [
         1.0,                            // Closed
-        0.91,                            // Minimized
+        0.915,                            // Minimized
         0.5,                            // Half screen
         (headerHeight) / screenHeight,  // Full screen
     ];
@@ -78,8 +80,24 @@ const BottomSheet = ({
             >
                 <div></div>
             </div>
+            <div className="bottom-sheet-content-header">
+                <div className="minh-100 d-flex flex-column" style={{ fontSize: "0.8rem" }}>
+                    <div className="row align-items-center">
+                        <div className="col-10">
+                            <h3>{variantName}</h3>
+                        </div>
+                        <div className="col-2 d-flex justify-content-end align-items-center">
+                            <i
+                                className="fas fa-times"
+                                onClick={onClose}
+                                style={{ cursor: "pointer", fontSize: "0.8rem" }}
+                            ></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div className="bottom-sheet-content">{children}</div>
-        </motion.div>
+        </motion.div >
     );
 };
 

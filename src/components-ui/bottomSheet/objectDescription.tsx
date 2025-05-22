@@ -83,7 +83,7 @@ const ObjectDescription = ({
     onSelectVariant: (variantId: number) => void;
     onClose: () => void,
 }) => {
-    if (!object || !variant) return <BottomSheet isVisible={false} headerHeight={headerHeight} />;
+    if (!object || !variant) return <BottomSheet isVisible={false} headerHeight={headerHeight} variantName="" />;
     const { id: variantId, name, description } = variant;
 
     return (
@@ -91,20 +91,9 @@ const ObjectDescription = ({
             isVisible={true}
             onClose={onClose}
             headerHeight={headerHeight}
+            variantName={name}
         >
             <div className="minh-100 d-flex flex-column" style={{ fontSize: "0.8rem" }}>
-                <div className="row align-items-center">
-                    <div className="col-10">
-                        <h3>{name}</h3>
-                    </div>
-                    <div className="col-2 d-flex justify-content-end align-items-center">
-                        <i
-                            className="fas fa-times"
-                            onClick={onClose}
-                            style={{ cursor: "pointer", fontSize: "0.8rem" }}
-                        ></i>
-                    </div>
-                </div>
                 <div className="row">
                     <p>{description}</p>
                 </div>
