@@ -2,6 +2,33 @@ import { useEffect, useState } from "react";
 import { Position } from "../../types/transform";
 import { gpsToMeters } from "../../utility/geolocation";
 
+/**
+ * A React hook that calculates and updates the **reference geolocation** based on a history of coordinates.
+ * It determines a stable reference point while smoothing out positional drift caused by GPS inaccuracies.
+ *
+ * @param {GeolocationCoordinates[]} coordinatesHistory - Array of recorded GPS coordinates.
+ * @param {(coordinates: GeolocationCoordinates) => void} [updateCurrentCoordinates] - Optional callback to update current coordinates externally.
+ * @param {(referenceLocation: { coordinates: GeolocationCoordinates; position: Position }) => void} [updateReferenceLocation] - Optional callback to update reference location externally.
+ * @returns {[GeolocationCoordinates | null, { coordinates: GeolocationCoordinates; position: Position } | null]} - The computed current coordinates and reference location.
+ *
+ * ## Features:
+ * - **Computes a stable geolocation reference** using median filtering on past coordinates.
+ * - **Improves positional accuracy** by averaging measurement errors.
+ * - **Prevents abrupt location updates** using a **distance threshold** (default: 5 meters).
+ * - **Implements drift detection**, updating reference position if movement remains outside the threshold for a sustained period.
+ *
+ * ## Behavior:
+ * - If `coordinatesHistory` is empty, it logs a warning and does nothing.
+ * - Determines the **median latitude and longitude** for stability.
+ * - Initializes a reference position when none exists.
+ * - If **drift exceeds 5 meters**, it waits **5 seconds** before updating the reference location.
+ *
+ * ## Example Usage:
+ * ```tsx
+ * const [currentCoordinates, referenceLocation] = useLocationReference(coordinatesHistory, updateCurrentCoordinates, updateReferenceLocation);
+ * console.log(`Reference Location:`, referenceLocation?.coordinates);
+ * ```
+ */
 export default function useLocationReference (
     coordinatesHistory: GeolocationCoordinates[],
     updateCurrentCoordinates?: (coordinates: GeolocationCoordinates) => void,

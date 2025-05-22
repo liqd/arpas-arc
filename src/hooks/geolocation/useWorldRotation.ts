@@ -3,28 +3,29 @@ import * as THREE from "three";
 import { lerpValue } from "../../utility/interpolation";
 
 /**
- * This hook calculates and smoothly updates the world rotation around the Y-axis
- * based on the device's compass heading and phone orientation.
+ * A React hook that calculates and smoothly updates the world's Y-axis rotation 
+ * based on the device's compass heading and orientation.
  *
- * It returns the current rotation in radians, keeping the scene aligned correctly with North.
+ * It ensures smooth transitions while keeping the scene properly aligned with the real-world heading.
  *
  * @param {Object | null} referenceCompassHeading - Object containing heading (compass direction) and phoneYaw (device rotation).
  * @param {THREE.Camera} camera - The Three.js camera whose orientation influences scene alignment.
+ * @param {number} interpolationThreshold - The rotation threshold (in radians) for snapping instead of interpolating. Default: 20° (~0.349 radians).
  * @returns {[number]} - The world rotation angle in radians.
  *
- * Features:
- * - Computes phone's relative rotation using quaternion transformations.
- * - Maintains smooth transitions with linear interpolation (`lerpValue`).
- * - Snaps rotation if the angle difference exceeds 20° (0.349 radians).
- * - Defaults to 180° (π radians), starting the scene facing North.
+ * ## Features:
+ * - **Accurate Rotation Tracking:** Computes phone-relative rotation using quaternion transformations.
+ * - **Smooth Transitioning:** Uses linear interpolation (`lerpValue`) to avoid abrupt rotational changes.
+ * - **Adaptive Snapping:** If the rotation difference exceeds the threshold (default: **0.349 radians**, ~20°), it snaps immediately.
+ * - **North-Oriented Default:** Initializes scene facing **North** (`180°` or `π radians`).
  *
- * Usage Example:
- * ```tsx
- * const worldRotationY = useWorldRotation(referenceCompassHeading, camera);
+ * ## Example Usage:
+ * ```tsx   
+ * const worldRotationY = useWorldRotation(referenceCompassHeading, camera, 0.349);
  * console.log(`World Rotation: ${worldRotationY} radians`);
  * ```
  */
-export default function useWorldRotation(referenceCompassHeading: { heading: number; phoneYaw: number } | null, camera: THREE.Camera
+export default function useWorldRotation(referenceCompassHeading: { heading: number; phoneYaw: number } | null, camera: THREE.Camera, interpolationTreshhold: number = 0.349
 ): [number] {
     const [worldRotationEulerY, setWorldRotationEulerY] = useState<number>(Math.PI); // Start facing north (180° (π radians))
 
@@ -39,8 +40,8 @@ export default function useWorldRotation(referenceCompassHeading: { heading: num
 
         currentWorldRotationEulerY = THREE.MathUtils.degToRad((referenceCompassHeading.heading + phoneAngleDeg + 540) % 360);
 
-        // Snap if difference exceeds threshold: 20° = 0.349 radians
-        if (Math.abs(currentWorldRotationEulerY - worldRotationEulerY) > 0.349) {
+        // Snap if difference exceeds threshold
+        if (Math.abs(currentWorldRotationEulerY - worldRotationEulerY) > interpolationTreshhold) {
             setWorldRotationEulerY(currentWorldRotationEulerY);
         } else {
             lerpValue(worldRotationEulerY, currentWorldRotationEulerY, 500, (value) => {

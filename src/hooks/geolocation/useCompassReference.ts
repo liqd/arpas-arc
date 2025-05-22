@@ -2,6 +2,37 @@ import { useEffect, useState } from "react";
 import * as THREE from "three";
 import { normalizeAngleDifference } from "../../utility/angle";
 
+/**
+ * A React hook that stabilizes and tracks compass heading data, ensuring **consistent orientation** 
+ * while avoiding erratic updates due to device tilt or sudden heading fluctuations.
+ *
+ * It continuously monitors compass heading, filters unstable changes, and maintains a reference direction.
+ *
+ * @param {any} phoneTilt - Object containing device tilt angles (`beta` and `gamma`).
+ * @param {number} compassHeading - The current compass heading (degrees).
+ * @param {THREE.Camera} camera - Three.js camera, used to compute phone yaw angle.
+ * @param {(referenceCompassHeading: { heading: number, phoneYaw: number }) => void} [updateReferenceCompassHeading] - Optional callback to receive updated reference heading.
+ * @returns [{ heading: number, phoneYaw: number } | null] - The computed stable compass reference.
+ *
+ * ## Features:
+ * - **Filters extreme device tilts** (`beta` and `gamma` > 30°) to prevent unreliable heading updates.
+ * - **Stores a history of compass readings** (`HISTORY_SIZE = 10`) for stability analysis.
+ * - **Prevents excessive variations** (`MAX_VARIATION = 5°`) by normalizing heading differences.
+ * - **Implements time-based drift correction**, updating reference heading **only after 5 seconds of stability**.
+ * - **Computes phone yaw rotation** using the Three.js camera quaternion.
+ *
+ * ## Behavior:
+ * - Ignores heading updates if the **device is tilted too much**.
+ * - Updates reference heading **only when variations remain stable** for a sustained period.
+ * - Calls `updateReferenceCompassHeading` if provided, allowing external components to react to compass updates.
+ * - Resets heading history after successfully updating the reference.
+ *
+ * ## Example Usage:
+ * ```tsx
+ * const [referenceCompass] = useCompassReference(phoneTilt, compassHeading, camera, updateReferenceCompassHeading);
+ * console.log("Reference Compass Heading:", referenceCompass);
+ * ```
+ */
 export default function useCompassReference(
     phoneTilt: any, compassHeading: number, camera: THREE.Camera,
     updateReferenceCompassHeading?: (referenceCompassHeading: { heading: number, phoneYaw: number }) => void

@@ -1,6 +1,34 @@
 import { useEffect, useState } from "react";
 import { getCardinalDirection, getMagneticDeclination } from "../../utility/geolocation";
 
+/**
+ * A React hook that **retrieves and processes device orientation** data for compass heading tracking.
+ * It integrates with the browser's `DeviceOrientationEvent` to provide real-time heading, cardinal direction, and phone tilt.
+ *
+ * @param {GeolocationPosition | null} geoPosition - Optional geolocation data, used for magnetic declination calculations.
+ * @param {(heading: number) => void} [updateCompassHeading] - Optional callback to receive updated compass heading.
+ * @param {(cardinal: string) => void} [updateCompassCardinal] - Optional callback to receive updated cardinal direction.
+ * @param {(tilt: { alpha: number, beta: number, gamma: number }) => void} [updatePhoneTilt] - Optional callback to receive updated tilt data.
+ * @returns {[number, string, { alpha: number, beta: number, gamma: number }]} - The computed compass heading, cardinal direction, and phone tilt.
+ *
+ * ## Features:
+ * - **Real-time compass tracking** using `DeviceOrientationEvent`.
+ * - **Supports both iOS and Android device orientation mechanisms**.
+ * - **Applies magnetic declination adjustments**, ensuring accurate heading calculations.
+ * - **Filters invalid orientation data**, preventing unreliable updates.
+ * - **Handles permission requests** for accessing device motion sensors.
+ *
+ * ## Behavior:
+ * - If the device **does not support orientation events**, it defaults to `N` (North) with a heading of `0°`.
+ * - If `alpha`, `beta`, or `gamma` exceed a certain threshold, updates are **blocked** to maintain reliable readings.
+ * - Uses `updateCompassHeading`, `updateCompassCardinal`, and `updatePhoneTilt` callbacks **if provided** for external synchronization.
+ *
+ * ## Example Usage:
+ * ```tsx
+ * const [heading, cardinalDirection, tilt] = useCompassHeading(geoPosition, updateCompassHeading, updateCompassCardinal, updatePhoneTilt);
+ * console.log(`Compass Heading: ${heading}° (${cardinalDirection})`);
+ * ```
+ */
 export default function useCompassHeading(
     geoPosition?: GeolocationPosition | null,
     updateCompassHeading?: (heading: number) => void,
