@@ -1,18 +1,18 @@
 import { SceneData } from "../types/objectData";
-import { Position, Rotation, Scale } from "../types/transform";
+import { TopicData } from "../types/topicData";
 
 // thanks gpt
 
 export const BenchScene: SceneData = {
     id: 4,
-    topicId: 404,
+    object_id: 404,
+    content_type: 102,
     objects: [
         {
             id: 1,
             name: "Wooden Bench",
-            longitude: -0.1276,
-            latitude: 51.5074,
-            altitude: 0,
+            coordinates: [-0.1276, 51.5074, 0],
+            qr_id: "wooden_bench_1",
             comments: [
                 {
                     id: 1,
@@ -49,30 +49,31 @@ export const BenchScene: SceneData = {
             variants: [
                 {
                     id: 1,
-                    title: "Standard Finish",
+                    name: "Standard Finish",
                     description: "A plain wooden bench with a natural wood texture. The surface is untreated, showcasing the raw grain and organic color variations of the timber. Ideal for rustic or traditional outdoor settings.",
-                    meshId: "wooden_bench_standard",
-                    offsetPosition: new Position(-1, 0, 0),
-                    offsetRotation: new Rotation(),
-                    offsetScale: new Scale()
+                    mesh_id: "wooden_bench_standard",
+                    offset_position: [-1,0,0],
+                    offset_rotation: [0,0,0],
+                    offset_scale: [1,1,1],
+                    weight: 0,
                 },
                 {
                     id: 2,
-                    title: "Varnished",
+                    name: "Varnished",
                     description: "A shiny varnished version of the wooden bench that enhances the natural wood grain while providing a protective glossy coating. Resistant to weathering and ideal for maintaining a polished look in exposed environments.",
-                    meshId: "wooden_bench_varnished",
-                    offsetPosition: new Position(-1, 0, 0),
-                    offsetRotation: new Rotation(),
-                    offsetScale: new Scale()
+                    mesh_id: "wooden_bench_varnished",
+                    offset_position: [-1,0,0],
+                    offset_rotation: [0,0,0],
+                    offset_scale: [1,1,1],
+                    weight: 1
                 }
             ]
         },
         {
             id: 2,
             name: "Metal Bench",
-            longitude: -0.1280,
-            latitude: 51.5076,
-            altitude: 0,
+            coordinates: [-0.1280, 51.5076, 0],
+            qr_id: "metal_bench_1",
             comments: [
                 {
                     id: 4,
@@ -99,14 +100,31 @@ export const BenchScene: SceneData = {
             variants: [
                 {
                     id: 3,
-                    title: "Green Painted",
+                    name: "Green Painted",
                     description: "A durable metal bench coated with a dark green paint finish. Designed to blend well with park and garden surroundings while providing excellent resistance to rust and environmental wear.",
-                    meshId: "metal_bench_green",
-                    offsetPosition: new Position(1, 0, 0),
-                    offsetRotation: new Rotation(),
-                    offsetScale: new Scale()
+                    mesh_id: "metal_bench_green",
+                    offset_position: [1,0,0],
+                    offset_rotation: [0,0,0],
+                    offset_scale: [1,1,1],
+                    weight: 0
                 }
             ]
         }
     ]
 };
+
+export const BenchTopic: TopicData = {
+   id: 404,
+   slug: "topic-404",
+   name: "Topic #404",
+   description: "<figure class=\"image\"><img style=\"aspect-ratio:4000/6000;\" src=\"/media/uploads/admin/2025/05/20/shai-pal-0sPzcUzpEds-unsplash.jpg\" alt=\"Park benches in a sunny park\" width=\"4000\" height=\"6000\"></figure><p><i>Explore and give feedback on new park bench designs in your neighborhood using Augmented Reality. Your opinion matters for future public spaces!</i>&nbsp;</p>",
+   category: "Public Space Development",
+   labels: [
+      "AR Feedback",
+      "Urban Furniture",
+      "Community Participation",
+      "Local Parks"
+   ],
+   module: 1,
+   created: "2025-05-21T11:00:00.000000+02:00"
+}

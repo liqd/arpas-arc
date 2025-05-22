@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
 import * as THREE from "three";
-import { FaLocationArrow } from "react-icons/fa";
 
 const DirectionalArrow = ({
     camera,
@@ -144,7 +143,7 @@ const DirectionalArrow = ({
                 display: isVisible ? "block" : "none"
             }}
         >
-            <FaLocationArrow color={color} size={size} />
+            <i className="fa-solid fa-location-arrow" color={color}></i>
         </div>
     );
 };

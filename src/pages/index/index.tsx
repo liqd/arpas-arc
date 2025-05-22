@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useXRStore, XRDomOverlay } from "@react-three/xr";
+import { Euler, Vector3 } from "three";
 import { HelpMenu, ObjectDescription } from "../../components-ui";
 import { ObjectData, SceneData } from "../../types/objectData";
 import "./style.css";
@@ -47,10 +48,10 @@ const IndexPage = ({ data }: { data: SceneData }) => {
         <XRDomOverlay style={{ width: "100%", height: "100%" }}>
             <div ref={headerRef} id="arc-header" className="py-1 px-2">
                 <button className="border-0 fw-bold text-uppercase text-dark" onClick={() => store.getState().session?.end()}>
-                    <small><i className="fa fa-arrow-left" aria-hidden="true"></i> Leave AR</small>
+                    <small><i className="fas fa-arrow-left" aria-hidden="true"></i> Leave AR</small>
                 </button>
                 <button className="border-0 fw-bold text-uppercase text-dark" onClick={() => setIsHelpVisible(true)}>
-                    <small><i className="fa-solid fa-circle-info"></i> Help</small>
+                    <small><i className="fas fa-info-circle"></i> Help</small>
                 </button>
             </div>
 
@@ -79,15 +80,15 @@ const IndexPage = ({ data }: { data: SceneData }) => {
         {data.objects.map((sceneObject) => {
             const variant = getCurrentVariant(sceneObject);
             if (!variant) return null;
-
-            const { offsetPosition, offsetRotation, offsetScale } = variant;
+            
+            const { offset_position, offset_rotation, offset_scale } = variant;
 
             return (
                 <mesh
                     key={sceneObject.id}
-                    position={offsetPosition.toArray()}
-                    rotation={offsetRotation.toArray()}
-                    scale={offsetScale.toArray()}
+                    position={new Vector3().fromArray(offset_position)}
+                    rotation={new Euler().fromArray(offset_rotation)}
+                    scale={new Vector3().fromArray(offset_scale)}
                     onClick={() => setSelectedObject(sceneObject)}
                 >
                     <boxGeometry args={[1, 1, 1]} />

@@ -1,7 +1,4 @@
 .start-button {
-    top: 50%;
-    left: calc(50% - 90px);
-    position: absolute;
     width: 180px;
     text-decoration: none;
     padding: 12px 6px;
@@ -14,4 +11,17 @@
 
 .start-button:hover {
     background-color: #0056b3;
+}
+
+.arc-app {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.button-group {
+    display: flex;
+    gap: .5em;
+    flex-wrap: wrap;
 }
