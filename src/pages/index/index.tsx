@@ -1,17 +1,18 @@
 import { useEffect, useLayoutEffect, useState } from "react";
 import { useXRInputSourceEvent, useXRStore, XRDomOverlay } from "@react-three/xr";
 import * as THREE from "three";
-import { HelpMenu, ObjectDescription } from "../../components-ui";
-import { SceneData } from "../../types/objectData";
+import { DirectionalArrow, HelpMenu, ObjectDescription } from "../../components-ui";
+import { SceneData, ObjectData } from "../../types/objectData";
 import { MeshObject, RoundedPlane, SceneObject } from "../../components";
 import { useLocationReference, useGeolocation, useCompassHeading, useCompassReference, useGeolocationHistory, useWorldRotation } from "../../hooks";
 import { useThree } from "@react-three/fiber";
 import { Position, Rotation, Scale } from "../../types/transform";
-import { getClosestObject, placeObjectsAtWorldCoordinates } from "../../utility/objects";
+import { createSceneObject, getClosestObject, getIntersectedSceneObject } from "../../utility/objects";
 import { Compass2D, Compass3D } from "../../components-ui/compass";
 import "./style.css";
 import { gpsToMeters } from "../../utility/geolocation";
 import useWorldPosition from "../../hooks/geolocation/useWorldPosition";
+import { ObjectSessionData } from "../../types/sessionData";
 
 const defaultCoords: GeolocationPosition = {
     coords: {
@@ -55,10 +56,10 @@ const IndexPage = ({ data }: { data: SceneData }) => {
     const [headerHeight, setHeaderHeight] = useState(0);
 
     // Location values
-    const [valideGeolocation] = useGeolocation(defaultCoords);
-    const [locationHistory] = useGeolocationHistory(valideGeolocation);
+    const [currentGeolocation, accurateGeolocation] = useGeolocation(null, 35);
+    const [locationHistory] = useGeolocationHistory(accurateGeolocation ?? currentGeolocation);
     const [currentCoordinates, referenceLocation] = useLocationReference(locationHistory);
-    const [worldPosition] = useWorldPosition(referenceLocation);
+    const [worldPosition] = useWorldPosition(referenceLocation?.position ?? new Position()); // TODO start position is way off..
 
     // Compass values
     const [compassHeading, compassCardinal, phoneTilt] = useCompassHeading();
@@ -66,22 +67,106 @@ const IndexPage = ({ data }: { data: SceneData }) => {
     const [worldRotation] = useWorldRotation(referenceCompassHeading, camera);
 
     // Scene values
+    const [sceneObjectsData, setSceneObjectsData] = useState<ObjectData[]>([]);
+    const [sceneObjectsSessionData, setSceneObjectsSessionData] = useState<Record<number, ObjectSessionData>>({});
+
     const [sceneObjects, setSceneObjects] = useState<SceneObject[]>([]);
     const [selectedObject, setSelectedObject] = useState<SceneObject | null>(null);
 
-    // Smooth world position
-    // TODO
+    const addOrUpdateSceneObjectData = (objectData: ObjectData | null = null, objectSessionData: ObjectSessionData | null = null) => {
+
+        if (objectData)
+            setSceneObjectsData((prevDatas) => {
+                const existingIndex = prevDatas.findIndex(obj => obj.id === objectData.id);
+                if (existingIndex !== -1) {
+                    // Update existing object data
+                    const updatedDatas = [...prevDatas];
+                    updatedDatas[existingIndex] = objectData;
+                    return updatedDatas;
+                } else {
+                    // Add new object data
+                    return [...prevDatas, objectData];
+                }
+            });
+
+        // Store session data separately using object ID
+        if (objectSessionData)
+            setSceneObjectsSessionData((prevSessions) => ({
+                ...prevSessions,
+                [objectSessionData.id]: objectSessionData,
+            }));
+    };
+
+    const findSceneObjectDataById = (id: number): { data: ObjectData; sessionData: ObjectSessionData } => {
+        const data = sceneObjectsData.find(obj => obj.id === id) ?? sceneObjectsData[0]; // TODO should return a default data
+        const sessionData = sceneObjectsSessionData[id] ?? {}; // Provide fallback session data
+
+        return { data, sessionData };
+    };
+
+    const findSceneObjectById = (id: number) => {
+        return sceneObjects.find(obj => obj.id === id);
+    };
 
     // Place objects
     useEffect(() => {
         if (!data) {
-            console.warn("No scene data provided to place objects.");
+            console.warn("No scene data provided to add object data.");
             return;
         }
+        console.log("Data updated:", data);
 
-        if (referenceLocation)
-            placeObjectsAtWorldCoordinates(referenceLocation, groundMesh, data.objects, setSceneObjects);
-    }, [referenceLocation, referenceCompassHeading]);
+        data.objects.forEach((objectData) => {
+            const sessionData: ObjectSessionData = {
+                id: objectData.id,
+                selectedVariantId: 0,
+            };
+            addOrUpdateSceneObjectData(objectData, sessionData);
+        });
+
+        setSelectedObject(sceneObjects[0]);
+    }, [data]);
+
+    useEffect(() => {
+        if (!data) {
+            console.warn("No scene object data provided to create/update objects.");
+            return;
+        }
+        console.log("Scene objects updated:", sceneObjectsData);
+        sceneObjectsData.forEach((objectData) => {
+            if (objectData) {
+                createSceneObject(objectData.id, findSceneObjectDataById, addOrUpdateSceneObjectData, groundMesh, setSceneObjects);
+            }
+        });
+    }, [sceneObjectsData]);
+
+    useEffect(() => {
+        // console.log(sceneObjectsSessionData);
+    }, [sceneObjectsSessionData])
+
+    useEffect(() => {
+        console.log(selectedObject);
+    }, [selectedObject])
+
+
+    // Update objects
+    // TODO remove this. it should not be necessary!
+    useEffect(() => {
+        let usedReferenceCoordinates = referenceLocation?.coordinates ?? null;
+        if (!usedReferenceCoordinates) {
+            if (!currentCoordinates) {
+                console.warn("No reference location provided. Current coordinates are used.");
+                usedReferenceCoordinates = currentCoordinates;
+            } else
+                return;
+        }
+
+        if (usedReferenceCoordinates)
+            sceneObjects.forEach((sceneObject) => {
+                if (sceneObject) sceneObject.updateGeoScenePosition(usedReferenceCoordinates);
+            });
+    }, [currentCoordinates, referenceLocation]);
+    // Update objects
 
     useLayoutEffect(() => {
         const updateHeaderHeight = () => {
@@ -147,9 +232,18 @@ const IndexPage = ({ data }: { data: SceneData }) => {
                 <Compass2D heading={compassHeading} cardinal={compassCardinal} />
             </div>
 
+            {selectedObject &&
+                <p style={{ position: "absolute", bottom: "450px", width: "100%", textAlign: "center", color: "white" }}>
+                    selected: {selectedObject.id}, {selectedObject.currentVariantId}</p>}
+            {sceneObjects &&
+                <p style={{ position: "absolute", bottom: "340px", width: "100%", textAlign: "center", color: "white" }}>
+                    objects: {sceneObjects.length}, {sceneObjects[0]?.getScenePosition()}</p>}
+            {currentGeolocation &&
+                <p style={{ position: "absolute", bottom: "260px", width: "100%", textAlign: "center", color: "white" }}>
+                    Curr Coord: {currentGeolocation.coords.latitude}, {currentGeolocation.coords.longitude}, {currentGeolocation.coords.speed}, acc {currentGeolocation.coords.accuracy}</p>}
             {referenceLocation &&
                 <p style={{ position: "absolute", bottom: "10px", width: "100%", textAlign: "center", color: "white" }}>
-                    Closest Distance: {getClosestObject(referenceLocation.position, sceneObjects)?.distance.toFixed(2)} meters
+                    Closest Distance: {getClosestObject(worldPosition.substractedPosition(new Position(camera.position)), sceneObjects)?.distance.toFixed(2)} meters
                 </p>}
             {referenceLocation && currentCoordinates &&
                 <p style={{ position: "absolute", bottom: "220px", width: "100%", textAlign: "left", color: "white" }}>
@@ -158,7 +252,7 @@ const IndexPage = ({ data }: { data: SceneData }) => {
                 </p>}
             {currentCoordinates &&
                 <p style={{ position: "absolute", bottom: "80px", width: "100%", textAlign: "left", color: "white" }}>
-                    - GPS: {currentCoordinates.latitude}, {currentCoordinates.longitude}
+                    - GPS: {currentCoordinates.latitude}, {currentCoordinates.longitude}, {currentCoordinates.altitude}
                 </p> &&
                 <p style={{ position: "absolute", bottom: "40px", width: "100%", textAlign: "left", color: "white" }}>
                     - curr Acc: {currentCoordinates.accuracy.toFixed(5)}, loc his: {locationHistory.length}
@@ -170,18 +264,14 @@ const IndexPage = ({ data }: { data: SceneData }) => {
                 onLeave={() => store.getState().session?.end()}
             />
 
-            {selectedObject && selectedObject.objectData &&
+            {selectedObject &&
                 <ObjectDescription
-                    object={selectedObject.objectData}
-                    variant={selectedObject.getCurrentVariant() ?? null}
+                    sceneObject={selectedObject}
                     headerHeight={headerHeight}
                     onClose={() => setSelectedObject(null)}
-                    onSelectVariant={(variantId) => {
-                        if (!selectedObject) return;
-                        selectedObject.changeVariant(variantId);
-                    }}
                 />
             }
+            <DirectionalArrow camera={camera} targetPos={new THREE.Vector3()} />
         </XRDomOverlay>
 
         <ambientLight intensity={5} />
@@ -197,22 +287,34 @@ const IndexPage = ({ data }: { data: SceneData }) => {
             opacity={.2}
         ></RoundedPlane>
 
+        <mesh
+            key={123}
+            userData={{ sceneObjectId: 1 }}
+            position={new Position().toArray()}
+            rotation={new Rotation().toArray()}
+            scale={new Scale(0.2).toArray()}
+        >
+            <boxGeometry args={[1, 1, 1]} />
+            <meshStandardMaterial color="#248cb5" />
+        </mesh>
+
         <group
             position={worldPosition.toArray()}
             rotation={[0, worldRotation, 0]}
         >
             <primitive object={new THREE.AxesHelper(0.25)} /> {/* Add visual scene center */}
             {sceneObjects.map((sceneObject) => {
-                const variant = sceneObject.getCurrentVariant();
+                const sceneObjectId = sceneObject.id;
+                const variant = sceneObject.getCurrentVariantData();
                 if (!variant) return null;
 
                 return (
                     <mesh
-                        key={sceneObject.id}
+                        key={sceneObjectId}
+                        userData={{ sceneObjectId }}
                         position={sceneObject.getScenePosition().toArray()}
                         rotation={sceneObject.getSceneRotation().toArray()}
                         scale={sceneObject.getScale().toArray()}
-                        onClick={() => setSelectedObject(sceneObject)}
                     >
                         {variant.mesh_id === "primitive_cube" ? (
                             <>
@@ -225,7 +327,7 @@ const IndexPage = ({ data }: { data: SceneData }) => {
                                 <meshStandardMaterial color="#248cb5" />
                             </>
                         ) : (
-                            <MeshObject key={`${sceneObject.id}_${variant.id}`} meshObjectId={variant.mesh_id} />
+                            <MeshObject key={`${sceneObject.id}_${variant.id}`} sceneObjectId={sceneObjectId} meshObjectId={variant.mesh_id} />
                         )}
                     </mesh>
                 );

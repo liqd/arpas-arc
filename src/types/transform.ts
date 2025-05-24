@@ -98,6 +98,32 @@ class Position extends BaseVector {
         }
     }
 
+    /** Returns the modified Position based on addition */
+    add(position: Position) {
+        if(!position) return this;
+        this.x += position.x;
+        this.y += position.y;
+        this.z += position.z;
+        return this;
+    }
+    /** Returns the modified Position based on addition */
+    substract(position: Position) {
+        if(!position) return this;
+        this.x -= position.x;
+        this.y -= position.y;
+        this.z -= position.z;
+        return this;
+    }
+
+    /** Returns a new Position instance based on addition */
+    addedPosition(position: Position): Position {
+        return this.clone().add(position);
+    }
+    /** Returns a new Position instance based on addition */
+    substractedPosition(position: Position): Position {
+        return this.clone().substract(position);
+    }
+
     toString(): string {
         return `Position (x: ${this.x}, y: ${this.y}, z: ${this.z})`;
     }
@@ -121,6 +147,7 @@ class Rotation extends BaseEuler {
         }
     }
 
+    /** Returns the modified Rotation based on addition */
     add(rotation: Rotation) {
         if(!rotation) return this;
         this.x += rotation.x;
@@ -129,6 +156,10 @@ class Rotation extends BaseEuler {
         return this;
     }
 
+    /** Returns a new Rotation instance based on addition */
+    addedRotation(rotation: Rotation): Rotation {
+        return this.clone().add(rotation);
+    }
 
     toString(): string {
         return `Rotation (x: ${this.x}, y: ${this.y}, z: ${this.z})`;
