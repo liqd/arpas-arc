@@ -28,7 +28,7 @@ export default function useLocationHistory(valideGeolocation: GeolocationPositio
     
     const [locationHistory, setLocationHistory] = useState<GeolocationCoordinates[]>([]);
 
-    const MAX_CURRENT_LOCATION_HISTORY = 5;
+    const MAX_CURRENT_LOCATION_HISTORY = 10;
     useEffect(() => {
         if (!valideGeolocation) return;
         setLocationHistory(prevHistory => {

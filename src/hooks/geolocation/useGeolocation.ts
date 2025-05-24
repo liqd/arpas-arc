@@ -29,14 +29,46 @@ import { useEffect, useState } from "react";
  */
 export default function useGeolocation(
     defaultGeolocation: GeolocationPosition | null = null, minAccuracy: number = 20,
-    updateValideGeoposition?: (currentPosition: GeolocationPosition | null) => void
-): [GeolocationPosition | null] {
+    updateStableGeoposition?: (currentPosition: GeolocationPosition | null) => void
+): [GeolocationPosition | null, GeolocationPosition | null] {
 
-    const [valideGeolocation, setValideGeolocation] = useState<GeolocationPosition | null>(defaultGeolocation);
+    const nullCoordinatePosition: GeolocationPosition = {
+        coords: {
+            longitude: 0,
+            latitude: 0,
+            altitude: 0,
+            heading: 0,
+            accuracy: 0,
+            altitudeAccuracy: null,
+            speed: 0,
+            toJSON: function () {
+                return {
+                    longitude: this.longitude,
+                    latitude: this.latitude,
+                    altitude: this.altitude,
+                    heading: this.heading,
+                    accuracy: this.accuracy,
+                    altitudeAccuracy: this.altitudeAccuracy,
+                    speed: this.speed
+                };
+            }
+        },
+        timestamp: Date.now(),
+        toJSON: function () {
+            return {
+                coords: this.coords,
+                timestamp: this.timestamp
+            };
+        }
+    };
+
+    const [currentGeolocation, setCurrentGeolocation] = useState<GeolocationPosition | null>(nullCoordinatePosition);
+    const [accurateGeolocation, setAccurateGeolocation] = useState<GeolocationPosition | null>(defaultGeolocation);
 
     useEffect(() => {
         const onSuccess = (position: GeolocationPosition) => {
             if (!position.coords.latitude && !position.coords.longitude) return;
+            setCurrentGeolocation(position);
 
             if (position.coords.accuracy > minAccuracy) {
                 console.log("Received inaccurate geolocation:", position.coords.accuracy);
@@ -44,8 +76,8 @@ export default function useGeolocation(
             }
 
             console.log("Received accurate and valid geolocation:", position);
-            setValideGeolocation(position);
-            if (updateValideGeoposition) updateValideGeoposition(position);
+            setAccurateGeolocation(position);
+            if (updateStableGeoposition) updateStableGeoposition(position);
         };
 
         const onError = (error: GeolocationPositionError) => {
@@ -61,5 +93,5 @@ export default function useGeolocation(
         return () => navigator.geolocation.clearWatch(watchId);
     }, []);
 
-    return [valideGeolocation];
+    return [currentGeolocation, accurateGeolocation];
 }

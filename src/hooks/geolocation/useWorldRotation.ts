@@ -16,7 +16,7 @@ import { lerpValue } from "../../utility/interpolation";
  * ## Features:
  * - **Accurate Rotation Tracking:** Computes phone-relative rotation using quaternion transformations.
  * - **Smooth Transitioning:** Uses linear interpolation (`lerpValue`) to avoid abrupt rotational changes.
- * - **Adaptive Snapping:** If the rotation difference exceeds the threshold (default: **0.349 radians**, ~20°), it snaps immediately.
+ * - **Adaptive Snapping:** If the rotation difference exceeds the threshold (default: **π/2 radians**, 90°), it snaps immediately.
  * - **North-Oriented Default:** Initializes scene facing **North** (`180°` or `π radians`).
  *
  * ## Example Usage:
@@ -25,7 +25,7 @@ import { lerpValue } from "../../utility/interpolation";
  * console.log(`World Rotation: ${worldRotationY} radians`);
  * ```
  */
-export default function useWorldRotation(referenceCompassHeading: { heading: number; phoneYaw: number } | null, camera: THREE.Camera, interpolationTreshhold: number = 0.349
+export default function useWorldRotation(referenceCompassHeading: { heading: number; phoneYaw: number } | null, camera: THREE.Camera, interpolationTreshhold: number = Math.PI / 2
 ): [number] {
     const [worldRotationEulerY, setWorldRotationEulerY] = useState<number>(Math.PI); // Start facing north (180° (π radians))
 

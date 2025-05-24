@@ -8,7 +8,7 @@ import { lerpPosition } from "../../utility/interpolation";
  *
  * It tracks position changes and applies interpolation to create fluid transitions.
  *
- * @param {Object | null} referenceLocation - Object containing GPS coordinates and position data.
+ * @param {Object | null} referencePosition - Object containing GPS coordinates and position data.
  * @param {number} interpolationThreshold - The distance threshold (in meters) for snapping position instantly. Default: 10m.
  * @returns {[Position, React.Dispatch<React.SetStateAction<Position>>]} - The current world position and setter function.
  *
@@ -24,24 +24,24 @@ import { lerpPosition } from "../../utility/interpolation";
  * ```
  */
 export default function useWorldPosition(
-    referenceLocation: { coordinates: GeolocationCoordinates; position: Position } | null, interpolationTreshhold: number = 10
+    referencePosition: Position, interpolationTreshhold: number = 15
 ): [Position, React.Dispatch<React.SetStateAction<Position>>] {
 
     const [worldPosition, setWorldPosition] = useState<Position>(new Position());
 
     useEffect(() => {
-        if (!referenceLocation) return;
+        if (!referencePosition) return;
 
         // Snap if difference exceeds threshold
-        if (referenceLocation.position.distanceTo(worldPosition) > interpolationTreshhold) {
-            setWorldPosition(referenceLocation.position);
+        if (referencePosition.distanceTo(worldPosition) > interpolationTreshhold) {
+            setWorldPosition(referencePosition);
         } else {
-            lerpPosition(worldPosition, referenceLocation.position, 500, (value) => {
+            lerpPosition(worldPosition, referencePosition, 500, (value) => {
                 setWorldPosition(value);
             });
         }
 
-    }, [referenceLocation, worldPosition]); // Ensure reactivity
+    }, [referencePosition, worldPosition]); // Ensure reactivity
 
     return [worldPosition, setWorldPosition];
 }
