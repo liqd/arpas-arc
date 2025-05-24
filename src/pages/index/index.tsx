@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useState } from "react";
-import { useXRStore, XRDomOverlay } from "@react-three/xr";
+import { useXRInputSourceEvent, useXRStore, XRDomOverlay } from "@react-three/xr";
 import * as THREE from "three";
 import { HelpMenu, ObjectDescription } from "../../components-ui";
 import { SceneData } from "../../types/objectData";
@@ -46,6 +46,7 @@ const defaultCoords: GeolocationPosition = {
 const IndexPage = ({ data }: { data: SceneData }) => {
     // XR objects and values
     const store = useXRStore();
+    const state = useThree();
     const { camera } = useThree();
     const groundMesh = store.getState().groundMesh;
 
@@ -93,6 +94,40 @@ const IndexPage = ({ data }: { data: SceneData }) => {
         updateHeaderHeight();
         window.addEventListener("resize", updateHeaderHeight);
         return () => window.removeEventListener("resize", updateHeaderHeight);
+    }, []);
+
+    // Handle scene object selection
+    useXRInputSourceEvent("all", "selectstart", (event) => {
+        // const selectedObject = getIntersectedSceneObject(event, state, sceneObjects);
+        // if (selectedObject) {
+        //     setSelectedObject(selectedObject);
+        // }
+        const inputSource = event.inputSource;
+        const referenceSpace = state.gl.xr.getReferenceSpace() as XRSpace;
+        const pose = event.frame.getPose(inputSource.targetRaySpace, referenceSpace);
+        if (!pose) return;
+
+        const { x, y, z } = pose.transform.position;
+        const { x: qx, y: qy, z: qz, w: qw } = pose.transform.orientation;
+        const origin = new THREE.Vector3(x, y, z);
+        const direction = new THREE.Vector3(0, 0, -1).applyQuaternion(
+            new THREE.Quaternion(qx, qy, qz, qw)
+        );
+
+        const raycaster = new THREE.Raycaster(origin, direction);
+        const intersects = raycaster.intersectObjects(state.scene.children, true);
+
+        for (const hit of intersects) {
+            const sceneObjectId = hit.object?.userData?.sceneObjectId;
+
+            if (sceneObjectId !== undefined) {
+                const sceneObject = sceneObjects.find(obj => obj.id === sceneObjectId);
+                if (sceneObject) {
+                    setSelectedObject(sceneObject);
+                }
+                return;
+            }
+        }
     }, []);
 
     return (<>
