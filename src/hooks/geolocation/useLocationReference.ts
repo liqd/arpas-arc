@@ -108,6 +108,7 @@ export default function useLocationReference(
             setPrevCoordinates(coordinates);
 
             const position = gpsToPosition(nullCoordinates, coordinates);
+            position.y = 0; // set altitute: 0
             setCurrentLocation({ coordinates, position });
             if (updateCurrentLocation) updateCurrentLocation({ coordinates, position });
 
