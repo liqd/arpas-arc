@@ -1,59 +1,54 @@
 import { useEffect, useState } from "react";
 import { BottomSheet } from "..";
-import { CommentData, ObjectData, ReplyData, VariantData } from "../../types/objectData";
+import { CommentData, VariantData } from "../../types/objectData";
 import { formatTimestamp } from "../../utility/conversion";
 import "./style.css";
-import SceneObject from "../../components/sceneObject";
-import { ObjectSessionData } from "../../types/sessionData";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store";
+import { addCommentToObject, toggleCommentDislike, toggleCommentLike, toggleVariantDislike, toggleVariantLike } from "../../store/sceneSlice";
 
-const Comment = ({ comment, updateComment, setIsNewReplyFocus }: {
-    comment: CommentData | ReplyData,
-    updateComment: (comment: CommentData) => void,
+const Comment = ({ objectId, commentId, setIsNewReplyFocus }: {
+    objectId: number,
+    commentId: number,
     setIsNewReplyFocus: (focus: boolean) => void
 }) => {
-    const isComment = 'replies' in comment;
     const [isShowingReplies, setIsShowingReplies] = useState(false);
     const [replyText, setReplyText] = useState("");
-    const [commentState, setCommentState] = useState(() => ({
-        likes: comment.likes,
-        dislikes: comment.dislikes,
-        isLiked: comment.isLiked,
-        isDisliked: comment.isDisliked,
-        replies: isComment ? comment.replies : [],
-    }));
+
+    const sceneObject = useSelector((state: RootState) =>
+        state.scene.objects.find(obj => obj.id === objectId)
+    );
+
+    if (!sceneObject) return null;
+
+    const comment = useSelector((state: RootState) =>
+        state.scene.objects.find(obj => obj.id === objectId)
+            ?.comments.find(c => c.id === commentId)
+    );
+
+    if (!comment) return;
+
+    const isComment = 'replies' in comment;
+
+    const dispatch = useDispatch();
 
     const toggleLike = () => {
-        setCommentState(prev => {
-            const updatedComment: CommentData = {
-                ...comment,
-                replies: prev.replies,
-                likes: prev.isLiked ? prev.likes - 1 : prev.likes + 1,
-                dislikes: prev.isLiked ? prev.dislikes : prev.isDisliked ? prev.dislikes - 1 : prev.dislikes,
-                isLiked: !prev.isLiked,
-                isDisliked: false,
-            };
-
-            // updateComment(updatedComment);
-            return updatedComment;
-        });
+        dispatch(toggleCommentLike({
+            objectId: sceneObject?.id ?? 0,
+            commentId: comment.id
+        }));
     };
 
     const toggleDislike = () => {
-        setCommentState(prev => {
-            const updatedComment: CommentData = {
-                ...comment,
-                replies: prev.replies,
-                likes: prev.isDisliked ? prev.likes : prev.isLiked ? prev.likes - 1 : prev.likes,
-                dislikes: prev.isDisliked ? prev.dislikes - 1 : prev.dislikes + 1,
-                isDisliked: !prev.isDisliked,
-                isLiked: false,
-            };
-
-            // updateComment(updatedComment);
-            return updatedComment;
-        });
+        dispatch(toggleCommentDislike({
+            objectId: sceneObject?.id ?? 0,
+            commentId: comment.id
+        }));
     };
 
+
+    /*
     const postReply = () => {
         if (!isComment) return;
         const trimmed = replyText.trim();
@@ -87,6 +82,7 @@ const Comment = ({ comment, updateComment, setIsNewReplyFocus }: {
             return updatedComment;
         });
     };
+    */
 
     return (<>
         <div className={`row top-border ${!isComment && "ps-3 pb-2"}`}>
@@ -118,11 +114,11 @@ const Comment = ({ comment, updateComment, setIsNewReplyFocus }: {
                 <div className="row">
                     <div className="col-12 a4-comments__action-bar-container">
                         <div className="rating">
-                            <button className={`rating-button rating-up ${commentState.isLiked && "liked"}`} onClick={toggleLike}>
-                                <i className="far fa-thumbs-up"></i>{commentState.likes}
+                            <button className={`rating-button rating-up ${comment.isLiked && "liked"}`} onClick={toggleLike}>
+                                <i className="far fa-thumbs-up"></i>{comment.likes}
                             </button>
-                            <button className={`rating-button rating-down ${commentState.isDisliked && "disliked"}`} onClick={toggleDislike}>
-                                <i className="far fa-thumbs-down"></i>{commentState.dislikes}
+                            <button className={`rating-button rating-down ${comment.isDisliked && "disliked"}`} onClick={toggleDislike}>
+                                <i className="far fa-thumbs-down"></i>{comment.dislikes}
                             </button>
                         </div>
                         {isComment &&
@@ -140,9 +136,10 @@ const Comment = ({ comment, updateComment, setIsNewReplyFocus }: {
             </div>
         </div>
 
+        {/*
         {isComment && isShowingReplies && <>
-            {commentState.replies.map((reply) => (
-                <Comment key={reply.id} comment={reply} updateComment={updateComment} setIsNewReplyFocus={setIsNewReplyFocus} />
+            {comment.replies.map((reply) => (
+                <Comment key={reply.id} objectId={objectId} commentId={reply.id} updateComment={updateComment} setIsNewReplyFocus={setIsNewReplyFocus} />
             ))}
 
             <div className="commenting my-0 py-2 ps-3">
@@ -177,65 +174,62 @@ const Comment = ({ comment, updateComment, setIsNewReplyFocus }: {
                 </div>
             </div>
         </>}
+        */}
     </>);
 };
 
 const ObjectDescription = ({
-    sceneObject,
+    objectId,
+    variantId,
     headerHeight,
+    setCurrentVariant,
     onClose,
 }: {
-    sceneObject: SceneObject;
-    headerHeight: number;
+    objectId: number,
+    variantId: number,
+    headerHeight: number,
+    setCurrentVariant: (objectId: number, variantId: number) => void,
     onClose: () => void,
 }) => {
     const [commentText, setCurrentNewCommentText] = useState("");
-    const [currentVariant, setCurrentCurrentVariant] = useState(sceneObject.getCurrentVariantData());
-    const [comments, setComments] = useState<CommentData[]>(sceneObject.getComments() || []);
-    const [commentState, setCommentState] = useState({
-        likes: sceneObject.getCurrentVariantData().likes,
-        dislikes: sceneObject.getCurrentVariantData().dislikes,
-        isLiked: sceneObject.getCurrentVariantData().isLiked,
-        isDisliked: sceneObject.getCurrentVariantData().isDisliked,
-    });
     const [isNewCommentFocus, setIsNewCommentFocus] = useState(false);
     const [isNewReplyFocus, setIsNewReplyFocus] = useState(false);
-    if (!sceneObject?.getCurrentVariantData()) return <BottomSheet isVisible={false} headerHeight={headerHeight} variantName="" />;
 
-    useEffect(() => {
-        // ✅ Ensure `currentVariant` updates when `sceneObject` changes
-        setCurrentCurrentVariant(sceneObject.getCurrentVariantData());
+    const dispatch = useDispatch();
 
-        // ✅ Ensure `comments` update when `sceneObject` changes
-        setComments(sceneObject.getComments() || []);
-    }, [sceneObject]); // ✅ Runs when `sceneObject` changes
+    const sceneObject = useSelector((state: RootState) =>
+        state.scene.objects.find(obj => obj.id === objectId)
+    );
 
-    const [forceUpdate, setForceUpdate] = useState(false); // setForceUpdate(prev => !prev);
+    if (!sceneObject) return null;
+
+    const variant = useSelector((state: RootState) =>
+        state.scene.objects
+            .find(obj => obj.id === sceneObject.id)
+            ?.variants.find(v => v.id === variantId)
+    );
+
+
+    if (!variant) return <BottomSheet isVisible={false} headerHeight={headerHeight} variantName="" />;
 
     const toggleLike = () => {
-        setCommentState(prev => ({
-            likes: prev.isLiked ? prev.likes - 1 : prev.likes + 1,
-            dislikes: prev.isLiked ? prev.dislikes : prev.isDisliked ? prev.dislikes - 1 : prev.dislikes,
-            isLiked: !prev.isLiked,
-            isDisliked: false,
-        }));
+        dispatch(toggleVariantLike({ objectId: sceneObject.id, variantId: variant.id }));
     };
 
     const toggleDislike = () => {
-        setCommentState(prev => ({
-            dislikes: prev.isDisliked ? prev.dislikes - 1 : prev.dislikes + 1,
-            likes: prev.isDisliked ? prev.likes : prev.isLiked ? prev.likes - 1 : prev.likes,
-            isDisliked: !prev.isDisliked,
-            isLiked: false,
-        }));
+        dispatch(toggleVariantDislike({ objectId: sceneObject.id, variantId: variant.id }));
     };
+
+    const comments = useSelector((state: RootState) =>
+        state.scene.objects.find(obj => obj.id === sceneObject.id)?.comments || []
+    );
 
     const postNewComment = () => {
         const trimmed = commentText.trim();
         if (!trimmed) return;
 
         const newComment: CommentData = {
-            id: 400 + Math.random(),
+            id: Date.now(), // simple unique ID
             username: "Republica6",
             isModerator: true,
             text: trimmed,
@@ -248,16 +242,18 @@ const ObjectDescription = ({
         };
 
         setCurrentNewCommentText("");
-        setComments(prev => [...prev, newComment]);
 
-        sceneObject.addComment(newComment);
+        dispatch(addCommentToObject({
+            objectId: sceneObject.id,
+            comment: newComment,
+        }));
     };
 
     return (
         <BottomSheet
             isVisible={true}
             headerHeight={headerHeight}
-            variantName={currentVariant.name}
+            variantName={variant.name}
             onClose={onClose}
             isNewCommentFocus={isNewCommentFocus}
             isNewReplyFocus={isNewReplyFocus}
@@ -266,23 +262,22 @@ const ObjectDescription = ({
 
                 {!isNewCommentFocus &&
                     <div id="scrollableContentSection" className="row">
-                        <p>{currentVariant.description}</p>
+                        <p>{variant.description}</p>
                     </div>
                 }
                 {!isNewCommentFocus &&
                     <div className="mb-3">
                         <h6 className="mb-2">Variants</h6>
                         <div className="d-flex flex-wrap gap-2">
-                            {sceneObject.getVariantsData().map((variantData: VariantData) => {
-                                const isActive = variantData.id === currentVariant.id;
+                            {sceneObject.variants.map((variantData: VariantData) => {
+                                const isActive = variantData.id === variant.id;
                                 return (
                                     <button
                                         key={variantData.id}
                                         className={`variant-icon ${isActive ? "active" : ""}`}
                                         onClick={() => {
-                                            if (variantData.id !== currentVariant.id) {
-                                                setCurrentCurrentVariant(variantData);
-                                                sceneObject.changeVariant(variantData.id);
+                                            if (variantData.id !== variant.id) {
+                                                setCurrentVariant(objectId, variantData.id);
                                             }
                                         }}
                                     >
@@ -297,11 +292,11 @@ const ObjectDescription = ({
                     <div className="row top-border">
                         <div className="col-12 a4-comments__action-bar-container">
                             <div className="rating">
-                                <button className={`rating-button rating-up ${commentState.isLiked && "liked"}`} onClick={toggleLike}>
-                                    <i className="far fa-thumbs-up"></i>{commentState.likes}
+                                <button className={`rating-button rating-up ${variant?.isLiked && "liked"}`} onClick={toggleLike}>
+                                    <i className="far fa-thumbs-up"></i>{variant?.likes}
                                 </button>
-                                <button className={`rating-button rating-down ${commentState.isDisliked && "disliked"}`} onClick={toggleDislike}>
-                                    <i className="far fa-thumbs-down"></i>{commentState.dislikes}
+                                <button className={`rating-button rating-down ${variant?.isDisliked && "disliked"}`} onClick={toggleDislike}>
+                                    <i className="far fa-thumbs-down"></i>{variant?.dislikes}
                                 </button>
                             </div>
                             <div className="a4-comments__action-bar">
@@ -351,10 +346,12 @@ const ObjectDescription = ({
 
                 <h6 className="my-4">Discussion</h6>
                 {comments.slice().reverse().map((comment) => (
-                    <Comment key={comment.id}
-                        comment={comment}
-                        updateComment={sceneObject.updateComment}
-                        setIsNewReplyFocus={setIsNewReplyFocus} />))}
+                    <Comment
+                        key={comment.id}
+                        objectId={objectId}
+                        commentId={comment.id}
+                        setIsNewReplyFocus={setIsNewReplyFocus}
+                    />))}
             </div>
         </BottomSheet >
     );

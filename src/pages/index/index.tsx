@@ -12,6 +12,8 @@ import { Compass2D, Compass3D } from "../../components-ui/compass";
 import "./style.css";
 import useWorldPosition from "../../hooks/geolocation/useWorldPosition";
 import { ObjectSessionData } from "../../types/sessionData";
+import { useAppDispatch } from "../../store/hooks";
+import { setScene } from "../../store/sceneSlice";
 
 const defaultCoords: GeolocationPosition = {
     coords: {
@@ -73,7 +75,9 @@ const IndexPage = ({ data }: { data: SceneData }) => {
 
     const [sceneObjects, setSceneObjects] = useState<SceneObject[]>([]);
     const sceneObjectsRef = useRef(sceneObjects);
-    const [selectedObject, setSelectedObject] = useState<SceneObject | null>(null);
+
+    const [selectedObject, setSelectedObject] = useState<number | null>(null);
+    const [selectedVariants, setSelectedVariants] = useState<Record<number, number>>({});
 
     const addOrUpdateSceneObjectData = (objectData: ObjectData | null = null, objectSessionData: ObjectSessionData | null = null) => {
         if (objectData)
@@ -108,6 +112,10 @@ const IndexPage = ({ data }: { data: SceneData }) => {
     const findSceneObjectById = (id: number) => {
         return sceneObjects.find(obj => obj.id === id);
     };
+
+    const setCurrentVariant = (objectId: number, variantId: number) => {
+        setSelectedVariants((prev) => ({ ...prev, [objectId]: variantId}))
+    }
 
     // Apply data
     useEffect(() => {
@@ -177,7 +185,7 @@ const IndexPage = ({ data }: { data: SceneData }) => {
     useXRInputSourceEvent("all", "selectstart", (event) => {
         const selectedObject = getIntersectedSceneObject(event, state, sceneObjectsRef.current);
         if (selectedObject) {
-            setSelectedObject(selectedObject);
+            setSelectedObject(selectedObject.id);
         }
     }, []);
 
@@ -242,8 +250,10 @@ const IndexPage = ({ data }: { data: SceneData }) => {
 
             {selectedObject &&
                 <ObjectDescription
-                    sceneObject={selectedObject}
+                    objectId={selectedObject}
+                    variantId={selectedVariants[selectedObject]}
                     headerHeight={headerHeight}
+                    setCurrentVariant={setCurrentVariant}
                     onClose={() => setSelectedObject(null)}
                 />
             }
