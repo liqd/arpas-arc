@@ -198,9 +198,6 @@ const IndexPage = ({ data }: { data: SceneData }) => {
                 <Compass2D heading={compassHeading} cardinal={compassCardinal} />
             </div>
 
-            {foo &&
-                <p style={{ position: "absolute", bottom: "500px", width: "100%", textAlign: "center", color: "white" }}>
-                    foo: {foo}, {sceneObjects.length}</p>}
             {currentGeolocation &&
                 <p style={{ position: "absolute", bottom: "360px", width: "100%", textAlign: "center", color: "white" }}>
                     Curr Coord: {currentGeolocation.coords.latitude}, {currentGeolocation.coords.longitude}, {currentGeolocation.coords.speed}, acc {currentGeolocation.coords.accuracy}</p>}
