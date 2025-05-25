@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
-import { gpsToMeters } from "../../utility/geolocation";
+import * as THREE from "three";
+import { gpsToMeters, gpsToPosition } from "../../utility/geolocation";
 import { Position } from "../../types/transform";
+import { nullCoordinates } from "../../components/locationObjects/geolocation";
 
 /**
  * A React hook that processes real-time geolocation data to determine a stable reference location.
@@ -9,7 +11,7 @@ import { Position } from "../../types/transform";
  * to ensure smooth and **accurate position tracking**, while avoiding sudden, unnecessary reference updates.
  *
  * @param {GeolocationCoordinates[]} coordinatesHistory - Array of recent GPS coordinates.
- * @param {Function} [updateCurrentCoordinates] - Callback to update the latest filtered coordinates.
+ * @param {Function} [updateCurrentLocation] - Callback to update the latest filtered coordinates.
  * @param {Function} [updateReferenceLocation] - Callback to update the stable reference location.
  * @returns {[GeolocationCoordinates | null, { coordinates: GeolocationCoordinates; position: Position } | null]} - The latest filtered coordinates and the computed reference location.
  *
@@ -32,13 +34,13 @@ import { Position } from "../../types/transform";
  * ```
  */
 export default function useLocationReference(
-    coordinatesHistory: GeolocationCoordinates[],
-    updateCurrentCoordinates?: (coordinates: GeolocationCoordinates) => void,
+    coordinatesHistory: GeolocationCoordinates[], maxHistoryLength: number,
+    updateCurrentLocation?: (currentLocation: { coordinates: GeolocationCoordinates; position: Position }) => void,
     updateReferenceLocation?: (referenceLocation: { coordinates: GeolocationCoordinates; position: Position }) => void
-): [GeolocationCoordinates | null, { coordinates: GeolocationCoordinates; position: Position } | null] {
+): [{ coordinates: GeolocationCoordinates; position: Position } | null, { coordinates: GeolocationCoordinates; position: Position } | null] {
 
     const [blockLocationUpdateTime, setBlockLocationUpdateTime] = useState<number>(Date.now());
-    const [currentCoordinates, setCurrentCoordinates] = useState<GeolocationCoordinates | null>(null);
+    const [currentLocation, setCurrentLocation] = useState<{ coordinates: GeolocationCoordinates; position: Position } | null>(null);
     const [referenceLocation, setReferenceLocation] = useState<{ coordinates: GeolocationCoordinates; position: Position } | null>(null);
     const [prevCoordinates, setPrevCoordinates] = useState<GeolocationCoordinates | null>(null);
 
@@ -84,16 +86,20 @@ export default function useLocationReference(
             const avgAccuracy = coordinatesHistory.reduce((sum, loc) => sum + loc.accuracy, 0) / coordinatesHistory.length;
             const avgAltitudeAccuracy = coordinatesHistory.reduce((sum, loc) => sum + (loc.altitudeAccuracy ?? avgAccuracy), 0) / coordinatesHistory.length;
 
-            const coordinates: GeolocationCoordinates = {
-                latitude: avgLatitude,
-                longitude: avgLongitude,
-                altitude: avgAltitude,
-                heading: lastCoords.heading ?? 0,
-                accuracy: avgAccuracy,
-                altitudeAccuracy: avgAltitudeAccuracy,
-                speed: lastCoords.speed ?? 0,
-                toJSON: lastCoords.toJSON
-            };
+            const coordinates =
+                coordinatesHistory.length < maxHistoryLength
+                    ? coordinatesHistory[coordinatesHistory.length - 1] // Use latest value if history is not full
+                    : {
+                        latitude: getWeightedAverage(filteredLatitudes),
+                        longitude: getWeightedAverage(filteredLongitudes),
+                        altitude: getExponentialMovingAverage(filteredAltitudes),
+                        heading: lastCoords.heading ?? 0,
+                        accuracy: avgAccuracy,
+                        altitudeAccuracy: avgAltitudeAccuracy,
+                        speed: lastCoords.speed ?? 0,
+                        toJSON: lastCoords.toJSON
+                    };
+
 
             // Skip unnecessary processing if minimal movement detected
             if (prevCoordinates &&
@@ -105,8 +111,9 @@ export default function useLocationReference(
             }
             setPrevCoordinates(coordinates);
 
-            setCurrentCoordinates(coordinates);
-            if (updateCurrentCoordinates) updateCurrentCoordinates(coordinates);
+            const position = gpsToPosition(nullCoordinates, coordinates);
+            setCurrentLocation({ coordinates, position });
+            if (updateCurrentLocation) updateCurrentLocation({ coordinates, position });
 
             // Adaptive Thresholds: Dynamically adjusts based on accuracy and movement speed
             const velocityFactor = Math.max(1, coordinates.speed ?? 1);
@@ -115,29 +122,28 @@ export default function useLocationReference(
 
             // If reference location is not yet set, update instantly
             if (!referenceLocation) {
-                const position = new Position();
                 setReferenceLocation({ coordinates, position });
                 if (updateReferenceLocation) updateReferenceLocation({ coordinates, position });
             } else { // Otherwise, wait for significant changes before updating
-                const timeThreshold = 10000;
-                const currentTime = Date.now();
-                const distance = gpsToMeters(referenceLocation.coordinates, coordinates);
-                const positionDriftDetected = Math.sqrt(distance.x ** 2 + distance.z ** 2) > dynamicThreshold;
-                const altitudeDriftDetected = Math.abs(distance.y) > dynamicAltitudeThreshold;
+                const distanceVector = referenceLocation.position.substractedPosition(position);
 
+                const positionDriftDetected = Math.sqrt(distanceVector.x ** 2 + distanceVector.z ** 2) > dynamicThreshold;
+                const altitudeDriftDetected = Math.abs(distanceVector.y) > dynamicAltitudeThreshold;
+
+                const currentTime = Date.now();
                 if (positionDriftDetected || altitudeDriftDetected) {
+                    const timeThreshold = 10000;
                     console.log(`Large geolocation drift detected! Waiting ${timeThreshold / 1000} seconds for updating reference location...`);
 
                     if (currentTime - blockLocationUpdateTime > timeThreshold) {
                         console.log("Updating reference coordinates due to sustained drift:", coordinates);
-                        const position = new Position(distance.x, distance.y, distance.z);
                         setReferenceLocation({ coordinates, position });
                         if (updateReferenceLocation) updateReferenceLocation({ coordinates, position });
                         setBlockLocationUpdateTime(currentTime);
                     }
                 } else {
                     console.log("Drift has stabilized; stopping reference updates.");
-                    setBlockLocationUpdateTime(currentTime); // Avoid unnecessary delays when stable
+                    setBlockLocationUpdateTime(currentTime);
                 }
             }
         }, 1000);
@@ -145,5 +151,5 @@ export default function useLocationReference(
         return () => clearTimeout(timeout);
     }, [coordinatesHistory]);
 
-    return [currentCoordinates, referenceLocation];
+    return [currentLocation, referenceLocation];
 }

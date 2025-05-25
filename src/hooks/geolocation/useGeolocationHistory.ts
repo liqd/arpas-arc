@@ -23,17 +23,16 @@ import { useEffect, useState } from "react";
  * console.log("Location History:", locationHistory);
  * ```
  */
-export default function useLocationHistory(valideGeolocation: GeolocationPosition | null
+export default function useLocationHistory(valideGeolocation: GeolocationPosition | null, maxHistoryLength: number
 ) : [GeolocationCoordinates[]] {
     
     const [locationHistory, setLocationHistory] = useState<GeolocationCoordinates[]>([]);
 
-    const MAX_CURRENT_LOCATION_HISTORY = 10;
     useEffect(() => {
         if (!valideGeolocation) return;
         setLocationHistory(prevHistory => {
             const updatedHistory = [...prevHistory, valideGeolocation.coords];
-            return updatedHistory.length > MAX_CURRENT_LOCATION_HISTORY ? updatedHistory.slice(1) : updatedHistory;
+            return updatedHistory.length > maxHistoryLength ? updatedHistory.slice(1) : updatedHistory;
         });
     }, [valideGeolocation]);
 

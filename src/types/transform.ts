@@ -106,7 +106,7 @@ class Position extends BaseVector {
         this.z += position.z;
         return this;
     }
-    /** Returns the modified Position based on addition */
+    /** Returns the modified Position based on subtraction */
     substract(position: Position) {
         if(!position) return this;
         this.x -= position.x;
@@ -119,7 +119,7 @@ class Position extends BaseVector {
     addedPosition(position: Position): Position {
         return this.clone().add(position);
     }
-    /** Returns a new Position instance based on addition */
+    /** Returns a new Position instance based on subtraction */
     substractedPosition(position: Position): Position {
         return this.clone().substract(position);
     }

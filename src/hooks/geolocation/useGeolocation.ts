@@ -28,11 +28,11 @@ import { useEffect, useState } from "react";
  * ```
  */
 export default function useGeolocation(
-    defaultGeolocation: GeolocationPosition | null = null, minAccuracy: number = 20,
+    minAccuracy: number = 20,
     updateStableGeoposition?: (currentPosition: GeolocationPosition | null) => void
 ): [GeolocationPosition | null, GeolocationPosition | null] {
 
-    const nullCoordinatePosition: GeolocationPosition = {
+    const nullGeolocationPosition: GeolocationPosition = {
         coords: {
             longitude: 0,
             latitude: 0,
@@ -62,8 +62,8 @@ export default function useGeolocation(
         }
     };
 
-    const [currentGeolocation, setCurrentGeolocation] = useState<GeolocationPosition | null>(nullCoordinatePosition);
-    const [accurateGeolocation, setAccurateGeolocation] = useState<GeolocationPosition | null>(defaultGeolocation);
+    const [currentGeolocation, setCurrentGeolocation] = useState<GeolocationPosition | null>(nullGeolocationPosition);
+    const [accurateGeolocation, setAccurateGeolocation] = useState<GeolocationPosition | null>(null);
 
     useEffect(() => {
         const onSuccess = (position: GeolocationPosition) => {

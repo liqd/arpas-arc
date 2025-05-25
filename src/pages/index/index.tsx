@@ -10,7 +10,6 @@ import { Position, Rotation, Scale } from "../../types/transform";
 import { createSceneObject, getClosestObject, getIntersectedSceneObject } from "../../utility/objects";
 import { Compass2D, Compass3D } from "../../components-ui/compass";
 import "./style.css";
-import { gpsToMeters } from "../../utility/geolocation";
 import useWorldPosition from "../../hooks/geolocation/useWorldPosition";
 import { ObjectSessionData } from "../../types/sessionData";
 
@@ -45,6 +44,8 @@ const defaultCoords: GeolocationPosition = {
 };
 
 const IndexPage = ({ data }: { data: SceneData }) => {
+    const MAX_LOCATION_HISTORY_LENGTH = 10;
+
     // XR objects and values
     const store = useXRStore();
     const state = useThree();
@@ -56,10 +57,10 @@ const IndexPage = ({ data }: { data: SceneData }) => {
     const [headerHeight, setHeaderHeight] = useState(0);
 
     // Location values
-    const [currentGeolocation, accurateGeolocation] = useGeolocation(null, 35);
-    const [locationHistory] = useGeolocationHistory(accurateGeolocation ?? currentGeolocation);
-    const [currentCoordinates, referenceLocation] = useLocationReference(locationHistory);
-    const [worldPosition] = useWorldPosition(referenceLocation?.position ?? new Position()); // TODO start position is way off..
+    const [currentGeolocation, accurateGeolocation] = useGeolocation(35);
+    const [locationHistory] = useGeolocationHistory(accurateGeolocation ?? currentGeolocation, MAX_LOCATION_HISTORY_LENGTH);
+    const [currentLocation, referenceLocation] = useLocationReference(locationHistory, MAX_LOCATION_HISTORY_LENGTH);
+    const [worldPosition] = useWorldPosition(referenceLocation); // TODO start position is way off..
 
     // Compass values
     const [compassHeading, compassCardinal, phoneTilt] = useCompassHeading();
@@ -146,31 +147,18 @@ const IndexPage = ({ data }: { data: SceneData }) => {
     }, [sceneObjects]);
 
     useEffect(() => {
-        // console.log(sceneObjectsSessionData);
-    }, [sceneObjectsSessionData])
+        console.log("curr loc:", currentLocation);
+    }, [currentLocation])
+    useEffect(() => {
+        console.log("ref loc:", referenceLocation);
+    }, [referenceLocation])
+    useEffect(() => {
+        console.log("world pos:", worldPosition);
+    }, [worldPosition])
 
     useEffect(() => {
-        console.log(selectedObject);
+        console.log("selected object:", selectedObject);
     }, [selectedObject])
-
-    // Update objects
-    // TODO remove this. it should not be necessary!
-    useEffect(() => {
-        let usedReferenceCoordinates = referenceLocation?.coordinates ?? null;
-        if (!usedReferenceCoordinates) {
-            if (!currentCoordinates) {
-                console.warn("No reference location provided. Current coordinates are used.");
-                usedReferenceCoordinates = currentCoordinates;
-            } else
-                return;
-        }
-
-        if (usedReferenceCoordinates)
-            sceneObjects.forEach((sceneObject) => {
-                if (sceneObject) sceneObject.updateGeoScenePosition(usedReferenceCoordinates);
-            });
-    }, [currentCoordinates, referenceLocation]);
-    // Update objects
 
     useLayoutEffect(() => {
         const updateHeaderHeight = () => {
@@ -214,21 +202,40 @@ const IndexPage = ({ data }: { data: SceneData }) => {
                 <p style={{ position: "absolute", bottom: "500px", width: "100%", textAlign: "center", color: "white" }}>
                     foo: {foo}, {sceneObjects.length}</p>}
             {currentGeolocation &&
-                <p style={{ position: "absolute", bottom: "260px", width: "100%", textAlign: "center", color: "white" }}>
+                <p style={{ position: "absolute", bottom: "360px", width: "100%", textAlign: "center", color: "white" }}>
                     Curr Coord: {currentGeolocation.coords.latitude}, {currentGeolocation.coords.longitude}, {currentGeolocation.coords.speed}, acc {currentGeolocation.coords.accuracy}</p>}
-            {referenceLocation &&
-                <p style={{ position: "absolute", bottom: "10px", width: "100%", textAlign: "center", color: "white" }}>
+            {(worldPosition && sceneObjects) &&
+                <p style={{ position: "absolute", bottom: "50px", width: "100%", textAlign: "center", color: "white" }}>
                     Closest Distance: {getClosestObject(worldPosition.substractedPosition(new Position(camera.position)), sceneObjects)?.distance.toFixed(2)} meters
                 </p>}
-            {/* {referenceLocation && currentCoordinates &&
-                <p style={{ position: "absolute", bottom: "220px", width: "100%", textAlign: "left", color: "white" }}>
-                    - Pos: {gpsToMeters(referenceLocation.coordinates, currentCoordinates).x.toFixed(2)} ,
-                    {gpsToMeters(referenceLocation?.coordinates, currentCoordinates).z.toFixed(2)}
-                </p>} */}
-            {currentCoordinates &&
-                <p style={{ position: "absolute", bottom: "80px", width: "100%", textAlign: "left", color: "white" }}>
-                    GPS: {currentCoordinates.latitude}, {currentCoordinates.longitude}, {currentCoordinates.altitude}
-                </p>}
+
+            {currentLocation && (
+                <>
+                    <p style={{ position: "absolute", bottom: "80px", width: "100%", textAlign: "left", color: "white" }}>
+                        GPS: {currentLocation.coordinates.latitude}, {currentLocation.coordinates.longitude}, {currentLocation.coordinates.altitude}
+                    </p>
+                    <p style={{ position: "absolute", bottom: "150px", width: "100%", textAlign: "left", color: "white" }}>
+                        Pos: {currentLocation.position.x.toFixed(2)}, {currentLocation.position.y.toFixed(2)}, {currentLocation.position.z.toFixed(2)}
+                    </p>
+                </>
+            )}
+            {referenceLocation && (
+                <>
+                    <p style={{ position: "absolute", bottom: "180px", width: "100%", textAlign: "left", color: "white" }}>
+                        ref GPS: {referenceLocation.coordinates.latitude}, {referenceLocation.coordinates.longitude}, {referenceLocation.coordinates.altitude}
+                    </p>
+                    <p style={{ position: "absolute", bottom: "250px", width: "100%", textAlign: "left", color: "white" }}>
+                        refPos: {referenceLocation.position.x.toFixed(2)}, {referenceLocation.position.y.toFixed(2)}, {referenceLocation.position.z.toFixed(2)}
+                    </p>
+                </>
+            )}
+
+            <p style={{ position: "absolute", bottom: "280px", width: "100%", textAlign: "left", color: "white" }}>
+                World: {worldPosition.x.toFixed(2)}, {worldPosition.y.toFixed(2)}, {worldPosition.z.toFixed(2)}
+            </p>
+            <p style={{ position: "absolute", bottom: "320px", width: "100%", textAlign: "left", color: "white" }}>
+                hist: {locationHistory?.length}
+            </p>
 
             <HelpMenu
                 isVisible={isHelpVisible}
@@ -271,7 +278,6 @@ const IndexPage = ({ data }: { data: SceneData }) => {
         </mesh>
 
         <group
-            position={worldPosition.toArray()}
             rotation={[0, worldRotation, 0]}
         >
             <primitive object={new THREE.AxesHelper(0.25)} /> {/* Add visual scene center */}
@@ -284,7 +290,7 @@ const IndexPage = ({ data }: { data: SceneData }) => {
                     <mesh
                         key={sceneObjectId}
                         userData={{ sceneObjectId }}
-                        position={sceneObject.getScenePosition().toArray()}
+                        position={sceneObject.getScenePosition().substractedPosition(worldPosition).toArray()}
                         rotation={sceneObject.getSceneRotation().toArray()}
                         scale={sceneObject.getScale().toArray()}
                     >

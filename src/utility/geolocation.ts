@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { Position } from "../types/transform";
 
 const earthRadius = 6378137;
 
@@ -91,6 +92,12 @@ export function gpsToMeters(
     const y = (targetCoords.altitude ?? 0) - (originCoords.altitude ?? 0);
 
     return { x, y, z };
+}
+export function gpsToPosition(originCoords: GeolocationCoordinates,
+    targetCoords: GeolocationCoordinates
+): Position {
+    const { x, y, z } = gpsToMeters(originCoords, targetCoords);
+    return new Position(x, y, z);
 }
 
 /**
