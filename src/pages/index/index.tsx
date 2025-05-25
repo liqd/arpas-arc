@@ -60,7 +60,7 @@ const IndexPage = ({ data }: { data: SceneData }) => {
     const [currentGeolocation, accurateGeolocation] = useGeolocation(35);
     const [locationHistory] = useGeolocationHistory(accurateGeolocation ?? currentGeolocation, MAX_LOCATION_HISTORY_LENGTH);
     const [currentLocation, referenceLocation] = useLocationReference(locationHistory, MAX_LOCATION_HISTORY_LENGTH);
-    const [worldPosition] = useWorldPosition(referenceLocation); // TODO start position is way off..
+    const [worldPosition] = useWorldPosition(referenceLocation);
 
     // Compass values
     const [compassHeading, compassCardinal, phoneTilt] = useCompassHeading();

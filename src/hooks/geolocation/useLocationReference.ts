@@ -78,11 +78,8 @@ export default function useLocationReference(
 
             const filteredLatitudes = removeOutliers(coordinatesHistory.map(loc => loc.latitude));
             const filteredLongitudes = removeOutliers(coordinatesHistory.map(loc => loc.longitude));
-            const filteredAltitudes = removeOutliers(coordinatesHistory.map(loc => loc.altitude ?? 0));
+            // const filteredAltitudes = removeOutliers(coordinatesHistory.map(loc => loc.altitude ?? 0));
 
-            const avgLatitude = getWeightedAverage(filteredLatitudes);
-            const avgLongitude = getWeightedAverage(filteredLongitudes);
-            const avgAltitude = getExponentialMovingAverage(filteredAltitudes);
             const avgAccuracy = coordinatesHistory.reduce((sum, loc) => sum + loc.accuracy, 0) / coordinatesHistory.length;
             const avgAltitudeAccuracy = coordinatesHistory.reduce((sum, loc) => sum + (loc.altitudeAccuracy ?? avgAccuracy), 0) / coordinatesHistory.length;
 
@@ -92,14 +89,13 @@ export default function useLocationReference(
                     : {
                         latitude: getWeightedAverage(filteredLatitudes),
                         longitude: getWeightedAverage(filteredLongitudes),
-                        altitude: getExponentialMovingAverage(filteredAltitudes),
+                        altitude: 0, //getExponentialMovingAverage(filteredAltitudes),
                         heading: lastCoords.heading ?? 0,
                         accuracy: avgAccuracy,
                         altitudeAccuracy: avgAltitudeAccuracy,
                         speed: lastCoords.speed ?? 0,
                         toJSON: lastCoords.toJSON
                     };
-
 
             // Skip unnecessary processing if minimal movement detected
             if (prevCoordinates &&
@@ -118,7 +114,7 @@ export default function useLocationReference(
             // Adaptive Thresholds: Dynamically adjusts based on accuracy and movement speed
             const velocityFactor = Math.max(1, coordinates.speed ?? 1);
             const dynamicThreshold = Math.max(5, avgAccuracy / 2, velocityFactor * 3);
-            const dynamicAltitudeThreshold = Math.max(3, avgAltitudeAccuracy, velocityFactor * 1.5);
+            // const dynamicAltitudeThreshold = Math.max(3, avgAltitudeAccuracy, velocityFactor * 1.5);
 
             // If reference location is not yet set, update instantly
             if (!referenceLocation) {
@@ -128,10 +124,10 @@ export default function useLocationReference(
                 const distanceVector = referenceLocation.position.substractedPosition(position);
 
                 const positionDriftDetected = Math.sqrt(distanceVector.x ** 2 + distanceVector.z ** 2) > dynamicThreshold;
-                const altitudeDriftDetected = Math.abs(distanceVector.y) > dynamicAltitudeThreshold;
+                // const altitudeDriftDetected = Math.abs(distanceVector.y) > dynamicAltitudeThreshold;
 
                 const currentTime = Date.now();
-                if (positionDriftDetected || altitudeDriftDetected) {
+                if (positionDriftDetected) { // || altitudeDriftDetected) {
                     const timeThreshold = 10000;
                     console.log(`Large geolocation drift detected! Waiting ${timeThreshold / 1000} seconds for updating reference location...`);
 
