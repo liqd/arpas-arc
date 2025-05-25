@@ -56,3 +56,13 @@
 .variant-icon.active i {
     color: #007bff;
 }
+
+.liked {
+    background: #2d40cc;
+    color: #FFF;
+}
+
+.disliked {
+    background: #a72b1e;
+    color: #FFF;
+}

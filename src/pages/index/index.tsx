@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useXRInputSourceEvent, useXRStore, XRDomOverlay } from "@react-three/xr";
 import * as THREE from "three";
 import { DirectionalArrow, HelpMenu, ObjectDescription } from "../../components-ui";
@@ -71,6 +71,7 @@ const IndexPage = ({ data }: { data: SceneData }) => {
     const [sceneObjectsSessionData, setSceneObjectsSessionData] = useState<Record<number, ObjectSessionData>>({});
 
     const [sceneObjects, setSceneObjects] = useState<SceneObject[]>([]);
+    const sceneObjectsRef = useRef(sceneObjects);
     const [selectedObject, setSelectedObject] = useState<SceneObject | null>(null);
 
     const addOrUpdateSceneObjectData = (objectData: ObjectData | null = null, objectSessionData: ObjectSessionData | null = null) => {
@@ -108,7 +109,7 @@ const IndexPage = ({ data }: { data: SceneData }) => {
         return sceneObjects.find(obj => obj.id === id);
     };
 
-    // Place objects
+    // Apply data
     useEffect(() => {
         if (!data) {
             console.warn("No scene data provided to add object data.");
@@ -121,12 +122,12 @@ const IndexPage = ({ data }: { data: SceneData }) => {
                 id: objectData.id,
                 selectedVariantId: 0,
             };
+
             addOrUpdateSceneObjectData(objectData, sessionData);
         });
-
-        setSelectedObject(sceneObjects[0]);
     }, [data]);
 
+    // Create scene objects
     useEffect(() => {
         if (!data) {
             console.warn("No scene object data provided to create/update objects.");
@@ -138,7 +139,15 @@ const IndexPage = ({ data }: { data: SceneData }) => {
                 createSceneObject(objectData.id, findSceneObjectDataById, addOrUpdateSceneObjectData, groundMesh, setSceneObjects);
             }
         });
+
     }, [sceneObjectsData]);
+
+    // Update scene objects ref
+    useEffect(() => {
+        sceneObjectsRef.current = sceneObjects;
+        console.log(sceneObjectsRef.current.length)
+        setSelectedObject(sceneObjects[0]);
+    }, [sceneObjects]);
 
     useEffect(() => {
         // console.log(sceneObjectsSessionData);
@@ -147,7 +156,6 @@ const IndexPage = ({ data }: { data: SceneData }) => {
     useEffect(() => {
         console.log(selectedObject);
     }, [selectedObject])
-
 
     // Update objects
     // TODO remove this. it should not be necessary!
@@ -183,35 +191,9 @@ const IndexPage = ({ data }: { data: SceneData }) => {
 
     // Handle scene object selection
     useXRInputSourceEvent("all", "selectstart", (event) => {
-        // const selectedObject = getIntersectedSceneObject(event, state, sceneObjects);
-        // if (selectedObject) {
-        //     setSelectedObject(selectedObject);
-        // }
-        const inputSource = event.inputSource;
-        const referenceSpace = state.gl.xr.getReferenceSpace() as XRSpace;
-        const pose = event.frame.getPose(inputSource.targetRaySpace, referenceSpace);
-        if (!pose) return;
-
-        const { x, y, z } = pose.transform.position;
-        const { x: qx, y: qy, z: qz, w: qw } = pose.transform.orientation;
-        const origin = new THREE.Vector3(x, y, z);
-        const direction = new THREE.Vector3(0, 0, -1).applyQuaternion(
-            new THREE.Quaternion(qx, qy, qz, qw)
-        );
-
-        const raycaster = new THREE.Raycaster(origin, direction);
-        const intersects = raycaster.intersectObjects(state.scene.children, true);
-
-        for (const hit of intersects) {
-            const sceneObjectId = hit.object?.userData?.sceneObjectId;
-
-            if (sceneObjectId !== undefined) {
-                const sceneObject = sceneObjects.find(obj => obj.id === sceneObjectId);
-                if (sceneObject) {
-                    setSelectedObject(sceneObject);
-                }
-                return;
-            }
+        const selectedObject = getIntersectedSceneObject(event, state, sceneObjectsRef.current);
+        if (selectedObject) {
+            setSelectedObject(selectedObject);
         }
     }, []);
 

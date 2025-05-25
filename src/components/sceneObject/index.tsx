@@ -125,6 +125,9 @@ class SceneObject {
     getComments(): CommentData[] {
         return this.data.comments;
     }
+    // getCommment(id: number): CommentData {
+    //     return this.getComments().find(comment => comment.id === this.id);
+    // }
     addComment(newComment: CommentData): CommentData[] {
         const updatedData = {
             ...this.data,
@@ -133,9 +136,15 @@ class SceneObject {
         this.data = updatedData;
         return updatedData.comments;
     }
-    // getCommment(id: number): CommentData {
-    //     return this.getComments().find(comment => comment.id === this.id);
-    // }
+    updateComment(comment: CommentData): CommentData {
+        console.log("wevcwe");
+        const updatedComments = this.data.comments.map(c =>
+            c.id === comment.id ? comment : c
+        );
+    
+        this.data = { ...this.data, comments: updatedComments };
+        return comment;
+    }
 };
 
 export default SceneObject;
