@@ -75,7 +75,6 @@ const IndexPage = ({ data }: { data: SceneData }) => {
     const [selectedObject, setSelectedObject] = useState<SceneObject | null>(null);
 
     const addOrUpdateSceneObjectData = (objectData: ObjectData | null = null, objectSessionData: ObjectSessionData | null = null) => {
-
         if (objectData)
             setSceneObjectsData((prevDatas) => {
                 const existingIndex = prevDatas.findIndex(obj => obj.id === objectData.id);
@@ -139,14 +138,11 @@ const IndexPage = ({ data }: { data: SceneData }) => {
                 createSceneObject(objectData.id, findSceneObjectDataById, addOrUpdateSceneObjectData, groundMesh, setSceneObjects);
             }
         });
-
     }, [sceneObjectsData]);
 
     // Update scene objects ref
     useEffect(() => {
         sceneObjectsRef.current = sceneObjects;
-        console.log(sceneObjectsRef.current.length)
-        setSelectedObject(sceneObjects[0]);
     }, [sceneObjects]);
 
     useEffect(() => {
@@ -214,12 +210,9 @@ const IndexPage = ({ data }: { data: SceneData }) => {
                 <Compass2D heading={compassHeading} cardinal={compassCardinal} />
             </div>
 
-            {selectedObject &&
-                <p style={{ position: "absolute", bottom: "450px", width: "100%", textAlign: "center", color: "white" }}>
-                    selected: {selectedObject.id}, {selectedObject.currentVariantId}</p>}
-            {sceneObjects &&
-                <p style={{ position: "absolute", bottom: "340px", width: "100%", textAlign: "center", color: "white" }}>
-                    objects: {sceneObjects.length}, {sceneObjects[0]?.getScenePosition()}</p>}
+            {foo &&
+                <p style={{ position: "absolute", bottom: "500px", width: "100%", textAlign: "center", color: "white" }}>
+                    foo: {foo}, {sceneObjects.length}</p>}
             {currentGeolocation &&
                 <p style={{ position: "absolute", bottom: "260px", width: "100%", textAlign: "center", color: "white" }}>
                     Curr Coord: {currentGeolocation.coords.latitude}, {currentGeolocation.coords.longitude}, {currentGeolocation.coords.speed}, acc {currentGeolocation.coords.accuracy}</p>}
@@ -227,17 +220,14 @@ const IndexPage = ({ data }: { data: SceneData }) => {
                 <p style={{ position: "absolute", bottom: "10px", width: "100%", textAlign: "center", color: "white" }}>
                     Closest Distance: {getClosestObject(worldPosition.substractedPosition(new Position(camera.position)), sceneObjects)?.distance.toFixed(2)} meters
                 </p>}
-            {referenceLocation && currentCoordinates &&
+            {/* {referenceLocation && currentCoordinates &&
                 <p style={{ position: "absolute", bottom: "220px", width: "100%", textAlign: "left", color: "white" }}>
                     - Pos: {gpsToMeters(referenceLocation.coordinates, currentCoordinates).x.toFixed(2)} ,
                     {gpsToMeters(referenceLocation?.coordinates, currentCoordinates).z.toFixed(2)}
-                </p>}
+                </p>} */}
             {currentCoordinates &&
                 <p style={{ position: "absolute", bottom: "80px", width: "100%", textAlign: "left", color: "white" }}>
-                    - GPS: {currentCoordinates.latitude}, {currentCoordinates.longitude}, {currentCoordinates.altitude}
-                </p> &&
-                <p style={{ position: "absolute", bottom: "40px", width: "100%", textAlign: "left", color: "white" }}>
-                    - curr Acc: {currentCoordinates.accuracy.toFixed(5)}, loc his: {locationHistory.length}
+                    GPS: {currentCoordinates.latitude}, {currentCoordinates.longitude}, {currentCoordinates.altitude}
                 </p>}
 
             <HelpMenu
