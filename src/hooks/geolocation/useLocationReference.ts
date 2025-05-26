@@ -84,8 +84,8 @@ export default function useLocationReference(
             const avgAltitudeAccuracy = coordinatesHistory.reduce((sum, loc) => sum + (loc.altitudeAccuracy ?? avgAccuracy), 0) / coordinatesHistory.length;
 
             const coordinates =
-                coordinatesHistory.length < maxHistoryLength
-                    ? coordinatesHistory[coordinatesHistory.length - 1] // Use latest value if history is not full
+                coordinatesHistory.length < maxHistoryLength / 3
+                    ? lastCoords // Use latest value if history is not full
                     : {
                         latitude: getWeightedAverage(filteredLatitudes),
                         longitude: getWeightedAverage(filteredLongitudes),
@@ -111,6 +111,8 @@ export default function useLocationReference(
             position.y = 0; // set altitute: 0
             setCurrentLocation({ coordinates, position });
             if (updateCurrentLocation) updateCurrentLocation({ coordinates, position });
+
+            if (coordinatesHistory.length < maxHistoryLength) return; // Don't set reference location if there is not enough data
 
             // Adaptive Thresholds: Dynamically adjusts based on accuracy and movement speed
             const velocityFactor = Math.max(1, coordinates.speed ?? 1);
