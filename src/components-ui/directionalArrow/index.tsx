@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import * as THREE from "three";
+import { Position } from "../../types/transform";
 
 const DirectionalArrow = ({
     camera,
@@ -10,7 +11,7 @@ const DirectionalArrow = ({
     size = 30
 }: {
     camera: THREE.Camera,
-    targetPos: THREE.Vector3 | undefined,
+    targetPos: Position,
     hideArrowAngle?: number,
     fixedPosition?: boolean,
     color?: string

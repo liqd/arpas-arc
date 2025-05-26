@@ -3,6 +3,36 @@ import { Position } from "../types/transform";
 
 const earthRadius = 6378137;
 
+export const nullCoordinatePosition: GeolocationPosition = {
+    coords: {
+        longitude: 0,
+        latitude: 0,
+        altitude: 0,
+        heading: 0,
+        accuracy: 0,
+        altitudeAccuracy: null,
+        speed: 0,
+        toJSON: function () {
+            return {
+                longitude: this.longitude,
+                latitude: this.latitude,
+                altitude: this.altitude,
+                heading: this.heading,
+                accuracy: this.accuracy,
+                altitudeAccuracy: this.altitudeAccuracy,
+                speed: this.speed
+            };
+        }
+    },
+    timestamp: Date.now(),
+    toJSON: function () {
+        return {
+            coords: this.coords,
+            timestamp: this.timestamp
+        };
+    }
+};
+
 /**
  * Offsets the given GPS coordinates by a specified distance in meters.
  * This function calculates the new coordinates based on the provided displacement in the x (longitude) and y (latitude) axes.

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import * as THREE from "three";
-import { gpsToMeters, gpsToPosition } from "../../utility/geolocation";
+import {  gpsToPosition } from "../../utility/geolocation";
 import { Position } from "../../types/transform";
 import { nullCoordinates } from "../../components/locationObjects/geolocation";
 
