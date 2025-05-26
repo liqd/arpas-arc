@@ -94,19 +94,19 @@ const IndexPage = ({ data }: { data: SceneData }) => {
         });
     }, [data]);
 
-    useEffect(() => {
-        console.log("curr loc:", currentLocation);
-    }, [currentLocation])
-    useEffect(() => {
-        console.log("ref loc:", referenceLocation);
-    }, [referenceLocation])
-    useEffect(() => {
-        console.log("world pos:", worldPosition);
-    }, [worldPosition])
+    // useEffect(() => {
+    //     console.log("curr loc:", currentLocation);
+    // }, [currentLocation])
+    // useEffect(() => {
+    //     console.log("ref loc:", referenceLocation);
+    // }, [referenceLocation])
+    // useEffect(() => {
+    //     console.log("world pos:", worldPosition);
+    // }, [worldPosition])
 
-    useEffect(() => {
-        console.log("selected object:", selectedObject);
-    }, [selectedObject])
+    // useEffect(() => {
+    //     console.log("selected object:", selectedObject);
+    // }, [selectedObject])
 
     useLayoutEffect(() => {
         const updateHeaderHeight = () => {
@@ -181,7 +181,7 @@ const IndexPage = ({ data }: { data: SceneData }) => {
                 <Compass2D heading={compassHeading} cardinal={compassCardinal} />
             </div>
 
-            {selectedObject &&
+            {/* {selectedObject &&
                 <p style={{ position: "absolute", bottom: "400px", width: "100%", textAlign: "center", color: "white" }}>
                     Selected: {selectedObject}</p>}
 
@@ -191,8 +191,7 @@ const IndexPage = ({ data }: { data: SceneData }) => {
             {/* {(closestObjectDistanceToCamera) &&
                 <p style={{ position: "absolute", bottom: "550px", width: "100%", textAlign: "left", color: "white" }}>
                     Closest: {closestObjectDistanceToCamera?.toFixed(2)} m, {closestObjectToCameraPosition?.x}, {closestObjectToCameraPosition?.z}
-                </p>} */}
-
+                </p>}
             {currentLocation && (
                 <>
                     <p style={{ position: "absolute", bottom: "80px", width: "100%", textAlign: "left", color: "white" }}>
@@ -219,7 +218,7 @@ const IndexPage = ({ data }: { data: SceneData }) => {
             </p>
             <p style={{ position: "absolute", bottom: "320px", width: "100%", textAlign: "left", color: "white" }}>
                 hist: {locationHistory?.length}
-            </p>
+            </p> */}
 
             <HelpMenu
                 isVisible={isHelpVisible}
