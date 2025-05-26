@@ -30,9 +30,9 @@ const useSceneStore = create<SceneState>((set) => ({
                                     ? {
                                         ...variant,
                                         isLiked: !variant.isLiked,
-                                        likes: variant.isLiked ? variant.likes - 1 : variant.likes + 1,
-                                        isDisliked: variant.isLiked ? false : variant.isDisliked,
-                                        dislikes: variant.isLiked ? variant.dislikes - 1 : variant.dislikes,
+                                        likes: !variant.isLiked ? variant.likes + 1 : variant.likes - 1,
+                                        isDisliked: variant.isLiked ? variant.isDisliked : false,
+                                        dislikes: variant.isLiked ? variant.dislikes : variant.dislikes - 1,
                                     }
                                     : variant
                             ),
@@ -55,9 +55,9 @@ const useSceneStore = create<SceneState>((set) => ({
                                     ? {
                                         ...variant,
                                         isDisliked: !variant.isDisliked,
-                                        dislikes: variant.isDisliked ? variant.dislikes - 1 : variant.dislikes + 1,
-                                        isLiked: variant.isDisliked ? false : variant.isLiked,
-                                        likes: variant.isDisliked ? variant.likes - 1 : variant.likes,
+                                        dislikes: !variant.isDisliked ? variant.dislikes + 1 : variant.dislikes - 1,
+                                        isLiked: variant.isDisliked ? variant.isLiked : false,
+                                        likes: variant.isDisliked ? variant.likes : variant.likes - 1,
                                     }
                                     : variant
                             ),
@@ -107,9 +107,9 @@ const useSceneStore = create<SceneState>((set) => ({
                                     ? {
                                         ...comment,
                                         isLiked: !comment.isLiked,
-                                        likes: comment.isLiked ? comment.likes - 1 : comment.likes + 1,
-                                        isDisliked: comment.isLiked ? false : comment.isDisliked,
-                                        dislikes: comment.isLiked ? comment.dislikes - 1 : comment.dislikes,
+                                        likes: !comment.isLiked ? comment.likes + 1 : comment.likes - 1,
+                                        isDisliked: comment.isLiked ? comment.isDisliked : false,
+                                        dislikes: comment.isLiked ? comment.dislikes : comment.dislikes - 1,
                                     }
                                     : comment
                             ),
@@ -132,9 +132,9 @@ const useSceneStore = create<SceneState>((set) => ({
                                     ? {
                                         ...comment,
                                         isDisliked: !comment.isDisliked,
-                                        dislikes: comment.isDisliked ? comment.dislikes - 1 : comment.dislikes + 1,
-                                        isLiked: comment.isDisliked ? false : comment.isLiked,
-                                        likes: comment.isDisliked ? comment.likes - 1 : comment.likes,
+                                        dislikes: !comment.isDisliked ? comment.dislikes + 1 : comment.dislikes - 1,
+                                        isLiked: comment.isDisliked ? comment.isLiked : false,
+                                        likes: comment.isDisliked ? comment.likes : comment.likes - 1,
                                     }
                                     : comment
                             ),
