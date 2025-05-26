@@ -25,7 +25,7 @@ import { lerpPosition } from "../../utility/interpolation";
 export default function useWorldPosition(
     referenceLocation: { coordinates: GeolocationCoordinates; position: Position } | null, 
     interpolationTreshhold: number = 15, intrepolationTimeInSec: number = 1
-): [Position, React.Dispatch<React.SetStateAction<Position>>] {
+): [Position] {
 
     const [worldPosition, setWorldPosition] = useState<Position>(new Position());
 
@@ -43,5 +43,5 @@ export default function useWorldPosition(
 
     }, [referenceLocation]);
 
-    return [worldPosition, setWorldPosition];
+    return [worldPosition];
 }

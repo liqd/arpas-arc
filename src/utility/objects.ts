@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { RootState } from "@react-three/fiber";
 import useSceneStore from "../store/sceneStore";
+import { ObjectData } from "../types/objectData";
 
 /**
  * Computes XR interaction and returns the first intersected scene object.
@@ -10,7 +11,7 @@ import useSceneStore from "../store/sceneStore";
  * @param {Array<{ id: number }>} sceneObjects - List of tracked scene objects.
  * @returns { { id: number } | null } - The selected scene object or null if no valid object is found.
  */
-export function getIntersectedSceneObject(event: XRInputSourceEvent, state: RootState
+export function getIntersectedSceneObject(event: XRInputSourceEvent, state: RootState, objects : ObjectData[]
 ): number | null {
     const inputSource = event.inputSource;
     const referenceSpace = state.gl.xr.getReferenceSpace() as XRSpace;
@@ -26,11 +27,10 @@ export function getIntersectedSceneObject(event: XRInputSourceEvent, state: Root
     const raycaster = new THREE.Raycaster(origin, direction);
     const intersects = raycaster.intersectObjects(state.scene.children, true);
 
-    const { scene } = useSceneStore();
     for (const hit of intersects) {
         const sceneObjectId = hit.object?.userData?.sceneObjectId;
         if (sceneObjectId !== undefined) {
-            return scene.objects.find(obj => obj.id === sceneObjectId)?.id || null;
+            return objects.find(obj => obj.id === sceneObjectId)?.id || null;
         }
     }
 

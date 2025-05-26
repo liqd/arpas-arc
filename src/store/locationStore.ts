@@ -15,8 +15,9 @@ const useLocationStore = create<LocationState>((set, get) => ({
         const key = `${latitude},${longitude}`; // Unique key for caching
 
         // Return cached position if it exists
-        if (get().locations[key]) {
-            return get().locations[key];
+        const location = get().locations[key]; 
+        if (location) {
+            return location;
         }
 
         // Create a valid GeolocationCoordinates instance
@@ -40,6 +41,7 @@ const useLocationStore = create<LocationState>((set, get) => ({
             set((state) => ({
                 locations: { ...state.locations, [key]: newPosition },
             }));
+            console.log(`Save new ${newPosition} with key: ${key}`);
         }, 0);
 
         return newPosition;

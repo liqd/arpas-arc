@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useXRInputSourceEvent, useXRStore, XRDomOverlay } from "@react-three/xr";
 import * as THREE from "three";
 import { DirectionalArrow, HelpMenu, ObjectDescription } from "../../components-ui";
@@ -123,11 +123,11 @@ const IndexPage = ({ data }: { data: SceneData }) => {
 
     // Handle scene object selection
     useXRInputSourceEvent("all", "selectstart", (event) => {
-        const selectedObjectId = getIntersectedSceneObject(event, state);
+        const selectedObjectId = getIntersectedSceneObject(event, state, scene.objects);
         if (selectedObjectId) {
             setSelectedObject(selectedObjectId);
         }
-    }, []);
+    }, [scene]);
 
     const getObjectPosition = (sceneObject: ObjectData): Position => {
         const variantId = selectedVariants[sceneObject.id];
@@ -138,29 +138,31 @@ const IndexPage = ({ data }: { data: SceneData }) => {
             .substractedPosition(worldPosition);
     };
 
-    const getClosestObject = (position: Position, sceneObjects: ObjectData[]
-    ): [ObjectData | null, Position | null, number] => {
-        if (!sceneObjects.length) return [null, null, 0];
+    // const getClosestObject = (position: Position, sceneObjects: ObjectData[]
+    // ): [ObjectData | null, Position | null, number] => {
+    //     if (!sceneObjects.length) return [null, null, 0];
 
-        let closestObject = sceneObjects[0];
-        let closestObjectPosition = getObjectPosition(closestObject)
-        let closestDistance = position.distanceTo(getObjectPosition(closestObject));
+    //     let closestObject = sceneObjects[0];
+    //     let closestObjectPosition = getObjectPosition(closestObject)
+    //     let closestDistance = position.distanceTo(getObjectPosition(closestObject));
 
-        for (let i = 1; i < sceneObjects.length; i++) {
-            const currentObject = sceneObjects[i];
-            const currentObjectPosition = getObjectPosition(currentObject);
-            const currentDistance = position.distanceTo(currentObjectPosition);
+    //     for (let i = 1; i < sceneObjects.length; i++) {
+    //         const currentObject = sceneObjects[i];
+    //         const currentObjectPosition = getObjectPosition(currentObject);
+    //         const currentDistance = position.distanceTo(currentObjectPosition);
 
-            if (currentDistance < closestDistance) {
-                closestObject = currentObject;
-                closestObjectPosition = currentObjectPosition;
-                closestDistance = currentDistance;
-            }
-        }
+    //         if (currentDistance < closestDistance) {
+    //             closestObject = currentObject;
+    //             closestObjectPosition = currentObjectPosition;
+    //             closestDistance = currentDistance;
+    //         }
+    //     }
 
-        return [closestObject, closestObjectPosition, closestDistance];
-    };
-    const [closestObjectToCamera, closestObjectToCameraPosition, closestObjectDistanceToCamera] = getClosestObject(new Position(camera.position), scene.objects);
+    //     return [closestObject, closestObjectPosition, closestDistance];
+    // };
+    // useEffect(() => {
+    //     const [closestObjectToCamera, closestObjectToCameraPosition, closestObjectDistanceToCamera] = getClosestObject(new Position(camera.position), scene.objects);
+    // }, );
 
     return (<>
         <XRDomOverlay style={{ width: "100%", height: "100%" }}>
@@ -186,10 +188,10 @@ const IndexPage = ({ data }: { data: SceneData }) => {
             {currentGeolocation &&
                 <p style={{ position: "absolute", bottom: "360px", width: "100%", textAlign: "center", color: "white" }}>
                     Curr Coord: {currentGeolocation.coords.latitude}, {currentGeolocation.coords.longitude}, {currentGeolocation.coords.speed}, acc {currentGeolocation.coords.accuracy}</p>}
-            {(closestObjectDistanceToCamera) &&
+            {/* {(closestObjectDistanceToCamera) &&
                 <p style={{ position: "absolute", bottom: "550px", width: "100%", textAlign: "left", color: "white" }}>
-                    Closest: {closestObjectDistanceToCamera?.toFixed(2)} m, {closestObjectToCameraPosition?.x}
-                </p>}
+                    Closest: {closestObjectDistanceToCamera?.toFixed(2)} m, {closestObjectToCameraPosition?.x}, {closestObjectToCameraPosition?.z}
+                </p>} */}
 
             {currentLocation && (
                 <>
@@ -234,9 +236,9 @@ const IndexPage = ({ data }: { data: SceneData }) => {
                     onClose={() => setSelectedObject(null)}
                 />
             }
-            {closestObjectToCameraPosition &&
+            {/* {closestObjectToCameraPosition &&
                 <DirectionalArrow camera={camera} targetPos={closestObjectToCameraPosition} />
-            }
+            } */}
         </XRDomOverlay>
 
         <ambientLight intensity={5} />
@@ -275,12 +277,11 @@ const IndexPage = ({ data }: { data: SceneData }) => {
                 const variant = sceneObject.variants.find((v) => v.id === variantId);
                 if (!variant) return null;
 
-                console.log(getObjectPosition(sceneObject));
                 return (
                     <mesh
                         key={sceneObjectId}
                         userData={{ sceneObjectId }}
-                        position={getObjectPosition(sceneObject)}
+                        position={getObjectPosition(sceneObject).toArray()}
                         rotation={variant.offset_rotation}
                         scale={variant.offset_scale}
                     >
