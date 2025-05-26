@@ -3,28 +3,28 @@ import { Position } from "../../types/transform";
 import { lerpPosition } from "../../utility/interpolation";
 
 /**
- * A React hook that smoothly updates the world position based on a reference location,
- * ensuring natural movement while avoiding abrupt jumps.
+ * React hook for smoothly updating world position based on a reference location.
+ * Ensures natural movement and prevents abrupt jumps by applying interpolation.
  *
- * It tracks position changes and applies interpolation to create fluid transitions.
+ * @param {Object | null} referenceLocation - GPS coordinates and position data.
+ * @param {number} interpolationThreshold - Distance threshold (in meters) for instant snapping (default: 15m).
+ * @param {number} interpolationTimeInSec - Duration (seconds) for smooth interpolation (default: 1s).
+ * @returns {[Position, React.Dispatch<React.SetStateAction<Position>>]} - Current world position and setter function.
  *
- * @param {Object | null} referenceLocation - Object containing GPS coordinates and position data.
- * @param {number} interpolationThreshold - The distance threshold (in meters) for snapping position instantly. Default: 10m.
- * @returns {[Position, React.Dispatch<React.SetStateAction<Position>>]} - The current world position and setter function.
- *
- * ## Features:
- * - **Instant Snap:** If movement exceeds the interpolation threshold (default: 10m), position updates immediately.
- * - **Smooth Transition:** Uses linear interpolation (`lerpPosition`) for gradual movement below the threshold.
- * - **React Integration:** Automatically updates world position using `useState` and `useEffect`.
+ * ## Functionality:
+ * - **Instant Snapping:** If the movement exceeds the threshold (default: 15m), the position updates immediately.
+ * - **Smooth Transition:** Applies linear interpolation (`lerpPosition`) for gradual movement within the threshold.
+ * - **Automatic React Updates:** Utilizes `useState` and `useEffect` for real-time position tracking.
  *
  * ## Example Usage:
  * ```tsx
- * const [worldPosition] = useWorldPosition(referenceLocation, 5);
- * console.log(`World Position:`, worldPosition.toArray());
+ * const [worldPosition] = useWorldPosition(referenceLocation, 10, 2);
+ * console.log(`Current Position:`, worldPosition.toArray());
  * ```
  */
 export default function useWorldPosition(
-    referenceLocation: { coordinates: GeolocationCoordinates; position: Position } | null, interpolationTreshhold: number = 15
+    referenceLocation: { coordinates: GeolocationCoordinates; position: Position } | null, 
+    interpolationTreshhold: number = 15, intrepolationTimeInSec: number = 1
 ): [Position, React.Dispatch<React.SetStateAction<Position>>] {
 
     const [worldPosition, setWorldPosition] = useState<Position>(new Position());
@@ -36,7 +36,7 @@ export default function useWorldPosition(
         if (referenceLocation.position.distanceTo(worldPosition) > interpolationTreshhold) {
             setWorldPosition(referenceLocation.position);
         } else {
-            lerpPosition(worldPosition, referenceLocation.position, 500, (value) => {
+            lerpPosition(worldPosition, referenceLocation.position, intrepolationTimeInSec * 1000, (value) => {
                 setWorldPosition(value);
             });
         }

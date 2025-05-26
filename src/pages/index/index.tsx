@@ -60,12 +60,12 @@ const IndexPage = ({ data }: { data: SceneData }) => {
     const [currentGeolocation, accurateGeolocation] = useGeolocation(35);
     const [locationHistory] = useGeolocationHistory(accurateGeolocation ?? currentGeolocation, MAX_LOCATION_HISTORY_LENGTH);
     const [currentLocation, referenceLocation] = useLocationReference(locationHistory, MAX_LOCATION_HISTORY_LENGTH);
-    const [worldPosition] = useWorldPosition(referenceLocation);
+    const [worldPosition] = useWorldPosition((referenceLocation ?? currentLocation), 20, 2);
 
     // Compass values
     const [compassHeading, compassCardinal, phoneTilt] = useCompassHeading();
     const [referenceCompassHeading] = useCompassReference(phoneTilt, compassHeading ?? 0, camera);
-    const [worldRotation] = useWorldRotation(referenceCompassHeading, camera);
+    const [worldRotation] = useWorldRotation(referenceCompassHeading, camera, Math.PI / 2, 1);
 
     // Scene values
     const [sceneObjectsData, setSceneObjectsData] = useState<ObjectData[]>([]);
