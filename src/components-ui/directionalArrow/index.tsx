@@ -143,7 +143,7 @@ const DirectionalArrow = ({
                 display: isVisible ? "block" : "none"
             }}
         >
-            <i className="fa-solid fa-location-arrow" color={color}></i>
+            <i className="fas fa-location-arrow" color={color}></i>
         </div>
     );
 };
