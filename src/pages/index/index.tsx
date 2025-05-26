@@ -240,22 +240,19 @@ const IndexPage = ({ data }: { data: SceneData }) => {
 
         <ambientLight intensity={5} />
         <directionalLight intensity={10} />
-        <Compass3D headingInRad={worldRotation} cardinal={compassCardinal} camera={camera} />
+        {/* <Compass3D headingInRad={worldRotation} cardinal={compassCardinal} camera={camera} /> */}
 
-        <primitive object={new THREE.AxesHelper(0.15)} /> {/* Add visual start position */}
-        <RoundedPlane
-            position={new Position()}
+        {/* <primitive object={new THREE.AxesHelper(0.15)} /> Add visual start position */}
+        {/* <RoundedPlane
             rotation={new Rotation(0, worldRotation, 0)}
             scale={new Scale(0.5)}
             radius={1}
             opacity={.2}
-        ></RoundedPlane>
+        ></RoundedPlane> */}
 
         <mesh
             key={123}
             userData={{ sceneObjectId: 1 }}
-            position={new Position().toArray()}
-            rotation={new Rotation().toArray()}
             scale={new Scale(0.2).toArray()}
         >
             <boxGeometry args={[1, 1, 1]} />
@@ -265,7 +262,7 @@ const IndexPage = ({ data }: { data: SceneData }) => {
         <group
             rotation={[0, worldRotation, 0]}
         >
-            <primitive object={new THREE.AxesHelper(0.25)} /> {/* Add visual scene center */}
+            {/* <primitive object={new THREE.AxesHelper(0.25)} /> Add visual scene center */}
 
             {scene.objects.map((sceneObject) => {
                 if (!sceneObject) return null;
