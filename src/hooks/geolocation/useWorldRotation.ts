@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import * as THREE from "three";
 import { lerpValue } from "../../utility/interpolation";
+import useCompassHeading from "./useCompassHeading";
+import useCompassReference from "./useCompassReference";
 
 /**
  * React hook for smoothly updating the world's Y-axis rotation based on compass heading and device orientation.
@@ -24,9 +26,11 @@ import { lerpValue } from "../../utility/interpolation";
  * console.log(`World Rotation: ${worldRotationY.toFixed(3)} radians`);
  * ```
  */
-export default function useWorldRotation(referenceCompassHeading: { heading: number; phoneYaw: number } | null, camera: THREE.Camera,
+export default function useWorldRotation(camera: THREE.Camera,
     interpolationTreshhold: number = Math.PI / 2, intrepolationTimeInSec: number = 1
 ): [number] {
+    const [compassHeading, compassCardinal, phoneTilt] = useCompassHeading();
+    const [referenceCompassHeading] = useCompassReference(phoneTilt, compassHeading ?? 0, camera);
     const [worldRotationEulerY, setWorldRotationEulerY] = useState<number>(Math.PI); // Start facing north (180° (π radians))
 
     useEffect(() => {

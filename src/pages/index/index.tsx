@@ -66,9 +66,7 @@ const IndexPage = ({ data }: { data: SceneData }) => {
     const [worldPosition] = useWorldPosition((referenceLocation ?? currentLocation), 20, 2);
 
     // Compass values
-    const [compassHeading, compassCardinal, phoneTilt] = useCompassHeading();
-    const [referenceCompassHeading] = useCompassReference(phoneTilt, compassHeading ?? 0, camera);
-    const [worldRotation] = useWorldRotation(referenceCompassHeading, camera, Math.PI / 2, 1);
+    const [worldRotation] = useWorldRotation(camera, Math.PI / 2, 1);
 
     // Scene values
     const [selectedObject, setSelectedObject] = useState<number | null>(null);
@@ -178,7 +176,7 @@ const IndexPage = ({ data }: { data: SceneData }) => {
                 </button>
             </div>
             <div style={{ top: `${headerHeight}px` }}>
-                <Compass2D heading={compassHeading} cardinal={compassCardinal} />
+                <Compass2D />
             </div>
 
             {/* {selectedObject &&
