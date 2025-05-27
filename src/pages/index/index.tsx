@@ -78,22 +78,18 @@ const IndexPage = ({ minioData, data }: { minioData: MinioData, data: SceneData 
     useLayoutEffect(() => {
         const updateHeaderHeight = () => {
             const header = document.querySelector("#arc-header") as HTMLElement;
-            setHeaderHeight(header ? header.offsetTop + header.offsetHeight : 42); // Default fallback
+            if (header) {
+                setHeaderHeight(header.offsetTop + header.offsetHeight);
+            }
         };
 
-        // Calculate header height immediately after the DOM is rendered
-        updateHeaderHeight();
+        // Delay the calculation slightly to ensure the DOM is fully rendered
+        setTimeout(updateHeaderHeight, 100);
 
         // Debounced update for resize events
         const debouncedUpdateHeaderHeight = debounce(updateHeaderHeight, 200);
         window.addEventListener("resize", debouncedUpdateHeaderHeight);
         return () => window.removeEventListener("resize", debouncedUpdateHeaderHeight);
-    }, []);
-
-    useEffect(() => {
-        // Recalculate header height after the first render
-        const header = document.querySelector("#arc-header") as HTMLElement;
-        setHeaderHeight(header ? header.offsetTop + header.offsetHeight :32); // Default fallback
     }, []);
 
     // Handle scene object selection
