@@ -22,8 +22,10 @@ const Keyboard: React.FC<KeyboardProps> = ({
     const keyboardRef = useRef<HTMLDivElement>(null);
 
     const handleKeyPress = (button: string) => {
-        if (button === "{shift}" || button === "{lock}") {
-            setLayout(prev => (prev === "default" ? "shift" : "default"));
+        if (button === "{shift}" && layout !== "special") {
+            setLayout((prev) => prev === "shift" ? "default" : "shift");
+        } else if (button === "{special}") {
+            setLayout((prev) => prev === "special" ? "default" : "special");
         } else if (button === "{enter}") {
             onSubmit?.();
         } else {
@@ -59,6 +61,47 @@ const Keyboard: React.FC<KeyboardProps> = ({
                 layoutName={layout}
                 onChange={onChange}
                 onKeyPress={handleKeyPress}
+                layout={{
+                    'default': [
+                        'q w e r t y u i o p',
+                        'a s d f g h j k l',
+                        '{shift} z x c v b n m {bksp}',
+                        '{special} {space} {enter}'
+                    ],
+                    'shift': [
+                        'Q W E R T Y U I O P',
+                        'A S D F G H J K L',
+                        '{shift} Z X C V B N M {bksp}',
+                        '{special} {space} {enter}'
+                    ],
+                    'special': [
+                        '1 2 3 4 5 6 7 8 9 0',
+                        '@ # € _ & - + ( ) /',
+                        '{shift} * " \' : ; ! ? {bksp}',
+                        '{special} {space} {enter}'
+                    ]
+                }}
+                buttonTheme={[
+                    {
+                        class: "fas fa-caret-square-up",
+                        buttons: "{shift}"
+                    },
+                    {
+                        class: "fas fa-backspace",
+                        buttons: "{bksp}"
+                    },
+                    {
+                        class: "fas fa-arrow-right",
+                        buttons: "{enter}"
+                    }
+                ]}
+                display={{
+                    '{shift}': ' ',
+                    '{space}': ' ',
+                    '{bksp}': ' ',
+                    '{enter}': ' ',
+                    '{special}': '?123'
+                }}
             />
         </div>
     );
