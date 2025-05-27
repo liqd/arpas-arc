@@ -32,7 +32,7 @@ const Comment: React.FC<{ objectId: number; commentId: number; setIsNewReplyFocu
         const newReply: ReplyData = {
             id: Date.now(),
             commentId: commentId,
-            username: "RepublicaUser",
+            username: "Republica",
             isModerator: false,
             text: trimmed,
             timestamp: Date.now(),
@@ -140,7 +140,7 @@ const ObjectDescription: React.FC<{
 
         const newComment: CommentData = {
             id: Date.now(),
-            username: "Republica6",
+            username: "Republica",
             isModerator: true,
             text: trimmed,
             timestamp: Date.now(),

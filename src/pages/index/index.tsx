@@ -249,14 +249,14 @@ const IndexPage = ({ data }: { data: SceneData }) => {
             opacity={.2}
         ></RoundedPlane> */}
 
-        <mesh
+        {/* <mesh
             key={123}
             userData={{ sceneObjectId: 1 }}
             scale={new Scale(0.2).toArray()}
         >
             <boxGeometry args={[1, 1, 1]} />
             <meshStandardMaterial color="#248cb5" />
-        </mesh>
+        </mesh> */}
 
         <group
             rotation={[0, worldRotation, 0]}
