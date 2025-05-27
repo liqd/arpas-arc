@@ -45,22 +45,45 @@ const HelpMenu = ({
             >
                 <h3>AR Help Guide</h3>
                 <p>
-                    Welcome to the <strong>AR experience on adhocracy.plus!</strong><br />Here's how to explore and participate using AR:
+                    Welcome to the <strong>Augmented Reality experience on <a href="https://adhocracy.plus/" target="_blank" rel="noopener noreferrer">Adhocracy.plus</a>!</strong><br />Here's how to explore and participate using AR:
                 </p>
-                <Accordion title="What is adhocracy.plus AR Beta?">
-                    <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras laoreet mi vel lacus mollis, nec imperdiet ligula molestie. Vestibulum convallis sodales leo non fermentum. In felis enim, dignissim pharetra luctus quis, interdum vitae augue. Etiam vel varius quam. Maecenas semper nisl vestibulum turpis sagittis vestibulum. Donec lacinia, libero quis cursus hendrerit, ex tellus dictum enim, in posuere diam sapien nec eros. Nunc ultricies pulvinar nisi vestibulum convallis. Pellentesque in varius leo. Sed eget libero tincidunt, rhoncus est vitae, rhoncus dui. Duis nec massa orci. </p>
+                <Accordion title="What is Adhocracy.plus AR Beta?">
+                    <p>
+                        <a href="https://adhocracy.plus/" target="_blank" rel="noopener noreferrer">Adhocracy.plus</a> AR Beta is an experimental feature that allows users to interact with Augmented Reality elements in their environment. 
+                        It is designed to enhance civic engagement by providing immersive experiences for exploring projects, proposals, and ideas in a spatial context.
+                    </p>
                 </Accordion>
                 <Accordion title="What is Augmented Reality?">
-                    <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras laoreet mi vel lacus mollis, nec imperdiet ligula molestie. Vestibulum convallis sodales leo non fermentum. In felis enim, dignissim pharetra luctus quis, interdum vitae augue. Etiam vel varius quam. Maecenas semper nisl vestibulum turpis sagittis vestibulum. Donec lacinia, libero quis cursus hendrerit, ex tellus dictum enim, in posuere diam sapien nec eros. Nunc ultricies pulvinar nisi vestibulum convallis. Pellentesque in varius leo. Sed eget libero tincidunt, rhoncus est vitae, rhoncus dui. Duis nec massa orci. </p>
+                    <p>
+                        Augmented Reality (AR) is a technology that overlays digital content onto the real world through devices like smartphones, tablets, or AR glasses. 
+                        Unlike virtual reality, AR enhances your physical surroundings by adding interactive elements, such as 3D models, animations, or information panels.
+                    </p>
                 </Accordion>
                 <Accordion title="Why should I participate?">
-                    <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras laoreet mi vel lacus mollis, nec imperdiet ligula molestie. Vestibulum convallis sodales leo non fermentum. In felis enim, dignissim pharetra luctus quis, interdum vitae augue. Etiam vel varius quam. Maecenas semper nisl vestibulum turpis sagittis vestibulum. Donec lacinia, libero quis cursus hendrerit, ex tellus dictum enim, in posuere diam sapien nec eros. Nunc ultricies pulvinar nisi vestibulum convallis. Pellentesque in varius leo. Sed eget libero tincidunt, rhoncus est vitae, rhoncus dui. Duis nec massa orci. </p>
+                    <p>
+                        Participating in AR experiences allows you to engage with projects and proposals in a more interactive and visual way. 
+                        It helps you better understand spatial relationships, visualize ideas, and contribute feedback in a meaningful manner. 
+                        Plus, it's a fun and innovative way to shape your community!
+                    </p>
                 </Accordion>
                 <Accordion title="How do I use AR mode?">
-                    <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras laoreet mi vel lacus mollis, nec imperdiet ligula molestie. Vestibulum convallis sodales leo non fermentum. In felis enim, dignissim pharetra luctus quis, interdum vitae augue. Etiam vel varius quam. Maecenas semper nisl vestibulum turpis sagittis vestibulum. Donec lacinia, libero quis cursus hendrerit, ex tellus dictum enim, in posuere diam sapien nec eros. Nunc ultricies pulvinar nisi vestibulum convallis. Pellentesque in varius leo. Sed eget libero tincidunt, rhoncus est vitae, rhoncus dui. Duis nec massa orci. </p>
+                    <p>
+                        To use AR mode:
+                        <ul>
+                            <li>Ensure your device supports AR (e.g., ARCore for Android).</li>
+                            <li>Follow the on-screen instructions to explore AR elements in your environment.</li>
+                            <li>Interact with objects by tapping or selecting them to view more details.</li>
+                        </ul>
+                    </p>
                 </Accordion>
                 <Accordion title="Tips">
-                    <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras laoreet mi vel lacus mollis, nec imperdiet ligula molestie. Vestibulum convallis sodales leo non fermentum. In felis enim, dignissim pharetra luctus quis, interdum vitae augue. Etiam vel varius quam. Maecenas semper nisl vestibulum turpis sagittis vestibulum. Donec lacinia, libero quis cursus hendrerit, ex tellus dictum enim, in posuere diam sapien nec eros. Nunc ultricies pulvinar nisi vestibulum convallis. Pellentesque in varius leo. Sed eget libero tincidunt, rhoncus est vitae, rhoncus dui. Duis nec massa orci. </p>
+                    <p>
+                        Here are some tips for using AR mode effectively:
+                        <ul>
+                            <li>Use AR in a well-lit area for better visibility.</li>
+                            <li>Move around to explore objects from different angles.</li>
+                        </ul>
+                    </p>
                 </Accordion>
                 <p className="mt-auto pt-3">
                     Still need help? Reach out at <a href="mailto:support@adhocracy.plus">support@adhocracy.plus</a><br />
