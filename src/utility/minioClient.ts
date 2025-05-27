@@ -6,7 +6,7 @@ const minioClient = (minioData: MinioData) => new S3Client({
   region: minioData.region,
   credentials: {
     accessKeyId: minioData.accessKey,
-    secretAccessKey: minioData.accessKey,
+    secretAccessKey: minioData.secretKey,
   },
   forcePathStyle: true, // Required for MinIO
 });
