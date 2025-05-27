@@ -1,16 +1,18 @@
-import { useEffect, useLayoutEffect, useState } from "react";
-import { useXRStore, XRDomOverlay } from "@react-three/xr";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useXRInputSourceEvent, useXRStore, XRDomOverlay } from "@react-three/xr";
 import * as THREE from "three";
-import { HelpMenu, ObjectDescription } from "../../components-ui";
-import { SceneData } from "../../types/objectData";
-import { MeshObject, RoundedPlane, SceneObject } from "../../components";
-import { useLocationReference, useGeolocation, useCompassHeading, useCompassReference, useGeolocationHistory, useWorldRotation } from "../../hooks";
+import { DirectionalArrow, HelpMenu, ObjectDescription } from "../../components-ui";
+import { SceneData, ObjectData, VariantData } from "../../types/objectData";
+import { MeshObject, } from "../../components";
+import { useWorldRotation } from "../../hooks";
 import { useThree } from "@react-three/fiber";
 import { Position, Rotation, Scale } from "../../types/transform";
-import { getClosestObject, placeObjectsAtWorldCoordinates } from "../../utility/objects";
+import { getIntersectedSceneObject } from "../../utility/objects";
 import { Compass2D, Compass3D } from "../../components-ui/compass";
 import "./style.css";
-import { gpsToMeters } from "../../utility/geolocation";
+import useWorldPosition from "../../hooks/geolocation/useWorldPosition";
+import useSceneStore from "../../store/sceneStore";
+import useLocationStore from "../../store/locationStore";
 
 const defaultCoords: GeolocationPosition = {
     coords: {
@@ -43,9 +45,13 @@ const defaultCoords: GeolocationPosition = {
 };
 
 const IndexPage = ({ data }: { data: SceneData }) => {
+
     // XR objects and values
     const store = useXRStore();
+    const state = useThree();
     const { camera } = useThree();
+    const { scene, setScene } = useSceneStore();
+    const { getPosition } = useLocationStore();
     const groundMesh = store.getState().groundMesh;
 
     // UI values
@@ -53,32 +59,48 @@ const IndexPage = ({ data }: { data: SceneData }) => {
     const [headerHeight, setHeaderHeight] = useState(0);
 
     // Location values
-    const [valideGeolocation] = useGeolocation(defaultCoords);
-    const [locationHistory] = useGeolocationHistory(valideGeolocation);
-    const [currentCoordinates, referenceLocation] = useLocationReference(locationHistory);
+    const [worldPosition] = useWorldPosition(20, 2);
 
     // Compass values
-    const [compassHeading, compassCardinal, phoneTilt] = useCompassHeading();
-    const [referenceCompassHeading] = useCompassReference(phoneTilt, compassHeading ?? 0, camera);
-    const [worldRotation] = useWorldRotation(referenceCompassHeading, camera);
+    const [worldRotation] = useWorldRotation(camera, Math.PI / 2, 1);
 
     // Scene values
-    const [sceneObjects, setSceneObjects] = useState<SceneObject[]>([]);
-    const [selectedObject, setSelectedObject] = useState<SceneObject | null>(null);
+    const [selectedObject, setSelectedObject] = useState<number | null>(null);
+    const [selectedVariants, setSelectedVariants] = useState<Record<number, number>>({});
 
-    // Smooth world position
-    // TODO
+    const setCurrentVariant = (objectId: number, variantId: number) => {
+        setSelectedVariants((prev) => ({ ...prev, [objectId]: variantId }))
+    }
 
-    // Place objects
+    // Apply data
     useEffect(() => {
         if (!data) {
-            console.warn("No scene data provided to place objects.");
+            console.warn("No scene data provided to add object data.");
             return;
         }
+        console.log("Data updated:", data);
 
-        if (referenceLocation)
-            placeObjectsAtWorldCoordinates(referenceLocation, groundMesh, data.objects, setSceneObjects);
-    }, [referenceLocation, referenceCompassHeading]);
+        setScene(data);
+
+        // Set current variants
+        data.objects.forEach(object => {
+            setCurrentVariant(object.id, object.variants[0].id);
+        });
+    }, [data]);
+
+    // useEffect(() => {
+    //     console.log("curr loc:", currentLocation);
+    // }, [currentLocation])
+    // useEffect(() => {
+    //     console.log("ref loc:", referenceLocation);
+    // }, [referenceLocation])
+    // useEffect(() => {
+    //     console.log("world pos:", worldPosition);
+    // }, [worldPosition])
+
+    // useEffect(() => {
+    //     console.log("selected object:", selectedObject);
+    // }, [selectedObject])
 
     useLayoutEffect(() => {
         const updateHeaderHeight = () => {
@@ -92,6 +114,52 @@ const IndexPage = ({ data }: { data: SceneData }) => {
         window.addEventListener("resize", updateHeaderHeight);
         return () => window.removeEventListener("resize", updateHeaderHeight);
     }, []);
+
+    // Handle scene object selection
+    useXRInputSourceEvent("all", "selectstart", (event) => {
+        if (!scene) return;
+
+        const selectedObjectId = getIntersectedSceneObject(event, state, scene.objects);
+        if (selectedObjectId) {
+            setSelectedObject(selectedObjectId);
+        }
+    }, [scene]);
+
+    // TODO Cache!
+    const getObjectPosition = (sceneObject: ObjectData): Position => {
+        const variantId = selectedVariants[sceneObject.id];
+        const variant = sceneObject.variants.find((v) => v.id === variantId);
+
+        return getPosition(sceneObject.coordinates[0], sceneObject.coordinates[1])
+            .addedPosition(variant?.offset_position ?? new Position())
+            .substractedPosition(worldPosition);
+    };
+
+    // const getClosestObject = (position: Position, sceneObjects: ObjectData[]
+    // ): [ObjectData | null, Position | null, number] => {
+    //     if (!sceneObjects.length) return [null, null, 0];
+
+    //     let closestObject = sceneObjects[0];
+    //     let closestObjectPosition = getObjectPosition(closestObject)
+    //     let closestDistance = position.distanceTo(getObjectPosition(closestObject));
+
+    //     for (let i = 1; i < sceneObjects.length; i++) {
+    //         const currentObject = sceneObjects[i];
+    //         const currentObjectPosition = getObjectPosition(currentObject);
+    //         const currentDistance = position.distanceTo(currentObjectPosition);
+
+    //         if (currentDistance < closestDistance) {
+    //             closestObject = currentObject;
+    //             closestObjectPosition = currentObjectPosition;
+    //             closestDistance = currentDistance;
+    //         }
+    //     }
+
+    //     return [closestObject, closestObjectPosition, closestDistance];
+    // };
+    // useEffect(() => {
+    //     const [closestObjectToCamera, closestObjectToCameraPosition, closestObjectDistanceToCamera] = getClosestObject(new Position(camera.position), scene.objects);
+    // }, );
 
     return (<>
         <XRDomOverlay style={{ width: "100%", height: "100%" }}>
@@ -107,25 +175,47 @@ const IndexPage = ({ data }: { data: SceneData }) => {
                 </button>
             </div>
             <div style={{ top: `${headerHeight}px` }}>
-                <Compass2D heading={compassHeading} cardinal={compassCardinal} />
+                <Compass2D />
             </div>
 
-            {referenceLocation &&
-                <p style={{ position: "absolute", bottom: "10px", width: "100%", textAlign: "center", color: "white" }}>
-                    Closest Distance: {getClosestObject(referenceLocation.position, sceneObjects)?.distance.toFixed(2)} meters
+            {/* {selectedObject &&
+                <p style={{ position: "absolute", bottom: "400px", width: "100%", textAlign: "center", color: "white" }}>
+                    Selected: {selectedObject}</p>}
+
+            {currentGeolocation &&
+                <p style={{ position: "absolute", bottom: "360px", width: "100%", textAlign: "center", color: "white" }}>
+                    Curr Coord: {currentGeolocation.coords.latitude}, {currentGeolocation.coords.longitude}, {currentGeolocation.coords.speed}, acc {currentGeolocation.coords.accuracy}</p>}
+            {/* {(closestObjectDistanceToCamera) &&
+                <p style={{ position: "absolute", bottom: "550px", width: "100%", textAlign: "left", color: "white" }}>
+                    Closest: {closestObjectDistanceToCamera?.toFixed(2)} m, {closestObjectToCameraPosition?.x}, {closestObjectToCameraPosition?.z}
                 </p>}
-            {referenceLocation && currentCoordinates &&
-                <p style={{ position: "absolute", bottom: "220px", width: "100%", textAlign: "left", color: "white" }}>
-                    - Pos: {gpsToMeters(referenceLocation.coordinates, currentCoordinates).x.toFixed(2)} ,
-                    {gpsToMeters(referenceLocation?.coordinates, currentCoordinates).z.toFixed(2)}
-                </p>}
-            {currentCoordinates &&
-                <p style={{ position: "absolute", bottom: "80px", width: "100%", textAlign: "left", color: "white" }}>
-                    - GPS: {currentCoordinates.latitude}, {currentCoordinates.longitude}
-                </p> &&
-                <p style={{ position: "absolute", bottom: "40px", width: "100%", textAlign: "left", color: "white" }}>
-                    - curr Acc: {currentCoordinates.accuracy.toFixed(5)}, loc his: {locationHistory.length}
-                </p>}
+            {currentLocation && (
+                <>
+                    <p style={{ position: "absolute", bottom: "80px", width: "100%", textAlign: "left", color: "white" }}>
+                        GPS: {currentLocation.coordinates.latitude}, {currentLocation.coordinates.longitude}, {currentLocation.coordinates.altitude}
+                    </p>
+                    <p style={{ position: "absolute", bottom: "150px", width: "100%", textAlign: "left", color: "white" }}>
+                        Pos: {currentLocation.position.x.toFixed(2)}, {currentLocation.position.y.toFixed(2)}, {currentLocation.position.z.toFixed(2)}
+                    </p>
+                </>
+            )}
+            {referenceLocation && (
+                <>
+                    <p style={{ position: "absolute", bottom: "180px", width: "100%", textAlign: "left", color: "white" }}>
+                        ref GPS: {referenceLocation.coordinates.latitude}, {referenceLocation.coordinates.longitude}, {referenceLocation.coordinates.altitude}
+                    </p>
+                    <p style={{ position: "absolute", bottom: "250px", width: "100%", textAlign: "left", color: "white" }}>
+                        refPos: {referenceLocation.position.x.toFixed(2)}, {referenceLocation.position.y.toFixed(2)}, {referenceLocation.position.z.toFixed(2)}
+                    </p>
+                </>
+            )}
+
+            <p style={{ position: "absolute", bottom: "280px", width: "100%", textAlign: "left", color: "white" }}>
+                World: {worldPosition.x.toFixed(2)}, {worldPosition.y.toFixed(2)}, {worldPosition.z.toFixed(2)}
+            </p>
+            <p style={{ position: "absolute", bottom: "320px", width: "100%", textAlign: "left", color: "white" }}>
+                hist: {locationHistory?.length}
+            </p> */}
 
             <HelpMenu
                 isVisible={isHelpVisible}
@@ -133,47 +223,60 @@ const IndexPage = ({ data }: { data: SceneData }) => {
                 onLeave={() => store.getState().session?.end()}
             />
 
-            <ObjectDescription
-                object={selectedObject?.objectData ?? null}
-                variant={selectedObject?.getCurrentVariant() ?? null}
-                headerHeight={headerHeight}
-                onClose={() => setSelectedObject(null)}
-                onSelectVariant={(variantId) => {
-                    if (!selectedObject) return;
-                    selectedObject.changeVariant(variantId);
-                }}
-            />
+            {selectedObject &&
+                <ObjectDescription
+                    objectId={selectedObject}
+                    variantId={selectedVariants[selectedObject]}
+                    headerHeight={headerHeight}
+                    setCurrentVariant={setCurrentVariant}
+                    onClose={() => setSelectedObject(null)}
+                />
+            }
+            {/* {closestObjectToCameraPosition &&
+                <DirectionalArrow camera={camera} targetPos={closestObjectToCameraPosition} />
+            } */}
         </XRDomOverlay>
 
         <ambientLight intensity={5} />
         <directionalLight intensity={10} />
-        <Compass3D heading={worldRotation} cardinal={compassCardinal} camera={camera} />
+        {/* <Compass3D headingInRad={worldRotation} cardinal={compassCardinal} camera={camera} /> */}
 
-        <primitive object={new THREE.AxesHelper(0.15)} /> {/* Add visual start position */}
-        <RoundedPlane
-            position={new Position()}
+        {/* <primitive object={new THREE.AxesHelper(0.15)} /> Add visual start position */}
+        {/* <RoundedPlane
             rotation={new Rotation(0, worldRotation, 0)}
             scale={new Scale(0.5)}
             radius={1}
             opacity={.2}
-        ></RoundedPlane>
+        ></RoundedPlane> */}
+
+        {/* <mesh
+            key={123}
+            userData={{ sceneObjectId: 1 }}
+            scale={new Scale(0.2).toArray()}
+        >
+            <boxGeometry args={[1, 1, 1]} />
+            <meshStandardMaterial color="#248cb5" />
+        </mesh> */}
 
         <group
-            position={referenceLocation?.position.toArray()}
             rotation={[0, worldRotation, 0]}
         >
-            <primitive object={new THREE.AxesHelper(0.25)} /> {/* Add visual scene center */}
-            {sceneObjects.map((sceneObject) => {
-                const variant = sceneObject.getCurrentVariant();
+            {/* <primitive object={new THREE.AxesHelper(0.25)} /> Add visual scene center */}
+
+            {scene.objects.map((sceneObject) => {
+                if (!sceneObject) return null;
+                const sceneObjectId = sceneObject.id;
+                const variantId = selectedVariants[sceneObject.id];
+                const variant = sceneObject.variants.find((v) => v.id === variantId);
                 if (!variant) return null;
 
                 return (
                     <mesh
-                        key={sceneObject.id}
-                        position={sceneObject.getScenePosition().toArray()}
-                        rotation={sceneObject.getSceneRotation().toArray()}
-                        scale={sceneObject.getScale().toArray()}
-                        onClick={() => setSelectedObject(sceneObject)}
+                        key={sceneObjectId}
+                        userData={{ sceneObjectId }}
+                        position={getObjectPosition(sceneObject).toArray()}
+                        rotation={variant.offset_rotation}
+                        scale={variant.offset_scale}
                     >
                         {variant.mesh_id === "primitive_cube" ? (
                             <>
@@ -186,7 +289,7 @@ const IndexPage = ({ data }: { data: SceneData }) => {
                                 <meshStandardMaterial color="#248cb5" />
                             </>
                         ) : (
-                            <MeshObject key={sceneObject.id} meshObjectId={variant.mesh_id} />
+                            <MeshObject key={`${sceneObject.id}_${variant.id}`} sceneObjectId={sceneObjectId} meshObjectId={variant.mesh_id} />
                         )}
                     </mesh>
                 );

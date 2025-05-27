@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import * as THREE from "three";
+import { Position } from "../../types/transform";
 
 const DirectionalArrow = ({
     camera,
@@ -10,7 +11,7 @@ const DirectionalArrow = ({
     size = 30
 }: {
     camera: THREE.Camera,
-    targetPos: THREE.Vector3 | undefined,
+    targetPos: Position,
     hideArrowAngle?: number,
     fixedPosition?: boolean,
     color?: string
@@ -143,7 +144,7 @@ const DirectionalArrow = ({
                 display: isVisible ? "block" : "none"
             }}
         >
-            <i className="fa-solid fa-location-arrow" color={color}></i>
+            <i className="fas fa-location-arrow" color={color}></i>
         </div>
     );
 };

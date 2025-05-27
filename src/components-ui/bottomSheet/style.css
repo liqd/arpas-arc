@@ -31,6 +31,10 @@
     border-radius: 3px;
 }
 
+.bottom-sheet-content-header {
+    padding: 0 3%;
+}
+
 .bottom-sheet-content {
     padding: 0 3% 1rem;
     overflow-y: auto;
@@ -51,4 +55,14 @@
 
 .variant-icon.active i {
     color: #007bff;
+}
+
+.liked {
+    background: #2d40cc;
+    color: #FFF;
+}
+
+.disliked {
+    background: #a72b1e;
+    color: #FFF;
 }

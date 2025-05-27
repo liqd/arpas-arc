@@ -1,31 +1,36 @@
 import { useState, useEffect } from "react";
 import * as THREE from "three";
 import { lerpValue } from "../../utility/interpolation";
+import useCompassHeading from "./useCompassHeading";
+import useCompassReference from "./useCompassReference";
 
 /**
- * This hook calculates and smoothly updates the world rotation around the Y-axis
- * based on the device's compass heading and phone orientation.
+ * React hook for smoothly updating the world's Y-axis rotation based on compass heading and device orientation.
+ * Ensures seamless transitions while maintaining accurate scene alignment with the real-world heading.
  *
- * It returns the current rotation in radians, keeping the scene aligned correctly with North.
- *
- * @param {Object | null} referenceCompassHeading - Object containing heading (compass direction) and phoneYaw (device rotation).
- * @param {THREE.Camera} camera - The Three.js camera whose orientation influences scene alignment.
+ * @param {Object | null} referenceCompassHeading - Contains compass heading and device yaw (rotation).
+ * @param {THREE.Camera} camera - The Three.js camera used for orientation calculations.
+ * @param {number} interpolationThreshold - Angle threshold (in radians) for instant snapping instead of interpolation (default: π/2 radians, 90°).
+ * @param {number} interpolationTimeInSec - Duration (seconds) for gradual rotation transition (default: 1s).
  * @returns {[number]} - The world rotation angle in radians.
  *
- * Features:
- * - Computes phone's relative rotation using quaternion transformations.
- * - Maintains smooth transitions with linear interpolation (`lerpValue`).
- * - Snaps rotation if the angle difference exceeds 20° (0.349 radians).
- * - Defaults to 180° (π radians), starting the scene facing North.
+ * ## Functionality:
+ * - **Accurate Rotation Tracking:** Computes phone-relative rotation using quaternion transformations.
+ * - **Smooth Interpolation:** Uses `lerpValue` for gradual rotation changes within the threshold.
+ * - **Immediate Snapping:** If rotation exceeds the threshold (default: π/2 radians), it updates instantly.
+ * - **North-Oriented Default:** Initializes world rotation facing **North** (π radians).
  *
- * Usage Example:
- * ```tsx
- * const worldRotationY = useWorldRotation(referenceCompassHeading, camera);
- * console.log(`World Rotation: ${worldRotationY} radians`);
+ * ## Example Usage:
+ * ```tsx   
+ * const worldRotationY = useWorldRotation(referenceCompassHeading, camera, Math.PI / 4, 2);
+ * console.log(`World Rotation: ${worldRotationY.toFixed(3)} radians`);
  * ```
  */
-export default function useWorldRotation(referenceCompassHeading: { heading: number; phoneYaw: number } | null, camera: THREE.Camera
+export default function useWorldRotation(camera: THREE.Camera,
+    interpolationTreshhold: number = Math.PI / 2, intrepolationTimeInSec: number = 1
 ): [number] {
+    const [referenceCompassHeading] = useCompassReference(camera);
+    
     const [worldRotationEulerY, setWorldRotationEulerY] = useState<number>(Math.PI); // Start facing north (180° (π radians))
 
     useEffect(() => {
@@ -39,11 +44,11 @@ export default function useWorldRotation(referenceCompassHeading: { heading: num
 
         currentWorldRotationEulerY = THREE.MathUtils.degToRad((referenceCompassHeading.heading + phoneAngleDeg + 540) % 360);
 
-        // Snap if difference exceeds threshold: 20° = 0.349 radians
-        if (Math.abs(currentWorldRotationEulerY - worldRotationEulerY) > 0.349) {
+        // Snap if difference exceeds threshold
+        if (Math.abs(currentWorldRotationEulerY - worldRotationEulerY) > interpolationTreshhold) {
             setWorldRotationEulerY(currentWorldRotationEulerY);
         } else {
-            lerpValue(worldRotationEulerY, currentWorldRotationEulerY, 500, (value) => {
+            lerpValue(worldRotationEulerY, currentWorldRotationEulerY, intrepolationTimeInSec * 1000, (value) => {
                 setWorldRotationEulerY(value);
             });
         }

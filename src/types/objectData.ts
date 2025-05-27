@@ -23,6 +23,10 @@ export type VariantData = {
     offset_rotation: [number, number, number],
     offset_scale: [number, number, number],
     weight: number,
+    likes: number, // not given by django as of now
+    isLiked: boolean, // not given by django as of now
+    dislikes: number, // not given by django as of now
+    isDisliked: boolean // not given by django as of now
 }
 
 export type CommentData = {
@@ -32,6 +36,21 @@ export type CommentData = {
     timestamp: number,
     text: string,
     likes: number,
+    isLiked: boolean,
     dislikes: number,
-    replies: Array<CommentData>
+    isDisliked: boolean,
+    replies: Array<ReplyData>
+}
+
+export type ReplyData = {
+    id: number,
+    commentId: number,
+    username: string,
+    isModerator: boolean,
+    timestamp: number,
+    text: string,
+    likes: number,
+    isLiked: boolean,
+    dislikes: number,
+    isDisliked: boolean
 }

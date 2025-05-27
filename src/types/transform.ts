@@ -98,6 +98,40 @@ class Position extends BaseVector {
         }
     }
 
+    /** Returns the modified Position based on addition */
+    add(position: Position) {
+        if (!position) return this;
+        this.x += position.x;
+        this.y += position.y;
+        this.z += position.z;
+        return this;
+    }
+    /** Returns the modified Position based on subtraction */
+    substract(position: Position) {
+        if (!position) return this;
+        this.x -= position.x;
+        this.y -= position.y;
+        this.z -= position.z;
+        return this;
+    }
+
+    /** Returns a new Position instance based on addition */
+    addedPosition(position: Position | THREE.Vector3 | [number, number, number]): Position {
+        const posInstance = position instanceof Position
+            ? position
+            : new Position(position); // Ensure it's always a Position instance
+
+        return this.clone().add(posInstance);
+    }
+    /** Returns a new Position instance based on subtraction */
+    substractedPosition(position: Position | THREE.Vector3 | [number, number, number]): Position {
+        const posInstance = position instanceof Position
+            ? position
+            : new Position(position); // Ensure it's always a Position instance
+
+        return this.clone().substract(posInstance);
+    }
+
     toString(): string {
         return `Position (x: ${this.x}, y: ${this.y}, z: ${this.z})`;
     }
@@ -121,14 +155,39 @@ class Rotation extends BaseEuler {
         }
     }
 
+    /** Returns the modified Rotation based on addition */
     add(rotation: Rotation) {
-        if(!rotation) return this;
+        if (!rotation) return this;
         this.x += rotation.x;
         this.y += rotation.y;
         this.z += rotation.z;
         return this;
     }
+    /** Returns the modified Rotation based on subtraction */
+    substract(rotation: Rotation) {
+        if (!rotation) return this;
+        this.x -= rotation.x;
+        this.y -= rotation.y;
+        this.z -= rotation.z;
+        return this;
+    }
 
+    /** Returns a new Rotation instance based on addition */
+    addedRotation(rotation: Rotation | THREE.Euler | [number, number, number]): Rotation {
+        const rotInstance = rotation instanceof Rotation
+            ? rotation
+            : new Rotation(rotation); // Ensure it's always a Rotation instance
+
+        return this.clone().add(rotInstance);
+    }
+    /** Returns a new Rotation instance based on subtraction */
+    substractedRotation(rotation: Rotation | THREE.Euler | [number, number, number]): Rotation {
+        const rotInstance = rotation instanceof Rotation
+            ? rotation
+            : new Rotation(rotation); // Ensure it's always a Rotation instance
+
+        return this.clone().substract(rotInstance);
+    }
 
     toString(): string {
         return `Rotation (x: ${this.x}, y: ${this.y}, z: ${this.z})`;

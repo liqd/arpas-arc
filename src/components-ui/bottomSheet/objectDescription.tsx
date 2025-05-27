@@ -1,163 +1,268 @@
 import { useState } from "react";
 import { BottomSheet } from "..";
-import { CommentData, ObjectData, VariantData } from "../../types/objectData";
-import { formatTimestamp } from "../../utility/conversion";
+import { CommentData, ReplyData, VariantData } from "../../types/objectData";
 import "./style.css";
+import useSceneStore from "../../store/sceneStore";
 
-const Comment = ({ comment }: { comment: CommentData }) => {
+const Comment: React.FC<{ objectId: number; commentId: number; setIsNewReplyFocused: (focus: boolean) => void }> = ({
+    objectId,
+    commentId,
+    setIsNewReplyFocused,
+}) => {
     const [isShowingReplies, setIsShowingReplies] = useState(false);
+    const [replyText, setReplyText] = useState("");
 
-    return (<>
-        <div className="row top-border">
-            <div className="a4-comments__box pt-3">
-                <div className="a4-comments__box--user row">
-                    <div className="col-2 col-lg-1 a4-comments__user-img">
-                        <i className="fas fa-user-circle fa-3x"></i>
+    const { scene, toggleCommentLike, toggleCommentDislike, postCommentReply } = useSceneStore();
+    const sceneObject = scene.objects.find((obj) => obj.id === objectId);
+    if (!sceneObject) return null;
+
+    const comment = sceneObject.comments.find((c) => c.id === commentId);
+    if (!comment) return null;
+
+    const isComment = "replies" in comment;
+
+    const handleLike = () => toggleCommentLike(objectId, commentId);
+    const handleDislike = () => toggleCommentDislike(objectId, commentId);
+
+    const handlePostReply = () => {
+        if (!isComment) return;
+        const trimmed = replyText.trim();
+        if (!trimmed) return;
+
+        const newReply: ReplyData = {
+            id: Date.now(),
+            commentId: commentId,
+            username: "Republica",
+            isModerator: false,
+            text: trimmed,
+            timestamp: Date.now(),
+            likes: 0,
+            dislikes: 0,
+            isLiked: false,
+            isDisliked: false,
+        };
+
+        setReplyText("");
+        postCommentReply(objectId, commentId, newReply);
+    };
+
+    return (
+        <>
+            <div className={`row top-border ${!isComment && "ps-3 pb-2"}`}>
+                <div className="a4-comments__box pt-3">
+                    <div className="a4-comments__box--user row">
+                        <div className="col-2 col-lg-1 a4-comments__user-img">
+                            <i className="fas fa-user-circle fa-3x"></i>
+                        </div>
+                        <div className="col-7 col-md-8">
+                            <div className="a4-comments__author">{comment.username}</div>
+                            <span className="a4-comments__moderator" style={{ fontSize: "0.8rem" }}>{comment.isModerator}</span>
+                            <time className="a4-comments__submission-date">{new Date(comment.timestamp).toLocaleString()}</time>
+                        </div>
                     </div>
-                    <div className="col-7 col-md-8">
-                        <div className="a4-comments__author">{comment.username}</div>
-                        <span className="a4-comments__moderator" style={{ fontSize: "0.8rem" }}>{comment.isModerator}</span>
-                        <time className="a4-comments__submission-date">{formatTimestamp(comment.timestamp)}</time>
-                    </div>
-                    <div className="col-1 col-md-1 ms-auto a4-comments__dropdown-container">
-                        <div className="dropdown a4-comments__dropdown"><button type="button" className="dropdown-toggle btn btn--link" aria-haspopup="true" aria-expanded="false" data-bs-toggle="dropdown"><i className="fas fa-ellipsis-h" aria-hidden="true"></i></button>
-                            <div className="dropdown-menu dropdown-menu-end"><button className="dropdown-item" type="button">Edit</button>
-                                <div className="divider"></div><a className="dropdown-item" href="#comment_delete_25" data-bs-toggle="modal" data-bs-target="#delete_modal">Delete</a>
-                                <div className="divider"></div>
+                    <div className="row">
+                        <div className="col-12">
+                            <div className="a4-comments__text">
+                                <p>{comment.text}</p>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div className="row">
-                    <div className="col-12">
-                        <div className="a4-comments__text"><p>{comment.text}</p></div>
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col-12 a4-comments__action-bar-container">
-                        <div className="rating">
-                            <button className="rating-button rating-up"><i className="far fa-thumbs-up"></i>{comment.likes}</button>
-                            <button className="rating-button rating-down"><i className="far fa-thumbs-down"></i>{comment.dislikes}</button>
-                        </div>
-                        <div className="a4-comments__action-bar">
-                            <button className="btn btn--no-border a4-comments__action-bar__btn" type="button" onClick={() => setIsShowingReplies((prev) => !prev)}>
-                                <i className="far fa-comment"></i>Reply
-                            </button>
+                    <div className="row">
+                        <div className="col-12 a4-comments__action-bar-container">
+                            <div className="rating">
+                                <button className={`rating-button rating-up ${comment.isLiked && "liked"}`} onClick={handleLike}>
+                                    <i className="far fa-thumbs-up"></i>{comment.likes}
+                                </button>
+                                <button className={`rating-button rating-down ${comment.isDisliked && "disliked"}`} onClick={handleDislike}>
+                                    <i className="far fa-thumbs-down"></i>{comment.dislikes}
+                                </button>
+                            </div>
+                            {isComment && (
+                                <div className="a4-comments__action-bar">
+                                    <button className="btn btn--no-border a4-comments__action-bar__btn" type="button" onClick={() => setIsShowingReplies((prev) => !prev)}>
+                                        {isShowingReplies ? <> <i className="fas fa-minus"></i> Hide Replies </> : <> <i className="far fa-comment"></i>{comment.replies.length} Replies </>}
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        {isShowingReplies && <>
-            {comment.replies.map((reply) => {
-                return (
-                    <Comment key={reply.id} comment={reply} />
-                );
-            })}
-            
-            <div className="commenting my-0">
-                <h6>Join the discussion</h6>
-                <div className="form-group commenting__content mb-0">
-                    <label>
-                        Your comment
-                        <input type="text" />
-                    </label>
-                    <button className="btn btn--default mb-0 btn--full" type="button">Post</button>
-                </div>
-            </div>
-        </>}
-    </>);
+            {isComment && isShowingReplies && (
+                <>
+                    {comment.replies.map((reply) => (
+                        <Comment key={reply.id} objectId={objectId} commentId={reply.id} setIsNewReplyFocused={setIsNewReplyFocused} />
+                    ))}
+                    <div className="commenting my-0 py-2 ps-3">
+                        <h6>Join the discussion</h6>
+                        <div className="form-group commenting__content mb-0">
+                            <form onSubmit={(e) => { e.preventDefault(); handlePostReply(); }}>
+                                <label>
+                                    Your reply
+                                    <input type="text" value={replyText} onFocus={() => setIsNewReplyFocused(true)} onBlur={() => setIsNewReplyFocused(false)} onChange={(e) => setReplyText(e.target.value)} />
+                                </label>
+                                <button className="btn btn--default btn--full mb-0" type="submit">Post</button>
+                            </form>
+                        </div>
+                    </div>
+                </>
+            )}
+        </>
+    );
 };
 
-const ObjectDescription = ({
-    object,
-    variant,
-    headerHeight,
-    onSelectVariant,
-    onClose,
-}: {
-    object: ObjectData | null;
-    variant: VariantData | null;
+const ObjectDescription: React.FC<{
+    objectId: number;
+    variantId: number;
     headerHeight: number;
-    onSelectVariant: (variantId: number) => void;
-    onClose: () => void,
-}) => {
-    if (!object || !variant) return <BottomSheet isVisible={false} headerHeight={headerHeight} />;
-    const { id: variantId, name, description } = variant;
+    setCurrentVariant: (objectId: number, variantId: number) => void;
+    onClose: () => void;
+}> = ({ objectId, variantId, headerHeight, setCurrentVariant, onClose }) => {
+    const [commentText, setCurrentNewCommentText] = useState<string>("");
+    const [isNewCommentFocused, setIsNewCommentFocused] = useState<boolean>(false);
+    const [isNewReplyFocused, setIsNewReplyFocused] = useState<boolean>(false);
+
+    const { scene, toggleVariantLike, toggleVariantDislike, postComment } = useSceneStore();
+    const sceneObject = scene.objects.find((obj) => obj.id === objectId);
+    if (!sceneObject) return null;
+    const comments = sceneObject?.comments || [];
+
+    const variant = sceneObject.variants.find((v) => v.id === variantId);
+    if (!variant) return <BottomSheet isVisible={false} headerHeight={headerHeight} variantName="" />;
+
+    const handleVariantLike = () => toggleVariantLike(objectId, variantId);
+    const handleVariantDislike = () => toggleVariantDislike(objectId, variantId);
+
+    const postNewComment = () => {
+        const trimmed = commentText.trim();
+        if (!trimmed) return;
+
+        const newComment: CommentData = {
+            id: Date.now(),
+            username: "Republica",
+            isModerator: true,
+            text: trimmed,
+            timestamp: Date.now(),
+            likes: 0,
+            dislikes: 0,
+            isLiked: false,
+            isDisliked: false,
+            replies: [],
+        };
+
+        setCurrentNewCommentText("");
+        postComment(sceneObject.id, newComment);
+    };
 
     return (
         <BottomSheet
             isVisible={true}
-            onClose={onClose}
             headerHeight={headerHeight}
+            variantName={variant.name}
+            onClose={onClose}
+            isNewCommentFocus={isNewCommentFocused}
+            isNewReplyFocus={isNewReplyFocused}
         >
             <div className="minh-100 d-flex flex-column" style={{ fontSize: "0.8rem" }}>
-                <div className="row align-items-center">
-                    <div className="col-10">
-                        <h3>{name}</h3>
-                    </div>
-                    <div className="col-2 d-flex justify-content-end align-items-center">
-                        <i
-                            className="fas fa-times"
-                            onClick={onClose}
-                            style={{ cursor: "pointer", fontSize: "0.8rem" }}
-                        ></i>
-                    </div>
-                </div>
-                <div className="row">
-                    <p>{description}</p>
-                </div>
 
-                <div className="mb-3">
-                    <h6 className="mb-2">Variants</h6>
-                    <div className="d-flex flex-wrap gap-2">
-                        {object.variants.map(({ id: variantLinkId }) => {
-                            const isActive = variantLinkId === variantId;
-                            return (
-                                <button
-                                    key={variantLinkId}
-                                    className={`variant-icon ${isActive ? "active" : ""}`}
-                                    onClick={() => onSelectVariant(variantLinkId)}
-                                >
-                                    <i className="fas fa-circle fa-3x"></i>
+                {!isNewCommentFocused &&
+                    <div id="scrollableContentSection" className="row">
+                        <p>{variant.description}</p>
+                    </div>
+                }
+                {!isNewCommentFocused &&
+                    <div className="mb-3">
+                        <h6 className="mb-2">Variants</h6>
+                        <div className="d-flex flex-wrap gap-2">
+                            {sceneObject.variants.map((variantData: VariantData) => {
+                                const isActive = variantData.id === variant.id;
+                                return (
+                                    <button
+                                        key={variantData.id}
+                                        className={`variant-icon ${isActive ? "active" : ""}`}
+                                        onClick={() => {
+                                            if (variantData.id !== variant.id) {
+                                                setCurrentVariant(objectId, variantData.id);
+                                            }
+                                        }}
+                                    >
+                                        <i className="fas fa-circle fa-3x"></i>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+                }
+                {!isNewCommentFocused &&
+                    <div className="row top-border">
+                        <div className="col-12 a4-comments__action-bar-container">
+                            <div className="rating">
+                                <button className={`rating-button rating-up ${variant?.isLiked && "liked"}`} onClick={handleVariantLike}>
+                                    <i className="far fa-thumbs-up"></i>{variant?.likes}
                                 </button>
-                            );
-                        })}
-                    </div>
-                </div>
-
-                <div className="row top-border">
-                    <div className="col-12 a4-comments__action-bar-container">
-                        <div className="rating">
-                            <button className="rating-button rating-up"><i className="far fa-thumbs-up"></i>0</button>
-                            <button className="rating-button rating-down"><i className="far fa-thumbs-down"></i>0</button>
-                        </div>
-                        <div className="a4-comments__action-bar">
-                            <button className="btn btn--no-border a4-comments__action-bar__btn" type="button">
-                                <a href="#child-comment-form"><i className="far fa-comment"></i>Reply</a>
-                            </button>
+                                <button className={`rating-button rating-down ${variant?.isDisliked && "disliked"}`} onClick={handleVariantDislike}>
+                                    <i className="far fa-thumbs-down"></i>{variant?.dislikes}
+                                </button>
+                            </div>
+                            <div className="a4-comments__action-bar">
+                                <button className="btn btn--no-border a4-comments__action-bar__btn" type="button">
+                                    <i className="far fa-comment"></i>Reply
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
+                }
 
-                <div className="commenting my-0">
+                <div id="discussionSection" className="commenting my-0">
                     <h6>Join the discussion</h6>
                     <div className="form-group commenting__content mb-0">
-                        <label>
-                            Your comment
-                            <input id="id_chapters-local_1-name" name="chapters-local_1-name" type="text" />
-                        </label>
-                        <button className="btn btn--default btn--full mb-0" type="button">Post</button>
+                        <form
+                            onSubmit={(e) => {
+                                e.preventDefault();
+                                postNewComment();
+                                setTimeout(() => {
+                                    if (document.activeElement instanceof HTMLElement) {
+                                        document.activeElement.blur();
+                                    }
+                                }, 100);
+                            }}
+                        >
+                            <label>
+                                Your comment
+                                <input
+                                    type="text"
+                                    enterKeyHint="send"
+                                    value={commentText}
+                                    onFocus={() => setIsNewCommentFocused(true)}
+                                    onBlur={() => {
+                                        setIsNewCommentFocused(false);
+                                    }}
+                                    onChange={(e) => setCurrentNewCommentText(e.target.value)}
+                                />
+                            </label>
+                            {!isNewCommentFocused && commentText.length > 0 && (
+                                <button className="btn btn--default btn--full mb-0" type="submit">
+                                    Post
+                                </button>
+                            )}
+                        </form>
                     </div>
                 </div>
 
                 <h6 className="my-4">Discussion</h6>
-                {object.comments.map((comment) => {
-                    return (
-                        <Comment key={comment.id} comment={comment} />
-                    );
-                })}
+                {comments.length > 0 ? (
+                    comments.slice().reverse().map((comment) => (
+                        <Comment
+                            key={comment.id}
+                            objectId={objectId}
+                            commentId={comment.id}
+                            setIsNewReplyFocused={setIsNewReplyFocused}
+                        />
+                    ))
+                ) : (
+                    <p>No comments yet. Be the first to comment!</p>
+                )}
             </div>
         </BottomSheet >
     );

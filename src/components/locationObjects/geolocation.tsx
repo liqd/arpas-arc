@@ -2,6 +2,57 @@ import * as THREE from "three";
 import { Position, Rotation } from "../../types/transform";
 import { gpsToMeters } from "../../utility/geolocation";
 
+export const nullCoordinatePosition: GeolocationPosition = {
+    coords: {
+        longitude: 0,
+        latitude: 0,
+        altitude: 0,
+        heading: 0,
+        accuracy: 0,
+        altitudeAccuracy: null,
+        speed: 0,
+        toJSON: function () {
+            return {
+                longitude: this.longitude,
+                latitude: this.latitude,
+                altitude: this.altitude,
+                heading: this.heading,
+                accuracy: this.accuracy,
+                altitudeAccuracy: this.altitudeAccuracy,
+                speed: this.speed
+            };
+        }
+    },
+    timestamp: Date.now(),
+    toJSON: function () {
+        return {
+            coords: this.coords,
+            timestamp: this.timestamp
+        };
+    }
+};
+
+export const nullCoordinates: GeolocationCoordinates = {
+    longitude: 0,
+    latitude: 0,
+    altitude: 0,
+    heading: 0,
+    accuracy: 0,
+    altitudeAccuracy: null,
+    speed: 0,
+    toJSON: function () {
+        return {
+            longitude: this.longitude,
+            latitude: this.latitude,
+            altitude: this.altitude,
+            heading: this.heading,
+            accuracy: this.accuracy,
+            altitudeAccuracy: this.altitudeAccuracy,
+            speed: this.speed
+        };
+    }
+};
+
 class GeolocationObject {
     latitude: number;
     longitude: number;
@@ -30,9 +81,9 @@ class GeolocationObject {
         };
     }
 
-    placeAtWorldCoords(initialCoords: GeolocationCoordinates, initialPosition: Position,
+    placeAtWorldCoords(referenceCoordinates: GeolocationCoordinates, relativeWorldPosition: Position = new Position(),
         placeOnGround: boolean = false, groundMesh: THREE.Mesh | null = null): { position: Position, rotation: Rotation } {
-        let position = this.toWorldPosition(initialCoords).add(initialPosition);
+        let position = this.toWorldPosition(referenceCoordinates).add(relativeWorldPosition);
 
         if (placeOnGround && groundMesh) {
             const groundHeight = this.getGroundHeight(position.addY(1), groundMesh);
@@ -45,6 +96,7 @@ class GeolocationObject {
 
     toWorldPosition(referenceCoords: GeolocationCoordinates): Position {
         const { x, z } = gpsToMeters(referenceCoords, this.getGpsCoordinates());
+
         const worldPosition = new Position(x, this.altitude ?? 0, z);
         return worldPosition;
     }

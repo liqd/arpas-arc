@@ -8,6 +8,7 @@ import LoadingSpheres from "../loadingSpheres";
 import RoundedPlane from "../roundedPlane";
 
 interface MeshObjectProps {
+    sceneObjectId: number;
     meshObjectId: string;
     position?: Position;
     rotation?: Rotation;
@@ -18,10 +19,11 @@ interface MeshObjectProps {
 }
 
 const MeshObject = ({
+    sceneObjectId,
     meshObjectId,
     position = new Position(), rotation = new Rotation(), scale = new Scale(),
     onClick, showOutline = false, userData }: MeshObjectProps) => {
-        
+
     const [modelUrl, setModelUrl] = useState<string | null>(null); // State to store the Blob URL for the model
     const [showLabel, setShowLabel] = useState(false);
     const objectRef = useRef<THREE.Group | null>(null); // Ref for managing the scene object
@@ -127,6 +129,7 @@ const MeshObject = ({
             {modelUrl && (
                 <Suspense fallback={<LoadingSpheres position={position.clone().addY(loadingSpheresScale.y * .75)} scale={loadingSpheresScale} />}>
                     <ModelComponent
+                        sceneObjectId={sceneObjectId}
                         modelUrl={modelUrl}
                         objectRef={objectRef}
                         position={position}
@@ -140,6 +143,7 @@ const MeshObject = ({
 };
 
 interface ModelComponentProps {
+    sceneObjectId: number;
     modelUrl: string;
     objectRef: React.RefObject<THREE.Group>;
     position: Position;
@@ -147,11 +151,13 @@ interface ModelComponentProps {
     scale: Scale;
 }
 
-const ModelComponent = ({ modelUrl, objectRef, position, rotation, scale }: ModelComponentProps) => {
+const ModelComponent = ({ sceneObjectId, modelUrl, objectRef, position, rotation, scale }: ModelComponentProps) => {
     const { scene } = useGLTF(modelUrl); // Load the model using useGLTF
 
-    // Clone the scene to create a new independent instance
     const clonedScene = scene.clone();
+    const boundingBox = new THREE.Box3().setFromObject(clonedScene); // Compute bounding box
+    const size = boundingBox.getSize(new THREE.Vector3());
+    const center = boundingBox.getCenter(new THREE.Vector3());
 
     return (
         <group
@@ -163,9 +169,17 @@ const ModelComponent = ({ modelUrl, objectRef, position, rotation, scale }: Mode
             receiveShadow
         >
             <primitive object={clonedScene} />
+            <meshStandardMaterial color="white" transparent={false} opacity={1} depthWrite={true}/>
+
+            {/* Invisible object for click interaction */}
+            <mesh position={center} userData={{ sceneObjectId }}>
+                <boxGeometry args={[size.x, size.y, size.z]} />
+                <meshStandardMaterial color="white" transparent={true} opacity={0.0001} depthWrite={false} /> {/* wireframe  */}
+            </mesh>
         </group>
     );
 };
+
 
 // Functions to add and remove outlines
 const addOutline = (object: THREE.Object3D) => {
