@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 
-const Compass3D = ({ headingInRad, cardinal, camera }: { headingInRad: number, cardinal?: string, camera: THREE.Camera }) => {
+const Compass3D = ({ headingInRad, camera }: { headingInRad: number, camera: THREE.Camera }) => {
     const compassRef = useRef<THREE.Group>(null);
     const needleRef = useRef<THREE.Group>(null);
 

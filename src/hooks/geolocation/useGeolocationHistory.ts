@@ -24,22 +24,18 @@ import useGeolocation from "./useGeolocation";
  * console.log("Location History:", locationHistory);
  * ```
  */
-export default function useLocationHistory(maxHistoryLength: number
-): [GeolocationCoordinates[]] {
-
-    const [currentGeolocation, accurateGeolocation] = useGeolocation(35);
-
+export default function useLocationHistory(valideGeolocation: GeolocationPosition | null, maxHistoryLength: number
+) : [GeolocationCoordinates[]] {
+    
     const [locationHistory, setLocationHistory] = useState<GeolocationCoordinates[]>([]);
 
     useEffect(() => {
-        const valideGeolocation = accurateGeolocation ?? currentGeolocation;
         if (!valideGeolocation) return;
-
         setLocationHistory(prevHistory => {
             const updatedHistory = [...prevHistory, valideGeolocation.coords];
             return updatedHistory.length > maxHistoryLength ? updatedHistory.slice(1) : updatedHistory;
         });
-    }, [currentGeolocation, accurateGeolocation]);
+    }, [valideGeolocation]);
 
     return [locationHistory];
 }

@@ -4,16 +4,18 @@ import * as THREE from "three";
 import { DirectionalArrow, HelpMenu, ObjectDescription } from "../../components-ui";
 import { SceneData, ObjectData, VariantData } from "../../types/objectData";
 import { MeshObject, } from "../../components";
-import { useWorldRotation } from "../../hooks";
 import { useThree } from "@react-three/fiber";
 import { Position, Rotation, Scale } from "../../types/transform";
 import { getIntersectedSceneObject } from "../../utility/objects";
 import { Compass2D, Compass3D } from "../../components-ui/compass";
 import "./style.css";
-import useWorldPosition from "../../hooks/geolocation/useWorldPosition";
 import useSceneStore from "../../store/sceneStore";
 import useLocationStore from "../../store/locationStore";
 import { MinioData } from "../../types/databaseData";
+import { useCombinedLocation } from "../../hooks/geolocation/useCombinedLocation";
+import { useCombinedCompass } from "../../hooks/geolocation/useCombinedCompass";
+import useWorldPosition from "../../hooks/geolocation/useWorldPosition";
+import { useWorldRotation } from "../../hooks";
 
 const defaultCoords: GeolocationPosition = {
     coords: {
@@ -64,7 +66,7 @@ const IndexPage = ({ minioData, data }: { minioData: MinioData, data: SceneData 
     const [worldPosition] = useWorldPosition(20, 2);
 
     // Compass values
-    const [worldRotation] = useWorldRotation(camera, Math.PI / 2, 1);
+    const [worldRotation] = useWorldRotation(camera);
 
     // Scene values
     const [selectedObject, setSelectedObject] = useState<number | null>(null);
@@ -246,7 +248,7 @@ const IndexPage = ({ minioData, data }: { minioData: MinioData, data: SceneData 
 
         <ambientLight intensity={5} />
         <directionalLight intensity={10} />
-        {/* <Compass3D headingInRad={worldRotation} cardinal={compassCardinal} camera={camera} /> */}
+        <Compass3D headingInRad={worldRotation} camera={camera} />
 
         {/* <primitive object={new THREE.AxesHelper(0.15)} /> Add visual start position */}
         {/* <RoundedPlane
@@ -276,8 +278,8 @@ const IndexPage = ({ minioData, data }: { minioData: MinioData, data: SceneData 
                 const variantId = selectedVariants[sceneObject.id];
                 const variant = sceneObject.variants.find((v) => v.id === variantId);
                 if (!variant) return null;
-                
-                if(!minioClientData) return;
+
+                if (!minioClientData) return;
                 return (
                     <mesh
                         key={sceneObjectId}
