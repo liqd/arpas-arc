@@ -21,6 +21,7 @@
         "prepare": "npm run build"
     },
     "dependencies": {
+        "react-simple-keyboard": "^3.8.74",
         "web-vitals": "^2.1.4"
     },
     "peerDependencies": {
