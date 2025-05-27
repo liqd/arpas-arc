@@ -4,3 +4,4 @@ export { default as ObjectDescription } from "./bottomSheet/objectDescription";
 export { default as SideSheet } from "./sideSheet";
 export { default as HelpMenu } from "./sideSheet/helpMenu";
 export { default as DirectionalArrow } from "./directionalArrow";
+export { default as Keyboard } from "./keyboard";

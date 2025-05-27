@@ -1,0 +1,8 @@
+.keyboard-default {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 2000;
+    color: black;
+}
