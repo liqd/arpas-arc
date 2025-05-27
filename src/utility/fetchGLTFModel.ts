@@ -1,10 +1,11 @@
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import minioClient from "./minioClient";
+import { MinioData } from "../types/databaseData";
 
 // Cache to store Blob URLs and instance counts for models
 const modelCache = new Map<string, { blobUrl: string; instances: number }>();
 
-export const fetchGLTFModel = async (modelId: string): Promise<string> => {
+export const fetchGLTFModel = async (minioData: MinioData, modelId: string): Promise<string> => {
     try {
         // Generate a unique cache key
         const cacheKey = modelId;
@@ -25,7 +26,7 @@ export const fetchGLTFModel = async (modelId: string): Promise<string> => {
 
         const {bucket, key} = getBucketAndKeyFromString(modelId);
         const command = new GetObjectCommand({ Bucket: bucket, Key: key });
-        const response = await minioClient.send(command);
+        const response = await minioClient(minioData).send(command);
 
         if (!response.Body) {
             throw new Error("Model not found!");

@@ -6,8 +6,10 @@ import { fetchGLTFModel, releaseGLTFModel } from "../../utility/fetchGLTFModel";
 import { Position, Rotation, Scale } from "../../types/transform";
 import LoadingSpheres from "../loadingSpheres";
 import RoundedPlane from "../roundedPlane";
+import { MinioData } from "../../types/databaseData";
 
 interface MeshObjectProps {
+    minioData: MinioData;
     sceneObjectId: number;
     meshObjectId: string;
     position?: Position;
@@ -19,6 +21,7 @@ interface MeshObjectProps {
 }
 
 const MeshObject = ({
+    minioData,
     sceneObjectId,
     meshObjectId,
     position = new Position(), rotation = new Rotation(), scale = new Scale(),
@@ -33,7 +36,7 @@ const MeshObject = ({
 
         const loadModel = () => {
             // Fetch the model URL and increment its instance count
-            fetchGLTFModel(meshObjectId)
+            fetchGLTFModel(minioData, meshObjectId)
                 .then((url) => {
                     if (isMounted) {
                         setModelUrl(url);

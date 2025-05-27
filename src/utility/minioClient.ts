@@ -1,11 +1,12 @@
 import { S3Client } from "@aws-sdk/client-s3";
+import { MinioData } from "../types/databaseData";
 
-const minioClient = new S3Client({
-  endpoint: import.meta.env.VITE_MINIO_ENDPOINT,
-  region: import.meta.env.VITE_MINIO_REGION,
+const minioClient = (minioData: MinioData) => new S3Client({
+  endpoint: minioData.endpoint,
+  region: minioData.region,
   credentials: {
-    accessKeyId: import.meta.env.VITE_MINIO_ACCESS_KEY,
-    secretAccessKey: import.meta.env.VITE_MINIO_SECRET_KEY,
+    accessKeyId: minioData.accessKey,
+    secretAccessKey: minioData.accessKey,
   },
   forcePathStyle: true, // Required for MinIO
 });

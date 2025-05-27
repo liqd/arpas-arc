@@ -13,6 +13,7 @@ import "./style.css";
 import useWorldPosition from "../../hooks/geolocation/useWorldPosition";
 import useSceneStore from "../../store/sceneStore";
 import useLocationStore from "../../store/locationStore";
+import { MinioData } from "../../types/databaseData";
 
 const defaultCoords: GeolocationPosition = {
     coords: {
@@ -44,7 +45,7 @@ const defaultCoords: GeolocationPosition = {
     }
 };
 
-const IndexPage = ({ data }: { data: SceneData }) => {
+const IndexPage = ({ minioData, data }: { minioData: MinioData, data: SceneData }) => {
 
     // XR objects and values
     const store = useXRStore();
@@ -53,6 +54,7 @@ const IndexPage = ({ data }: { data: SceneData }) => {
     const { scene, setScene } = useSceneStore();
     const { getPosition } = useLocationStore();
     const groundMesh = store.getState().groundMesh;
+    const [minioClientData, setMinioData] = useState<MinioData>();
 
     // UI values
     const [isHelpVisible, setIsHelpVisible] = useState(false);
@@ -73,6 +75,11 @@ const IndexPage = ({ data }: { data: SceneData }) => {
     }
 
     // Apply data
+    useEffect(() => {
+        if (!minioData) return;
+        setMinioData(minioData);
+    }, [minioData])
+
     useEffect(() => {
         if (!data) {
             console.warn("No scene data provided to add object data.");
@@ -269,7 +276,8 @@ const IndexPage = ({ data }: { data: SceneData }) => {
                 const variantId = selectedVariants[sceneObject.id];
                 const variant = sceneObject.variants.find((v) => v.id === variantId);
                 if (!variant) return null;
-
+                
+                if(!minioClientData) return;
                 return (
                     <mesh
                         key={sceneObjectId}
@@ -289,7 +297,7 @@ const IndexPage = ({ data }: { data: SceneData }) => {
                                 <meshStandardMaterial color="#248cb5" />
                             </>
                         ) : (
-                            <MeshObject key={`${sceneObject.id}_${variant.id}`} sceneObjectId={sceneObjectId} meshObjectId={variant.mesh_id} />
+                            <MeshObject key={`${sceneObject.id}_${variant.id}`} minioData={minioClientData} sceneObjectId={sceneObjectId} meshObjectId={variant.mesh_id} />
                         )}
                     </mesh>
                 );
