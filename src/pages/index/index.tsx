@@ -23,7 +23,7 @@ const debounce = (func: () => void, delay: number) => {
     };
 };
 
-const IndexPage = ({ minioData, data }: { minioData: MinioData, data: SceneData }) => {
+const IndexPage = ({ minioData, data: sceneData }: { minioData: MinioData, data: SceneData }) => {
     // XR objects and values
     const store = useXRStore();
     const state = useThree();
@@ -31,7 +31,7 @@ const IndexPage = ({ minioData, data }: { minioData: MinioData, data: SceneData 
     const { scene, setScene } = useSceneStore();
     const { getPosition } = useLocationStore();
     const groundMesh = store.getState().groundMesh;
-    const [minioClientData, setMinioData] = useState<MinioData>();
+    const [minioClientData, setMinioClientData] = useState<MinioData | null>(null);
 
     // UI values
     const [isHelpVisible, setIsHelpVisible] = useState(false);
@@ -57,23 +57,28 @@ const IndexPage = ({ minioData, data }: { minioData: MinioData, data: SceneData 
             console.error("Minio data is missing.");
             return;
         }
-        setMinioData(minioData);
+        setMinioClientData(minioData);
+        console.log("Minio data updated:", minioData);
     }, [minioData]);
 
     useEffect(() => {
-        if (!data) {
+        if (!sceneData) {
             console.warn("No scene data provided to add object data.");
             return;
         }
-        console.log("Data updated:", data);
 
-        setScene(data);
-        const variants = data.objects.reduce((acc, object) => {
+        setScene(sceneData);
+        console.log("Scene data updated:", sceneData);
+        const variants = sceneData.objects.reduce((acc, object) => {
             acc[object.id] = object.variants[0]?.id ?? null;
             return acc;
         }, {} as Record<number, number>);
         setSelectedVariants(variants);
-    }, [data]);
+    }, [sceneData]);
+
+    useEffect(() => {
+        console.log('Scene objects:', scene.objects);
+    }, [scene.objects]);
 
     useLayoutEffect(() => {
         const updateHeaderHeight = () => {
@@ -185,12 +190,18 @@ const IndexPage = ({ minioData, data }: { minioData: MinioData, data: SceneData 
 
             <group rotation={[0, worldRotation, 0]}>
                 {scene.objects?.map((sceneObject) => {
-                    if (!sceneObject || !sceneObject.variants || !minioClientData) return null;
-
+                    if (!sceneObject || !sceneObject.variants) {
+                        console.warn('Invalid scene object:', sceneObject);
+                        return null;
+                    }
                     const sceneObjectId = sceneObject.id;
                     const variantId = selectedVariants[sceneObject.id] ?? sceneObject.variants[0]?.id;
                     const variant = sceneObject.variants.find((v) => v.id === variantId);
-                    if (!variant) return null;
+
+                    if (!variant || !variant.mesh_id) {
+                        console.warn('Invalid variant:', variant);
+                        return null;
+                    }
 
                     return (
                         <mesh
@@ -198,16 +209,15 @@ const IndexPage = ({ minioData, data }: { minioData: MinioData, data: SceneData 
                             userData={{ sceneObjectId }}
                             position={getObjectPosition(sceneObject).toArray()}
                             rotation={variant.offset_rotation}
-                            scale={variant.offset_scale}
                         >
                             {variant.mesh_id === "primitive_cube" ? (
                                 <>
-                                    <boxGeometry args={[1, 1, 1]} />
+                                    <boxGeometry args={variant.offset_scale} />
                                     <meshStandardMaterial color="#248cb5" />
                                 </>
                             ) : variant.mesh_id === "primitive_sphere" ? (
                                 <>
-                                    <sphereGeometry args={[1, 1, 1]} />
+                                    <sphereGeometry args={variant.offset_scale} />
                                     <meshStandardMaterial color="#248cb5" />
                                 </>
                             ) : (
@@ -216,6 +226,7 @@ const IndexPage = ({ minioData, data }: { minioData: MinioData, data: SceneData 
                                     minioData={minioClientData}
                                     sceneObjectId={sceneObjectId}
                                     meshObjectId={variant.mesh_id}
+                                    scale={variant.offset_scale}
                                 />
                             )}
                         </mesh>
