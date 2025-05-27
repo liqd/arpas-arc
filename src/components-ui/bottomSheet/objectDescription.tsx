@@ -4,23 +4,31 @@ import { CommentData, ReplyData, VariantData } from "../../types/objectData";
 import useSceneStore from "../../store/sceneStore";
 import "./style.css";
 
-const Comment: React.FC<{ objectId: number; commentId: number; setIsNewReplyFocused: (focus: boolean) => void }> = ({
+const Comment: React.FC<{ objectId: number; commentId: number; }> = ({
     objectId,
-    commentId,
-    setIsNewReplyFocused,
+    commentId
 }) => {
     const [isShowingReplies, setIsShowingReplies] = useState(false);
     const [replyText, setReplyText] = useState("");
     const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-
     const { scene, toggleCommentLike, toggleCommentDislike, postCommentReply } = useSceneStore();
+
     const sceneObject = scene.objects.find((obj) => obj.id === objectId);
     if (!sceneObject) return null;
 
-    const comment = sceneObject.comments.find((c) => c.id === commentId);
+    const getCommentOrReply = (commentId: number): CommentData | ReplyData | null => {
+        for (const c of sceneObject.comments) {
+            if (c.id === commentId) return c;
+            const reply = c.replies.find((r) => r.id === commentId);
+            if (reply) return reply;
+        }
+        return null;
+    };
+
+    const comment = getCommentOrReply(commentId);
     if (!comment) return null;
 
-    const isComment = "replies" in comment;
+    const isReply = !("replies" in comment);
 
     const handleLike = () => toggleCommentLike(objectId, commentId);
     const handleDislike = () => toggleCommentDislike(objectId, commentId);
@@ -36,7 +44,7 @@ const Comment: React.FC<{ objectId: number; commentId: number; setIsNewReplyFocu
     };
 
     const handlePostReply = () => {
-        if (!isComment) return;
+        if (isReply) return;
         const trimmed = replyText.trim();
         if (!trimmed) return;
 
@@ -59,7 +67,7 @@ const Comment: React.FC<{ objectId: number; commentId: number; setIsNewReplyFocu
     };
 
     return (<>
-        <div className={`row top-border ${!isComment && "ps-3 pb-2"}`}>
+        <div className={`row top-border ${isReply && "ps-3 pb-2"}`}>
             <div className="a4-comments__box pt-3">
                 <div className="a4-comments__box--user row">
                     <div className="col-2 col-lg-1 a4-comments__user-img">
@@ -88,7 +96,7 @@ const Comment: React.FC<{ objectId: number; commentId: number; setIsNewReplyFocu
                                 <i className="far fa-thumbs-down"></i>{comment.dislikes}
                             </button>
                         </div>
-                        {isComment && (
+                        {!isReply && (
                             <div className="a4-comments__action-bar">
                                 <button className="btn btn--no-border a4-comments__action-bar__btn" type="button" onClick={() => setIsShowingReplies((prev) => !prev)}>
                                     {isShowingReplies ? <> <i className="fas fa-minus"></i> Hide Replies </> : <> <i className="far fa-comment"></i>{comment.replies.length} Replies </>}
@@ -100,9 +108,9 @@ const Comment: React.FC<{ objectId: number; commentId: number; setIsNewReplyFocu
             </div>
         </div>
 
-        {isComment && isShowingReplies && (<>
+        {!isReply && isShowingReplies && (<>
             {comment.replies.map((reply) => (
-                <Comment key={reply.id} objectId={objectId} commentId={reply.id} setIsNewReplyFocused={setIsNewReplyFocused} />
+                <Comment key={reply.id} objectId={objectId} commentId={reply.id} />
             ))}
             <div className="commenting my-0 py-2 ps-3">
                 <h6>Join the discussion</h6>
@@ -113,10 +121,7 @@ const Comment: React.FC<{ objectId: number; commentId: number; setIsNewReplyFocu
                             className="input-div"
                             role="textbox"
                             tabIndex={0}
-                            onClick={() => {
-                                setIsKeyboardVisible(true);
-                                setIsNewReplyFocused(true);
-                            }}
+                            onClick={() => setIsKeyboardVisible(true)}
                         >
                             {replyText}
                         </div>
@@ -147,8 +152,6 @@ const ObjectDescription: React.FC<{
 }> = ({ objectId, variantId, headerHeight, setCurrentVariant, onClose }) => {
     const [commentText, setCommentText] = useState<string>("");
     const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-    const [isNewCommentFocused, setIsNewCommentFocused] = useState<boolean>(false);
-    const [isNewReplyFocused, setIsNewReplyFocused] = useState<boolean>(false);
 
     const { scene, toggleVariantLike, toggleVariantDislike, postComment } = useSceneStore();
     const sceneObject = scene.objects.find((obj) => obj.id === objectId);
@@ -199,58 +202,50 @@ const ObjectDescription: React.FC<{
             headerHeight={headerHeight}
             variantName={variant.name}
             onClose={onClose}
-            isNewCommentFocus={isNewCommentFocused}
-            isNewReplyFocus={isNewReplyFocused}
         >
             <div className="minh-100 d-flex flex-column" style={{ fontSize: "0.8rem" }}>
 
-                {!isNewCommentFocused &&
-                    <div id="scrollableContentSection" className="row">
-                        <p>{variant.description}</p>
+                <div id="scrollableContentSection" className="row">
+                    <p>{variant.description}</p>
+                </div>
+                <div className="mb-3">
+                    <h6 className="mb-2">Variants</h6>
+                    <div className="d-flex flex-wrap gap-2">
+                        {sceneObject.variants.map((variantData: VariantData) => {
+                            const isActive = variantData.id === variant.id;
+                            return (
+                                <button
+                                    key={variantData.id}
+                                    className={`variant-icon ${isActive ? "active" : ""}`}
+                                    onClick={() => {
+                                        if (variantData.id !== variant.id) {
+                                            setCurrentVariant(objectId, variantData.id);
+                                        }
+                                    }}
+                                >
+                                    <i className="fas fa-circle fa-3x"></i>
+                                </button>
+                            );
+                        })}
                     </div>
-                }
-                {!isNewCommentFocused &&
-                    <div className="mb-3">
-                        <h6 className="mb-2">Variants</h6>
-                        <div className="d-flex flex-wrap gap-2">
-                            {sceneObject.variants.map((variantData: VariantData) => {
-                                const isActive = variantData.id === variant.id;
-                                return (
-                                    <button
-                                        key={variantData.id}
-                                        className={`variant-icon ${isActive ? "active" : ""}`}
-                                        onClick={() => {
-                                            if (variantData.id !== variant.id) {
-                                                setCurrentVariant(objectId, variantData.id);
-                                            }
-                                        }}
-                                    >
-                                        <i className="fas fa-circle fa-3x"></i>
-                                    </button>
-                                );
-                            })}
+                </div>
+                <div className="row top-border">
+                    <div className="col-12 a4-comments__action-bar-container">
+                        <div className="rating">
+                            <button className={`rating-button rating-up ${variant?.isLiked && "liked"}`} onClick={handleVariantLike}>
+                                <i className="far fa-thumbs-up"></i>{variant?.likes}
+                            </button>
+                            <button className={`rating-button rating-down ${variant?.isDisliked && "disliked"}`} onClick={handleVariantDislike}>
+                                <i className="far fa-thumbs-down"></i>{variant?.dislikes}
+                            </button>
+                        </div>
+                        <div className="a4-comments__action-bar">
+                            <button className="btn btn--no-border a4-comments__action-bar__btn" type="button">
+                                <i className="far fa-comment"></i>Reply
+                            </button>
                         </div>
                     </div>
-                }
-                {!isNewCommentFocused &&
-                    <div className="row top-border">
-                        <div className="col-12 a4-comments__action-bar-container">
-                            <div className="rating">
-                                <button className={`rating-button rating-up ${variant?.isLiked && "liked"}`} onClick={handleVariantLike}>
-                                    <i className="far fa-thumbs-up"></i>{variant?.likes}
-                                </button>
-                                <button className={`rating-button rating-down ${variant?.isDisliked && "disliked"}`} onClick={handleVariantDislike}>
-                                    <i className="far fa-thumbs-down"></i>{variant?.dislikes}
-                                </button>
-                            </div>
-                            <div className="a4-comments__action-bar">
-                                <button className="btn btn--no-border a4-comments__action-bar__btn" type="button">
-                                    <i className="far fa-comment"></i>Reply
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                }
+                </div>
 
                 <div id="discussionSection" className="commenting my-0">
                     <h6>Join the discussion</h6>
@@ -264,11 +259,9 @@ const ObjectDescription: React.FC<{
                                 onClick={() => setIsKeyboardVisible(true)}
                             >{commentText}</div>
                         </label>
-                        {!isNewCommentFocused && commentText.length > 0 && (
-                            <button className="btn btn--default btn--full mb-0" onClick={handlePostComment}>
-                                Post
-                            </button>
-                        )}
+                        <button className="btn btn--default btn--full mb-0" onClick={handlePostComment}>
+                            Post
+                        </button>
                     </div>
                 </div>
 
@@ -279,7 +272,6 @@ const ObjectDescription: React.FC<{
                             key={comment.id}
                             objectId={objectId}
                             commentId={comment.id}
-                            setIsNewReplyFocused={setIsNewReplyFocused}
                         />
                     ))
                 ) : (
