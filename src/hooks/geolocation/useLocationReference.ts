@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import {  gpsToPosition } from "../../utility/geolocation";
+import { gpsToPosition } from "../../utility/geolocation";
 import { Position } from "../../types/transform";
 import { nullCoordinates } from "../../components/locationObjects/geolocation";
+import useGeolocationHistory from "./useGeolocationHistory";
 
 /**
  * A React hook that processes real-time geolocation data to determine a stable reference location.
@@ -32,11 +33,12 @@ import { nullCoordinates } from "../../components/locationObjects/geolocation";
  * console.log(`Reference Location:`, referenceLocation);
  * ```
  */
-export default function useLocationReference(
-    coordinatesHistory: GeolocationCoordinates[], maxHistoryLength: number,
+export default function useLocationReference(maxHistoryLength: number,
     updateCurrentLocation?: (currentLocation: { coordinates: GeolocationCoordinates; position: Position }) => void,
     updateReferenceLocation?: (referenceLocation: { coordinates: GeolocationCoordinates; position: Position }) => void
 ): [{ coordinates: GeolocationCoordinates; position: Position } | null, { coordinates: GeolocationCoordinates; position: Position } | null] {
+
+    const [locationHistory] = useGeolocationHistory(maxHistoryLength);
 
     const [blockLocationUpdateTime, setBlockLocationUpdateTime] = useState<number>(Date.now());
     const [currentLocation, setCurrentLocation] = useState<{ coordinates: GeolocationCoordinates; position: Position } | null>(null);
@@ -45,12 +47,12 @@ export default function useLocationReference(
 
     useEffect(() => {
         const timeout = setTimeout(() => { // Avoid excessive computations, by updating at most once per second
-            if (!coordinatesHistory || coordinatesHistory.length === 0) {
+            if (!locationHistory || locationHistory.length === 0) {
                 console.warn("No coordinate history available.");
                 return;
             }
 
-            const lastCoords = coordinatesHistory[coordinatesHistory.length - 1];
+            const lastCoords = locationHistory[locationHistory.length - 1];
 
             // Weighted Moving Average for latitude/longitude
             const getWeightedAverage = (values: number[]) => {
@@ -75,15 +77,15 @@ export default function useLocationReference(
                 return values.filter(v => v >= q1 - 1.5 * iqr && v <= q3 + 1.5 * iqr);
             };
 
-            const filteredLatitudes = removeOutliers(coordinatesHistory.map(loc => loc.latitude));
-            const filteredLongitudes = removeOutliers(coordinatesHistory.map(loc => loc.longitude));
+            const filteredLatitudes = removeOutliers(locationHistory.map(loc => loc.latitude));
+            const filteredLongitudes = removeOutliers(locationHistory.map(loc => loc.longitude));
             // const filteredAltitudes = removeOutliers(coordinatesHistory.map(loc => loc.altitude ?? 0));
 
-            const avgAccuracy = coordinatesHistory.reduce((sum, loc) => sum + loc.accuracy, 0) / coordinatesHistory.length;
-            const avgAltitudeAccuracy = coordinatesHistory.reduce((sum, loc) => sum + (loc.altitudeAccuracy ?? avgAccuracy), 0) / coordinatesHistory.length;
+            const avgAccuracy = locationHistory.reduce((sum, loc) => sum + loc.accuracy, 0) / locationHistory.length;
+            const avgAltitudeAccuracy = locationHistory.reduce((sum, loc) => sum + (loc.altitudeAccuracy ?? avgAccuracy), 0) / locationHistory.length;
 
             const coordinates =
-                coordinatesHistory.length < maxHistoryLength / 3
+            locationHistory.length < maxHistoryLength / 3
                     ? lastCoords // Use latest value if history is not full
                     : {
                         latitude: getWeightedAverage(filteredLatitudes),
@@ -111,7 +113,7 @@ export default function useLocationReference(
             setCurrentLocation({ coordinates, position });
             if (updateCurrentLocation) updateCurrentLocation({ coordinates, position });
 
-            if (coordinatesHistory.length < maxHistoryLength) return; // Don't set reference location if there is not enough data
+            if (locationHistory.length < maxHistoryLength) return; // Don't set reference location if there is not enough data
 
             // Adaptive Thresholds: Dynamically adjusts based on accuracy and movement speed
             const velocityFactor = Math.max(1, coordinates.speed ?? 1);
@@ -147,7 +149,7 @@ export default function useLocationReference(
         }, 1000);
 
         return () => clearTimeout(timeout);
-    }, [coordinatesHistory]);
+    }, [locationHistory]);
 
     return [currentLocation, referenceLocation];
 }

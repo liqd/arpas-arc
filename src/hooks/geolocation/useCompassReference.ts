@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import * as THREE from "three";
 import { normalizeAngleDifference } from "../../utility/angle";
+import useCompassHeading from "./useCompassHeading";
 
 /**
  * A React hook that stabilizes and tracks compass heading data, ensuring **consistent orientation** 
@@ -33,10 +34,11 @@ import { normalizeAngleDifference } from "../../utility/angle";
  * console.log("Reference Compass Heading:", referenceCompass);
  * ```
  */
-export default function useCompassReference(
-    phoneTilt: any, compassHeading: number, camera: THREE.Camera,
+export default function useCompassReference(camera: THREE.Camera,
     updateReferenceCompassHeading?: (referenceCompassHeading: { heading: number, phoneYaw: number }) => void
 ): [{ heading: number, phoneYaw: number } | null] {
+
+    const [compassHeading, compassCardinal, phoneTilt] = useCompassHeading();
 
     const [blockCompassUpdateTime, setBlockCompassUpdateTime] = useState<number>(Date.now());
     const [compassHeadingHistory, setCompassHeadingHistory] = useState<number[]>([]);

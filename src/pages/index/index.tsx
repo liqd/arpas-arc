@@ -3,8 +3,8 @@ import { useXRInputSourceEvent, useXRStore, XRDomOverlay } from "@react-three/xr
 import * as THREE from "three";
 import { DirectionalArrow, HelpMenu, ObjectDescription } from "../../components-ui";
 import { SceneData, ObjectData, VariantData } from "../../types/objectData";
-import { MeshObject, RoundedPlane } from "../../components";
-import { useLocationReference, useGeolocation, useCompassHeading, useCompassReference, useGeolocationHistory, useWorldRotation } from "../../hooks";
+import { MeshObject, } from "../../components";
+import { useWorldRotation } from "../../hooks";
 import { useThree } from "@react-three/fiber";
 import { Position, Rotation, Scale } from "../../types/transform";
 import { getIntersectedSceneObject } from "../../utility/objects";
@@ -45,7 +45,6 @@ const defaultCoords: GeolocationPosition = {
 };
 
 const IndexPage = ({ data }: { data: SceneData }) => {
-    const MAX_LOCATION_HISTORY_LENGTH = 10;
 
     // XR objects and values
     const store = useXRStore();
@@ -60,10 +59,7 @@ const IndexPage = ({ data }: { data: SceneData }) => {
     const [headerHeight, setHeaderHeight] = useState(0);
 
     // Location values
-    const [currentGeolocation, accurateGeolocation] = useGeolocation(35);
-    const [locationHistory] = useGeolocationHistory(accurateGeolocation ?? currentGeolocation, MAX_LOCATION_HISTORY_LENGTH);
-    const [currentLocation, referenceLocation] = useLocationReference(locationHistory, MAX_LOCATION_HISTORY_LENGTH);
-    const [worldPosition] = useWorldPosition((referenceLocation ?? currentLocation), 20, 2);
+    const [worldPosition] = useWorldPosition(20, 2);
 
     // Compass values
     const [worldRotation] = useWorldRotation(camera, Math.PI / 2, 1);
@@ -121,12 +117,15 @@ const IndexPage = ({ data }: { data: SceneData }) => {
 
     // Handle scene object selection
     useXRInputSourceEvent("all", "selectstart", (event) => {
+        if (!scene) return;
+
         const selectedObjectId = getIntersectedSceneObject(event, state, scene.objects);
         if (selectedObjectId) {
             setSelectedObject(selectedObjectId);
         }
     }, [scene]);
 
+    // TODO Cache!
     const getObjectPosition = (sceneObject: ObjectData): Position => {
         const variantId = selectedVariants[sceneObject.id];
         const variant = sceneObject.variants.find((v) => v.id === variantId);

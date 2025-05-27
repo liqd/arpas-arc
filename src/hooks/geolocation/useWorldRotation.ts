@@ -29,8 +29,8 @@ import useCompassReference from "./useCompassReference";
 export default function useWorldRotation(camera: THREE.Camera,
     interpolationTreshhold: number = Math.PI / 2, intrepolationTimeInSec: number = 1
 ): [number] {
-    const [compassHeading, compassCardinal, phoneTilt] = useCompassHeading();
-    const [referenceCompassHeading] = useCompassReference(phoneTilt, compassHeading ?? 0, camera);
+    const [referenceCompassHeading] = useCompassReference(camera);
+    
     const [worldRotationEulerY, setWorldRotationEulerY] = useState<number>(Math.PI); // Start facing north (180° (π radians))
 
     useEffect(() => {

@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { Position } from "../../types/transform";
 import { lerpPosition } from "../../utility/interpolation";
+import useGeolocation from "./useGeolocation";
+import useLocationReference from "./useLocationReference";
+import useGeolocationHistory from "./useGeolocationHistory";
 
 /**
  * React hook for smoothly updating world position based on a reference location.
@@ -23,25 +26,28 @@ import { lerpPosition } from "../../utility/interpolation";
  * ```
  */
 export default function useWorldPosition(
-    referenceLocation: { coordinates: GeolocationCoordinates; position: Position } | null, 
     interpolationTreshhold: number = 15, intrepolationTimeInSec: number = 1
 ): [Position] {
+
+    const MAX_LOCATION_HISTORY_LENGTH = 10;
+    const [currentLocation, referenceLocation] = useLocationReference(MAX_LOCATION_HISTORY_LENGTH);
 
     const [worldPosition, setWorldPosition] = useState<Position>(new Position());
 
     useEffect(() => {
-        if (!referenceLocation?.position) return;
+        const usedLocation = (referenceLocation ?? currentLocation);
+        if (!usedLocation?.position) return;
 
         // Snap if difference exceeds threshold
-        if (referenceLocation.position.distanceTo(worldPosition) > interpolationTreshhold) {
-            setWorldPosition(referenceLocation.position);
+        if (usedLocation.position.distanceTo(worldPosition) > interpolationTreshhold) {
+            setWorldPosition(usedLocation.position);
         } else {
-            lerpPosition(worldPosition, referenceLocation.position, intrepolationTimeInSec * 1000, (value) => {
+            lerpPosition(worldPosition, usedLocation.position, intrepolationTimeInSec * 1000, (value) => {
                 setWorldPosition(value);
             });
         }
 
-    }, [referenceLocation]);
+    }, [currentLocation, referenceLocation]);
 
     return [worldPosition];
 }

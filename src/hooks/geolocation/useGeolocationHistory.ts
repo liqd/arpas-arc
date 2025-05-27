@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import useGeolocation from "./useGeolocation";
 
 /**
  * A React hook that maintains a **history of geolocation updates**, storing the most recent coordinates.
@@ -23,18 +24,22 @@ import { useEffect, useState } from "react";
  * console.log("Location History:", locationHistory);
  * ```
  */
-export default function useLocationHistory(valideGeolocation: GeolocationPosition | null, maxHistoryLength: number
-) : [GeolocationCoordinates[]] {
-    
+export default function useLocationHistory(maxHistoryLength: number
+): [GeolocationCoordinates[]] {
+
+    const [currentGeolocation, accurateGeolocation] = useGeolocation(35);
+
     const [locationHistory, setLocationHistory] = useState<GeolocationCoordinates[]>([]);
 
     useEffect(() => {
+        const valideGeolocation = accurateGeolocation ?? currentGeolocation;
         if (!valideGeolocation) return;
+
         setLocationHistory(prevHistory => {
             const updatedHistory = [...prevHistory, valideGeolocation.coords];
             return updatedHistory.length > maxHistoryLength ? updatedHistory.slice(1) : updatedHistory;
         });
-    }, [valideGeolocation]);
+    }, [currentGeolocation, accurateGeolocation]);
 
     return [locationHistory];
 }
