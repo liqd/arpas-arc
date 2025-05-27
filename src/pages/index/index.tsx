@@ -93,7 +93,6 @@ const IndexPage = ({ minioData, data }: { minioData: MinioData, data: SceneData 
         data.objects.forEach(object => {
             setCurrentVariant(object.id, object.variants[0].id);
         });
-        setSelectedObject(data.objects[0].id)
     }, [data]);
 
     // useEffect(() => {
