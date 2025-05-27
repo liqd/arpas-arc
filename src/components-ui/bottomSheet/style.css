@@ -66,3 +66,10 @@
     background: #a72b1e;
     color: #FFF;
 }
+
+.keyboard-default {
+    position: absolute;
+    bottom: 0;
+    z-index: 2000;
+    color: black;
+}

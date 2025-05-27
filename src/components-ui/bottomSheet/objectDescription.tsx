@@ -1,8 +1,45 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { BottomSheet } from "..";
 import { CommentData, ReplyData, VariantData } from "../../types/objectData";
-import "./style.css";
 import useSceneStore from "../../store/sceneStore";
+import KeyboardReact, { KeyboardOptions } from "react-simple-keyboard";
+import 'react-simple-keyboard/build/css/index.css';
+import "./style.css";
+
+const Keyboard = ({
+    visible,
+    onChange,
+    onSubmit,
+    onKeyPress,
+}: {
+    visible: boolean;
+    onChange?: (input: string) => void;
+    onSubmit?: () => void;
+    onKeyPress?: (key: string) => void;
+}) => {
+    const [layout, setLayout] = useState<KeyboardOptions['layoutName']>("default");
+
+    const handleKeyPress = (button: string) => {
+        if (button === "{shift}" || button === "{lock}") {
+            setLayout((prev) => (prev === "default" ? "shift" : "default"));
+        } else if (button === "{enter}") {
+            onSubmit?.();
+        } else {
+            onKeyPress?.(button);
+        }
+    };
+
+    if (!visible) return null;
+
+    return (
+        <KeyboardReact
+            theme="hg-theme-default keyboard-default"
+            layoutName={layout}
+            onChange={onChange}
+            onKeyPress={handleKeyPress}
+        />
+    );
+};
 
 const Comment: React.FC<{ objectId: number; commentId: number; setIsNewReplyFocused: (focus: boolean) => void }> = ({
     objectId,
@@ -11,6 +48,9 @@ const Comment: React.FC<{ objectId: number; commentId: number; setIsNewReplyFocu
 }) => {
     const [isShowingReplies, setIsShowingReplies] = useState(false);
     const [replyText, setReplyText] = useState("");
+    const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
+    const inputRef = useRef<HTMLInputElement>(null);
 
     const { scene, toggleCommentLike, toggleCommentDislike, postCommentReply } = useSceneStore();
     const sceneObject = scene.objects.find((obj) => obj.id === objectId);
@@ -23,6 +63,28 @@ const Comment: React.FC<{ objectId: number; commentId: number; setIsNewReplyFocu
 
     const handleLike = () => toggleCommentLike(objectId, commentId);
     const handleDislike = () => toggleCommentDislike(objectId, commentId);
+
+    const handleFocus = () => {
+        setIsKeyboardVisible(true);
+        setIsNewReplyFocused(true);
+    };
+
+    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+        const related = e.relatedTarget as HTMLElement;
+        if (related && related.closest(".hg-theme-default")) return; // Don't hide if keyboard is clicked
+        setTimeout(() => setIsKeyboardVisible(false), 100);
+        setIsNewReplyFocused(false);
+    };
+
+    const handleKeyboardKeyPress = (key: string) => {
+        if (key === "{bksp}") {
+            setReplyText(prev => prev.slice(0, -1));
+        } else if (key === "{space}") {
+            setReplyText(prev => prev + " ");
+        } else if (!key.startsWith("{")) {
+            setReplyText(prev => prev + key);
+        }
+    };
 
     const handlePostReply = () => {
         if (!isComment) return;
@@ -44,72 +106,84 @@ const Comment: React.FC<{ objectId: number; commentId: number; setIsNewReplyFocu
 
         setReplyText("");
         postCommentReply(objectId, commentId, newReply);
+        setIsKeyboardVisible(false);
     };
 
-    return (
-        <>
-            <div className={`row top-border ${!isComment && "ps-3 pb-2"}`}>
-                <div className="a4-comments__box pt-3">
-                    <div className="a4-comments__box--user row">
-                        <div className="col-2 col-lg-1 a4-comments__user-img">
-                            <i className="fas fa-user-circle fa-3x"></i>
-                        </div>
-                        <div className="col-7 col-md-8">
-                            <div className="a4-comments__author">{comment.username}</div>
-                            <span className="a4-comments__moderator" style={{ fontSize: "0.8rem" }}>{comment.isModerator}</span>
-                            <time className="a4-comments__submission-date">{new Date(comment.timestamp).toLocaleString()}</time>
-                        </div>
+    return (<>
+        <div className={`row top-border ${!isComment && "ps-3 pb-2"}`}>
+            <div className="a4-comments__box pt-3">
+                <div className="a4-comments__box--user row">
+                    <div className="col-2 col-lg-1 a4-comments__user-img">
+                        <i className="fas fa-user-circle fa-3x"></i>
                     </div>
-                    <div className="row">
-                        <div className="col-12">
-                            <div className="a4-comments__text">
-                                <p>{comment.text}</p>
-                            </div>
-                        </div>
+                    <div className="col-7 col-md-8">
+                        <div className="a4-comments__author">{comment.username}</div>
+                        <span className="a4-comments__moderator" style={{ fontSize: "0.8rem" }}>{comment.isModerator}</span>
+                        <time className="a4-comments__submission-date">{new Date(comment.timestamp).toLocaleString()}</time>
                     </div>
-                    <div className="row">
-                        <div className="col-12 a4-comments__action-bar-container">
-                            <div className="rating">
-                                <button className={`rating-button rating-up ${comment.isLiked && "liked"}`} onClick={handleLike}>
-                                    <i className="far fa-thumbs-up"></i>{comment.likes}
-                                </button>
-                                <button className={`rating-button rating-down ${comment.isDisliked && "disliked"}`} onClick={handleDislike}>
-                                    <i className="far fa-thumbs-down"></i>{comment.dislikes}
-                                </button>
-                            </div>
-                            {isComment && (
-                                <div className="a4-comments__action-bar">
-                                    <button className="btn btn--no-border a4-comments__action-bar__btn" type="button" onClick={() => setIsShowingReplies((prev) => !prev)}>
-                                        {isShowingReplies ? <> <i className="fas fa-minus"></i> Hide Replies </> : <> <i className="far fa-comment"></i>{comment.replies.length} Replies </>}
-                                    </button>
-                                </div>
-                            )}
+                </div>
+                <div className="row">
+                    <div className="col-12">
+                        <div className="a4-comments__text">
+                            <p>{comment.text}</p>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            {isComment && isShowingReplies && (
-                <>
-                    {comment.replies.map((reply) => (
-                        <Comment key={reply.id} objectId={objectId} commentId={reply.id} setIsNewReplyFocused={setIsNewReplyFocused} />
-                    ))}
-                    <div className="commenting my-0 py-2 ps-3">
-                        <h6>Join the discussion</h6>
-                        <div className="form-group commenting__content mb-0">
-                            <form onSubmit={(e) => { e.preventDefault(); handlePostReply(); }}>
-                                <label>
-                                    Your reply
-                                    <input type="text" value={replyText} onFocus={() => setIsNewReplyFocused(true)} onBlur={() => setIsNewReplyFocused(false)} onChange={(e) => setReplyText(e.target.value)} />
-                                </label>
-                                <button className="btn btn--default btn--full mb-0" type="submit">Post</button>
-                            </form>
+                <div className="row">
+                    <div className="col-12 a4-comments__action-bar-container">
+                        <div className="rating">
+                            <button className={`rating-button rating-up ${comment.isLiked && "liked"}`} onClick={handleLike}>
+                                <i className="far fa-thumbs-up"></i>{comment.likes}
+                            </button>
+                            <button className={`rating-button rating-down ${comment.isDisliked && "disliked"}`} onClick={handleDislike}>
+                                <i className="far fa-thumbs-down"></i>{comment.dislikes}
+                            </button>
                         </div>
+                        {isComment && (
+                            <div className="a4-comments__action-bar">
+                                <button className="btn btn--no-border a4-comments__action-bar__btn" type="button" onClick={() => setIsShowingReplies((prev) => !prev)}>
+                                    {isShowingReplies ? <> <i className="fas fa-minus"></i> Hide Replies </> : <> <i className="far fa-comment"></i>{comment.replies.length} Replies </>}
+                                </button>
+                            </div>
+                        )}
                     </div>
-                </>
-            )}
-        </>
-    );
+                </div>
+            </div>
+        </div>
+
+        {isComment && isShowingReplies && (<>
+            {comment.replies.map((reply) => (
+                <Comment key={reply.id} objectId={objectId} commentId={reply.id} setIsNewReplyFocused={setIsNewReplyFocused} />
+            ))}
+            <div className="commenting my-0 py-2 ps-3">
+                <h6>Join the discussion</h6>
+                <div className="form-group commenting__content mb-0">
+                    <form onSubmit={(e) => { e.preventDefault(); handlePostReply(); }}>
+                        <label>
+                            Your reply
+                            <input
+                                ref={inputRef}
+                                type="text"
+                                value={replyText}
+                                onFocus={handleFocus}
+                                onBlur={handleBlur}
+                                onChange={(e) => setReplyText(e.target.value)}
+                            />
+                        </label>
+                        <button className="btn btn--default btn--full mb-0" type="submit">
+                            Post
+                        </button>
+                    </form>
+                </div>
+
+                <Keyboard
+                    visible={isKeyboardVisible}
+                    onSubmit={handlePostReply}
+                    onKeyPress={handleKeyboardKeyPress}
+                />
+            </div>
+        </>)}
+    </>);
 };
 
 const ObjectDescription: React.FC<{
@@ -155,7 +229,7 @@ const ObjectDescription: React.FC<{
         postComment(sceneObject.id, newComment);
     };
 
-    return (
+    return (<>
         <BottomSheet
             isVisible={true}
             headerHeight={headerHeight}
@@ -264,8 +338,8 @@ const ObjectDescription: React.FC<{
                     <p>No comments yet. Be the first to comment!</p>
                 )}
             </div>
-        </BottomSheet >
-    );
+        </BottomSheet>
+    </>);
 };
 
 export default ObjectDescription;
