@@ -23,10 +23,12 @@ const HelpMenu = ({
     isVisible,
     onClose,
     onLeave,
+    headerHeight,
 }: {
     isVisible: boolean;
     onClose?: () => void;
     onLeave?: () => void;
+    headerHeight: number;
 }) => {
     return (
         <SideSheet
@@ -34,7 +36,13 @@ const HelpMenu = ({
             onClose={onClose}
             onLeave={onLeave}
         >
-            <div className="d-flex flex-column flex-grow-1" style={{ fontSize: "0.8rem" }}>
+            <div
+                className="d-flex flex-column flex-grow-1"
+                style={{
+                    fontSize: "0.8rem",
+                    marginTop: `${headerHeight}px`,
+                }}
+            >
                 <h3>AR Help Guide</h3>
                 <p>
                     Welcome to the <strong>AR experience on adhocracy.plus!</strong><br />Here's how to explore and participate using AR:

@@ -148,6 +148,7 @@ const IndexPage = ({ minioData, data }: { minioData: MinioData, data: SceneData 
                     isVisible={isHelpVisible}
                     onClose={() => setIsHelpVisible(false)}
                     onLeave={() => store.getState().session?.end()}
+                    headerHeight={headerHeight}
                 />
 
                 {selectedObject && (
