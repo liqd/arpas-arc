@@ -167,7 +167,7 @@ const IndexPage = ({ minioData, data: sceneData }: { minioData: MinioData, data:
                 )}
 
                 {/* Debugging Information */}
-                <div
+                {/* <div
                     style={{
                         position: "absolute",
                         bottom: "10px",
@@ -181,7 +181,7 @@ const IndexPage = ({ minioData, data: sceneData }: { minioData: MinioData, data:
                 >
                     <p>Header Height: {headerHeight}px</p>
                     <p>Selected Object: {selectedObject ?? "None"}</p>
-                </div>
+                </div> */}
             </XRDomOverlay>
 
             <ambientLight intensity={5} />
