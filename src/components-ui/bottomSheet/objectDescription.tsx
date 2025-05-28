@@ -4,13 +4,15 @@ import { CommentData, ReplyData, VariantData } from "../../types/objectData";
 import useSceneStore from "../../store/sceneStore";
 import "./style.css";
 
-const Comment: React.FC<{ objectId: number; commentId: number; }> = ({
+const Comment: React.FC<{ objectId: number; commentId: number; forceCloseKeyboard: boolean }> = ({
     objectId,
-    commentId
+    commentId,
+    forceCloseKeyboard = false,
 }) => {
     const [isShowingReplies, setIsShowingReplies] = useState(false);
     const [replyText, setReplyText] = useState("");
     const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+    const inputRef = useRef<HTMLDivElement>(null);
     const { scene, toggleCommentLike, toggleCommentDislike, postCommentReply } = useSceneStore();
 
     const sceneObject = scene.objects.find((obj) => obj.id === objectId);
@@ -32,6 +34,32 @@ const Comment: React.FC<{ objectId: number; commentId: number; }> = ({
 
     const handleLike = () => toggleCommentLike(objectId, commentId);
     const handleDislike = () => toggleCommentDislike(objectId, commentId);
+
+    const handleKeyboardOpen = () => {
+        setIsKeyboardVisible(true);
+
+        // Scroll the reply input into view above the keyboard only if it is below the keyboard
+        if (inputRef.current) {
+            const inputRect = inputRef.current.getBoundingClientRect();
+            const snapToKeyboardHeight = window.innerHeight * 0.35;
+
+            if (inputRect.bottom > window.innerHeight - snapToKeyboardHeight) {
+                setTimeout(() => {
+                    inputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+                }, 50);
+            }
+        }
+    };
+
+    const handleKeyboardClose = () => {
+        setIsKeyboardVisible(false);
+    };
+
+    useEffect(() => {
+        if (forceCloseKeyboard) {
+            handleKeyboardClose();
+        }
+    }, [forceCloseKeyboard]);
 
     const handleKeyboardKeyPress = (key: string) => {
         if (key === "{bksp}") {
@@ -110,7 +138,7 @@ const Comment: React.FC<{ objectId: number; commentId: number; }> = ({
 
         {!isReply && isShowingReplies && (<>
             {comment.replies.map((reply) => (
-                <Comment key={reply.id} objectId={objectId} commentId={reply.id} />
+                <Comment key={reply.id} objectId={objectId} commentId={reply.id} forceCloseKeyboard={forceCloseKeyboard} />
             ))}
             <div className="commenting my-0 py-2 ps-3">
                 <h6>Join the discussion</h6>
@@ -121,24 +149,31 @@ const Comment: React.FC<{ objectId: number; commentId: number; }> = ({
                             className="input-div"
                             role="textbox"
                             tabIndex={0}
-                            onClick={() => setIsKeyboardVisible(true)}
+                            onClick={handleKeyboardOpen}
                         >
                             {replyText}
+                            {isKeyboardVisible && (
+                                <span style={{ display: "inline-block", width: "1px", backgroundColor: "black", height: "1em" }} />
+                            )}
                         </div>
                     </label>
-                    <button className="btn btn--default btn--full mb-0" onClick={handlePostReply}>
-                        Post
-                    </button>
+                    <div ref={inputRef}>
+                        <button className="btn btn--default btn--full mb-0" onClick={handlePostReply}>
+                            Post
+                        </button>
+                    </div>
                 </div>
-
             </div>
-        </>)}
+
+            {isKeyboardVisible && <div style={{ height: "15vh" }} />}
+        </>)
+        }
 
         <Keyboard
             visible={isKeyboardVisible}
             onSubmit={handlePostReply}
             onKeyPress={handleKeyboardKeyPress}
-            onRequestClose={() => setIsKeyboardVisible(false)}
+            onRequestClose={handleKeyboardClose}
         />
     </>);
 };
@@ -150,8 +185,10 @@ const ObjectDescription: React.FC<{
     setCurrentVariant: (objectId: number, variantId: number) => void;
     onClose: () => void;
 }> = ({ objectId, variantId, headerHeight, setCurrentVariant, onClose }) => {
+    const [isSheetMinimized, setIsSheetMinimized] = useState(false);
     const [commentText, setCommentText] = useState<string>("");
     const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+    const inputRef = useRef<HTMLDivElement>(null);
 
     const { scene, toggleVariantLike, toggleVariantDislike, postComment } = useSceneStore();
     const sceneObject = scene.objects.find((obj) => obj.id === objectId);
@@ -196,12 +233,36 @@ const ObjectDescription: React.FC<{
         setIsKeyboardVisible(false);
     };
 
+    const handleKeyboardOpen = () => {
+        setIsKeyboardVisible(true);
+
+        // Scroll the textbox into view above the keyboard only if it is below the keyboard
+        if (inputRef.current) {
+            const inputRect = inputRef.current.getBoundingClientRect();
+            const snapToKeyboardHeight = window.innerHeight * 0.35;
+
+            if (inputRect.bottom > window.innerHeight - snapToKeyboardHeight) {
+                setTimeout(() => {
+                    inputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+                }, 50);
+            }
+        }
+    };
+
+    const handleKeyboardClose = () => {
+        setIsKeyboardVisible(false);
+    };
+
     return (<>
         <BottomSheet
             isVisible={true}
             headerHeight={headerHeight}
             variantName={variant.name}
             onClose={onClose}
+            onMinimize={(minimized) => {
+                setIsSheetMinimized(minimized);
+                if (minimized) handleKeyboardClose();
+            }}
         >
             <div className="minh-100 d-flex flex-column" style={{ fontSize: "0.8rem" }}>
 
@@ -256,12 +317,20 @@ const ObjectDescription: React.FC<{
                                 className="input-div"
                                 role="textbox"
                                 tabIndex={0}
-                                onClick={() => setIsKeyboardVisible(true)}
-                            >{commentText}</div>
+                                onClick={handleKeyboardOpen}
+                                style={{ caretColor: "black", whiteSpace: "pre-wrap" }}
+                            >
+                                {commentText}
+                                {isKeyboardVisible && (
+                                    <span style={{ display: "inline-block", width: "1px", backgroundColor: "black", height: "1em" }} />
+                                )}
+                            </div>
                         </label>
-                        <button className="btn btn--default btn--full mb-0" onClick={handlePostComment}>
-                            Post
-                        </button>
+                        <div ref={inputRef}>
+                            <button className="btn btn--default btn--full mb-0" onClick={handlePostComment}>
+                                Post
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -272,19 +341,22 @@ const ObjectDescription: React.FC<{
                             key={comment.id}
                             objectId={objectId}
                             commentId={comment.id}
+                            forceCloseKeyboard={isSheetMinimized}
                         />
                     ))
                 ) : (
                     <p>No comments yet. Be the first to comment!</p>
                 )}
             </div>
+
+            {isKeyboardVisible && <div style={{ height: "15vh" }} />}
         </BottomSheet>
 
         <Keyboard
             visible={isKeyboardVisible}
             onSubmit={handlePostComment}
             onKeyPress={handleKeyboardKeyPress}
-            onRequestClose={() => setIsKeyboardVisible(false)}
+            onRequestClose={handleKeyboardClose}
         />
     </>);
 };

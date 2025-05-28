@@ -7,12 +7,14 @@ const BottomSheet = ({
     headerHeight,
     variantName,
     onClose,
+    onMinimize,
     children,
 }: {
     isVisible: boolean;
     headerHeight: number;
     variantName: string;
     onClose?: () => void;
+    onMinimize?: (minimized: boolean) => void;
     children?: React.ReactNode;
 }) => {
     const screenHeight = typeof window !== "undefined" ? window.innerHeight : 800;
@@ -70,6 +72,7 @@ const BottomSheet = ({
                 // TODO use THREE.MathUtils.clamp ?
                 const nextPosition = Math.max(positions[3], Math.min(positions[1], closest[0] ?? positions[3]));
 
+                onMinimize?.(nextPosition === positions[1]);
 
                 animate(y, nextPosition, { duration: 0.2, ease: "easeOut" });
             }}
