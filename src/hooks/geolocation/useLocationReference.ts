@@ -106,7 +106,7 @@ export default function useLocationReference(
             Math.abs(prevCoordinates.latitude - coordinates.latitude) < 0.00001 &&
             Math.abs(prevCoordinates.longitude - coordinates.longitude) < 0.00001 &&
             Math.abs((prevCoordinates.altitude ?? 0) - (coordinates.altitude ?? 0)) < 0.1) {
-            console.log("Minimal movement detected; skipping unnecessary calculations.");
+            // console.log("Minimal movement detected; skipping unnecessary calculations.");
             return;
         }
         setPrevCoordinates(coordinates);

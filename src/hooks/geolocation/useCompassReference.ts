@@ -49,7 +49,7 @@ export default function useCompassReference(
             phoneTilt.beta == null || Math.abs(phoneTilt.beta) > MAX_TILT_ANGLE ||
             phoneTilt.gamma == null || Math.abs(phoneTilt.gamma) > MAX_TILT_ANGLE
         ) {
-            console.warn("Skipping update due to extreme tilt");
+            // console.warn("Skipping update due to extreme tilt");
             return;
         }
 
