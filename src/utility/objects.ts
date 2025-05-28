@@ -27,6 +27,7 @@ export function getIntersectedSceneObject(event: XRInputSourceEvent, state: Root
     const raycaster = new THREE.Raycaster(origin, direction);
     const intersects = raycaster.intersectObjects(state.scene.children, true);
 
+    console.log("Intersects:", intersects);
     for (const hit of intersects) {
         const sceneObjectId = hit.object?.userData?.sceneObjectId;
         if (sceneObjectId !== undefined) {

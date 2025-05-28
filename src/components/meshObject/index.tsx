@@ -198,7 +198,7 @@ const ModelComponent = ({ sceneObjectId, modelUrl, objectRef, position, rotation
 
     const clonedScene = scene.clone();
     const boundingBox = new THREE.Box3().setFromObject(clonedScene); // Compute bounding box
-    const size = boundingBox.getSize(new THREE.Vector3());
+    const size = boundingBox.getSize(new THREE.Vector3(1, 1, 1));
     const center = boundingBox.getCenter(new THREE.Vector3());
 
     return (
@@ -209,12 +209,13 @@ const ModelComponent = ({ sceneObjectId, modelUrl, objectRef, position, rotation
             scale={scale.toArray()}
             castShadow
             receiveShadow
+            userData={{ sceneObjectId }}
         >
             <primitive object={clonedScene} />
             <meshStandardMaterial color="white" transparent={false} opacity={1} depthWrite={true} />
 
             {/* Invisible object for click interaction */}
-            <mesh position={center} userData={{ sceneObjectId }}>
+            <mesh key={scale.x * Math.random()} position={center} userData={{ sceneObjectId }}>
                 <boxGeometry args={[size.x, size.y, size.z]} />
                 <meshStandardMaterial color="white" transparent={true} opacity={0.0001} depthWrite={false} /> {/* wireframe  */}
             </mesh>
