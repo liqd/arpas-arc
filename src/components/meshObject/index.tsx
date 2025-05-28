@@ -9,16 +9,18 @@ import RoundedPlane from "../roundedPlane";
 import { MinioData } from "../../types/databaseData";
 
 interface MeshObjectProps {
-    minioData: MinioData;
+    minioData: MinioData | null;
     sceneObjectId: number;
     meshObjectId: string;
     position?: Position;
     rotation?: Rotation;
-    scale?: Scale;
+    scale?: Scale | [number, number, number];
     onClick?: (e: ThreeEvent<MouseEvent>) => void;
     showOutline?: boolean;
     userData?: Record<string, any> | Readonly<Record<string, any> | undefined>;
 }
+
+const activeModels = new Map<string, Set<number>>(); // Map to track active sceneObjectIds for each meshObjectId
 
 const MeshObject = ({
     minioData,
@@ -33,34 +35,71 @@ const MeshObject = ({
 
     useEffect(() => {
         let isMounted = true;
+        let retryCount = 0; // Track the number of retries
+        const maxRetries = 5; // Set a maximum number of retries
 
-        const loadModel = () => {
-            // Fetch the model URL and increment its instance count
-            fetchGLTFModel(minioData, meshObjectId)
-                .then((url) => {
-                    if (isMounted) {
-                        setModelUrl(url);
-                        setShowLabel(false);
+        const loadModel = async () => {
+            if (!minioData) {
+                console.error("Minio client data is missing");
+                return;
+            }
+
+            // Skip loading if modelUrl is already set
+            if (modelUrl) {
+                // console.log(`Model already loaded: ${meshObjectId}`);
+                return;
+            }
+
+            try {
+                const url = await fetchGLTFModel(minioData, meshObjectId);
+                if (isMounted) {
+                    setModelUrl(url);
+                    setShowLabel(false);
+                    
+                    // Add sceneObjectId to the activeModels map
+                    if (!activeModels.has(meshObjectId)) {
+                        activeModels.set(meshObjectId, new Set());
                     }
-                })
-                .catch(() => {
-                    console.warn(`Failed to load model: ${meshObjectId}, retrying...`);
-                });
+                    activeModels.get(meshObjectId)!.add(sceneObjectId);
+
+                    console.log(`Model loaded successfully: ${meshObjectId}`);
+                    retryCount = 0; // Reset retry count on success
+                }
+            } catch (error) {
+                console.warn(`Failed to load model: ${meshObjectId}. Retry attempt ${retryCount + 1}`);
+                retryCount++;
+                if (retryCount >= maxRetries) {
+                    console.error(`Max retries reached for model: ${meshObjectId}`);
+                    clearInterval(loadModelInterval); // Stop retrying after max retries
+                }
+            }
         };
 
         loadModel();
+
         const toggleLabelInterval = setInterval(() => setShowLabel((prev) => !prev), 3000); // Toggle label every few seconds
         const loadModelInterval = setInterval(loadModel, 10000); // Retry to load model every 10 seconds
 
-        // Cleanup function to decrement instance count and clean up cache if necessary
         return () => {
             isMounted = false;
-            // clearTimeout(labelTimeout);
             clearInterval(loadModelInterval);
             clearInterval(toggleLabelInterval);
-            releaseGLTFModel(meshObjectId); // Decrement instance count
+            
+            // Remove sceneObjectId from the activeModels map
+            // const activeSceneObjects = activeModels.get(meshObjectId);
+            // if (activeSceneObjects) {
+            //     activeSceneObjects.delete(sceneObjectId);
+            //     console.log(`Removed sceneObjectId: ${sceneObjectId} for meshObjectId: ${meshObjectId}. Remaining: ${activeSceneObjects.size}`);
+
+            //     // Only release the model if no active objects remain
+            //     if (activeSceneObjects.size === 0) {
+            //         activeModels.delete(meshObjectId);
+            //         releaseGLTFModel(meshObjectId); // Decrement instance count and clean up cache
+            //         console.log(`Released model: ${meshObjectId} as no active objects remain.`);
+            //     }
+            // }
         };
-    }, [meshObjectId]);
+    }, [meshObjectId, minioData, modelUrl]);
 
     // Add event listeners for highlighting and unhighlighting
     useEffect(() => {
@@ -137,7 +176,7 @@ const MeshObject = ({
                         objectRef={objectRef}
                         position={position}
                         rotation={rotation}
-                        scale={scale}
+                        scale={new Scale(scale)}
                     />
                 </Suspense>
             )}
@@ -172,7 +211,7 @@ const ModelComponent = ({ sceneObjectId, modelUrl, objectRef, position, rotation
             receiveShadow
         >
             <primitive object={clonedScene} />
-            <meshStandardMaterial color="white" transparent={false} opacity={1} depthWrite={true}/>
+            <meshStandardMaterial color="white" transparent={false} opacity={1} depthWrite={true} />
 
             {/* Invisible object for click interaction */}
             <mesh position={center} userData={{ sceneObjectId }}>

@@ -7,20 +7,16 @@ const BottomSheet = ({
     headerHeight,
     variantName,
     onClose,
-    isNewCommentFocus,
-    isNewReplyFocus,
+    onMinimize,
     children,
 }: {
     isVisible: boolean;
     headerHeight: number;
     variantName: string;
     onClose?: () => void;
-    isNewCommentFocus?: boolean;
-    isNewReplyFocus?: boolean;
+    onMinimize?: (minimized: boolean) => void;
     children?: React.ReactNode;
 }) => {
-    const [forceUpdate, setForceUpdate] = useState(false);
-
     const screenHeight = typeof window !== "undefined" ? window.innerHeight : 800;
 
     const relativePositions = [
@@ -35,7 +31,6 @@ const BottomSheet = ({
     const y = useMotionValue(screenHeight);
     const dragControls = useDragControls();
     const [shouldRender, setShouldRender] = useState(isVisible);
-    const [lastPositionBeforeCommentFocus, setLastPositionBeforeCommentFocus] = useState(positions[2]);
     const height = useTransform(y, (value) => `${screenHeight - value}px`);
 
     useEffect(() => {
@@ -50,17 +45,6 @@ const BottomSheet = ({
             });
         }
     }, [isVisible]);
-
-    useEffect(() => {
-        setTimeout(() => {
-            if (isNewCommentFocus || isNewReplyFocus) {
-                setLastPositionBeforeCommentFocus(y.get());
-                animate(y, positions[3], { duration: 0.2, ease: "easeOut" });
-            } else {
-                // animate(y, lastPositionBeforeCommentFocus, { duration: 0.2, ease: "easeOut" });
-            }
-        }, 350);
-    }, [isNewCommentFocus, isNewReplyFocus]);
 
     if (!shouldRender) return null;
 
@@ -88,44 +72,34 @@ const BottomSheet = ({
                 // TODO use THREE.MathUtils.clamp ?
                 const nextPosition = Math.max(positions[3], Math.min(positions[1], closest[0] ?? positions[3]));
 
+                onMinimize?.(nextPosition === positions[1]);
 
                 animate(y, nextPosition, { duration: 0.2, ease: "easeOut" });
             }}
         >
-            {(isNewCommentFocus || isNewReplyFocus) ? (
-                <div style={{ height: "30px" }} />
-            ) : (
-                <div
-                    className="bottom-sheet-handle"
-                    onPointerDown={(e) => dragControls.start(e)}
-                >
-                    <div></div>
-                </div>
-            )}
+            <div
+                className="bottom-sheet-handle"
+                onPointerDown={(e) => dragControls.start(e)}
+            >
+                <div></div>
+            </div>
             <div className="bottom-sheet-content-header">
                 <div className="minh-100 d-flex flex-column" style={{ fontSize: "0.8rem" }}>
                     <div className="row align-items-center">
                         <div className="col-10">
                             <h3>{variantName}</h3>
                         </div>
-                        {!(isNewCommentFocus || isNewReplyFocus) &&
-                            <div className="col-2 d-flex justify-content-end align-items-center">
-                                <i
-                                    className="fas fa-times"
-                                    onClick={onClose}
-                                    style={{ cursor: "pointer", fontSize: "0.8rem" }}
-                                ></i>
-                            </div>
-                        }
+                        <div className="col-2 d-flex justify-content-end align-items-center">
+                            <i
+                                className="fas fa-times"
+                                onClick={onClose}
+                                style={{ cursor: "pointer", fontSize: "0.8rem" }}
+                            ></i>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div
-                className="bottom-sheet-content"
-                style={{
-                    overflowY: (isNewCommentFocus || isNewReplyFocus) ? "hidden" : "auto",
-                }}
-            >
+            <div className="bottom-sheet-content">
                 {children}
             </div>
 

@@ -66,3 +66,34 @@
     background: #a72b1e;
     color: #FFF;
 }
+
+.input-div {
+    min-height: 36px;
+    background: white;
+    cursor: text;
+    user-select: none;
+
+    display: block;
+    max-width: 100%;
+    background-color: #fff;
+    color: #000;
+    box-shadow: 0 0 1px rgb(237.5493975904, 239.1746987952, 251.1506024096) inset;
+    border-radius: 0;
+    border-width: 1px;
+    border: 1px solid #d8d8d8;
+    padding: 0.4em 0.6em;
+    line-height: 1.6;
+    font-family: inherit;
+    font-size: inherit;
+    border-radius: 0;
+}
+
+.input-div:focus,
+.input-div:focus-visible {
+    outline: none;
+    border-color: #007bff;
+}
+
+.placeholder {
+    color: #888;
+}

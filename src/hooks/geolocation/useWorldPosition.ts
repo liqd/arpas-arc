@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
+import * as THREE from "three";
 import { Position } from "../../types/transform";
 import { lerpPosition } from "../../utility/interpolation";
-import useGeolocation from "./useGeolocation";
-import useLocationReference from "./useLocationReference";
-import useGeolocationHistory from "./useGeolocationHistory";
+import { useCombinedLocation } from "./useCombinedLocation";
 
 /**
  * React hook for smoothly updating world position based on a reference location.
@@ -25,29 +24,31 @@ import useGeolocationHistory from "./useGeolocationHistory";
  * console.log(`Current Position:`, worldPosition.toArray());
  * ```
  */
-export default function useWorldPosition(
-    interpolationTreshhold: number = 15, intrepolationTimeInSec: number = 1
+export default function useWorldPosition(interpolationTreshhold: number = 15, intrepolationTimeInSec: number = 1
 ): [Position] {
 
-    const MAX_LOCATION_HISTORY_LENGTH = 10;
-    const [currentLocation, referenceLocation] = useLocationReference(MAX_LOCATION_HISTORY_LENGTH);
+    const {
+        currentGeolocation,
+        locationHistory,
+        currentLocation,
+        referenceLocation,
+    } = useCombinedLocation(35, 10);
 
     const [worldPosition, setWorldPosition] = useState<Position>(new Position());
 
     useEffect(() => {
-        const usedLocation = (referenceLocation ?? currentLocation);
-        if (!usedLocation?.position) return;
+        if (!referenceLocation?.position) return;
 
         // Snap if difference exceeds threshold
-        if (usedLocation.position.distanceTo(worldPosition) > interpolationTreshhold) {
-            setWorldPosition(usedLocation.position);
+        if (referenceLocation.position.distanceTo(worldPosition) > interpolationTreshhold) {
+            setWorldPosition(referenceLocation.position);
         } else {
-            lerpPosition(worldPosition, usedLocation.position, intrepolationTimeInSec * 1000, (value) => {
+            lerpPosition(worldPosition, referenceLocation.position, intrepolationTimeInSec * 1000, (value) => {
                 setWorldPosition(value);
             });
         }
 
-    }, [currentLocation, referenceLocation]);
+    }, [referenceLocation]);
 
     return [worldPosition];
 }

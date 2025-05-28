@@ -1,31 +1,78 @@
-import { useState } from "react";
-import { BottomSheet } from "..";
+import { useEffect, useRef, useState } from "react";
+import { BottomSheet, Keyboard } from "..";
 import { CommentData, ReplyData, VariantData } from "../../types/objectData";
-import "./style.css";
 import useSceneStore from "../../store/sceneStore";
+import "./style.css";
 
-const Comment: React.FC<{ objectId: number; commentId: number; setIsNewReplyFocused: (focus: boolean) => void }> = ({
+const Comment: React.FC<{ objectId: number; commentId: number; forceCloseKeyboard: boolean }> = ({
     objectId,
     commentId,
-    setIsNewReplyFocused,
+    forceCloseKeyboard = false,
 }) => {
     const [isShowingReplies, setIsShowingReplies] = useState(false);
     const [replyText, setReplyText] = useState("");
-
+    const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+    const inputRef = useRef<HTMLDivElement>(null);
     const { scene, toggleCommentLike, toggleCommentDislike, postCommentReply } = useSceneStore();
+
     const sceneObject = scene.objects.find((obj) => obj.id === objectId);
     if (!sceneObject) return null;
 
-    const comment = sceneObject.comments.find((c) => c.id === commentId);
+    const getCommentOrReply = (commentId: number): CommentData | ReplyData | null => {
+        for (const c of sceneObject.comments) {
+            if (c.id === commentId) return c;
+            const reply = c.replies.find((r) => r.id === commentId);
+            if (reply) return reply;
+        }
+        return null;
+    };
+
+    const comment = getCommentOrReply(commentId);
     if (!comment) return null;
 
-    const isComment = "replies" in comment;
+    const isReply = !("replies" in comment);
 
     const handleLike = () => toggleCommentLike(objectId, commentId);
     const handleDislike = () => toggleCommentDislike(objectId, commentId);
 
+    const handleKeyboardOpen = () => {
+        setIsKeyboardVisible(true);
+
+        // Scroll the reply input into view above the keyboard only if it is below the keyboard
+        if (inputRef.current) {
+            const inputRect = inputRef.current.getBoundingClientRect();
+            const snapToKeyboardHeight = window.innerHeight * 0.35;
+
+            if (inputRect.bottom > window.innerHeight - snapToKeyboardHeight) {
+                setTimeout(() => {
+                    inputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+                }, 50);
+            }
+        }
+    };
+
+    const handleKeyboardClose = () => {
+        setIsKeyboardVisible(false);
+    };
+
+    useEffect(() => {
+        if (forceCloseKeyboard) {
+            handleKeyboardClose();
+        }
+    }, [forceCloseKeyboard]);
+
+    const handleKeyboardKeyPress = (key: string) => {
+        if (key === "{bksp}") {
+            setReplyText(prev => prev.slice(0, -1));
+        } else if (key === "{space}") {
+            setReplyText(prev => prev + " ");
+        } else if (!key.startsWith("{")) {
+            setReplyText(prev => prev + key);
+        }
+    };
+
     const handlePostReply = () => {
-        if (!isComment) return;
+        if (isReply) return;
         const trimmed = replyText.trim();
         if (!trimmed) return;
 
@@ -44,72 +91,91 @@ const Comment: React.FC<{ objectId: number; commentId: number; setIsNewReplyFocu
 
         setReplyText("");
         postCommentReply(objectId, commentId, newReply);
+        setIsKeyboardVisible(false);
     };
 
-    return (
-        <>
-            <div className={`row top-border ${!isComment && "ps-3 pb-2"}`}>
-                <div className="a4-comments__box pt-3">
-                    <div className="a4-comments__box--user row">
-                        <div className="col-2 col-lg-1 a4-comments__user-img">
-                            <i className="fas fa-user-circle fa-3x"></i>
-                        </div>
-                        <div className="col-7 col-md-8">
-                            <div className="a4-comments__author">{comment.username}</div>
-                            <span className="a4-comments__moderator" style={{ fontSize: "0.8rem" }}>{comment.isModerator}</span>
-                            <time className="a4-comments__submission-date">{new Date(comment.timestamp).toLocaleString()}</time>
+    return (<>
+        <div className={`row top-border ${isReply && "ps-3 pb-2"}`}>
+            <div className="a4-comments__box pt-3">
+                <div className="a4-comments__box--user row">
+                    <div className="col-2 col-lg-1 a4-comments__user-img">
+                        <i className="fas fa-user-circle fa-3x"></i>
+                    </div>
+                    <div className="col-7 col-md-8">
+                        <div className="a4-comments__author">{comment.username}</div>
+                        <span className="a4-comments__moderator" style={{ fontSize: "0.8rem" }}>{comment.isModerator}</span>
+                        <time className="a4-comments__submission-date">{new Date(comment.timestamp).toLocaleString()}</time>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col-12">
+                        <div className="a4-comments__text">
+                            <p>{comment.text}</p>
                         </div>
                     </div>
-                    <div className="row">
-                        <div className="col-12">
-                            <div className="a4-comments__text">
-                                <p>{comment.text}</p>
-                            </div>
+                </div>
+                <div className="row">
+                    <div className="col-12 a4-comments__action-bar-container">
+                        <div className="rating">
+                            <button className={`rating-button rating-up ${comment.isLiked && "liked"}`} onClick={handleLike}>
+                                <i className="far fa-thumbs-up"></i>{comment.likes}
+                            </button>
+                            <button className={`rating-button rating-down ${comment.isDisliked && "disliked"}`} onClick={handleDislike}>
+                                <i className="far fa-thumbs-down"></i>{comment.dislikes}
+                            </button>
                         </div>
-                    </div>
-                    <div className="row">
-                        <div className="col-12 a4-comments__action-bar-container">
-                            <div className="rating">
-                                <button className={`rating-button rating-up ${comment.isLiked && "liked"}`} onClick={handleLike}>
-                                    <i className="far fa-thumbs-up"></i>{comment.likes}
-                                </button>
-                                <button className={`rating-button rating-down ${comment.isDisliked && "disliked"}`} onClick={handleDislike}>
-                                    <i className="far fa-thumbs-down"></i>{comment.dislikes}
+                        {!isReply && (
+                            <div className="a4-comments__action-bar">
+                                <button className="btn btn--no-border a4-comments__action-bar__btn" type="button" onClick={() => setIsShowingReplies((prev) => !prev)}>
+                                    {isShowingReplies ? <> <i className="fas fa-minus"></i> Hide Replies </> : <> <i className="far fa-comment"></i>{comment.replies.length} Replies </>}
                                 </button>
                             </div>
-                            {isComment && (
-                                <div className="a4-comments__action-bar">
-                                    <button className="btn btn--no-border a4-comments__action-bar__btn" type="button" onClick={() => setIsShowingReplies((prev) => !prev)}>
-                                        {isShowingReplies ? <> <i className="fas fa-minus"></i> Hide Replies </> : <> <i className="far fa-comment"></i>{comment.replies.length} Replies </>}
-                                    </button>
-                                </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {!isReply && isShowingReplies && (<>
+            {comment.replies.map((reply) => (
+                <Comment key={reply.id} objectId={objectId} commentId={reply.id} forceCloseKeyboard={forceCloseKeyboard} />
+            ))}
+            <div className="commenting my-0 py-2 ps-3">
+                <h6>Join the discussion</h6>
+                <div className="form-group commenting__content mb-0">
+                    <label>
+                        Your reply
+                        <div
+                            className="input-div"
+                            role="textbox"
+                            tabIndex={0}
+                            onClick={handleKeyboardOpen}
+                        >
+                            {replyText}
+                            {isKeyboardVisible && (
+                                <span style={{ display: "inline-block", width: "1px", backgroundColor: "black", height: "1em" }} />
                             )}
                         </div>
+                    </label>
+                    <div ref={inputRef}>
+                        <button className="btn btn--default btn--full mb-0" onClick={handlePostReply}>
+                            Post
+                        </button>
                     </div>
                 </div>
             </div>
 
-            {isComment && isShowingReplies && (
-                <>
-                    {comment.replies.map((reply) => (
-                        <Comment key={reply.id} objectId={objectId} commentId={reply.id} setIsNewReplyFocused={setIsNewReplyFocused} />
-                    ))}
-                    <div className="commenting my-0 py-2 ps-3">
-                        <h6>Join the discussion</h6>
-                        <div className="form-group commenting__content mb-0">
-                            <form onSubmit={(e) => { e.preventDefault(); handlePostReply(); }}>
-                                <label>
-                                    Your reply
-                                    <input type="text" value={replyText} onFocus={() => setIsNewReplyFocused(true)} onBlur={() => setIsNewReplyFocused(false)} onChange={(e) => setReplyText(e.target.value)} />
-                                </label>
-                                <button className="btn btn--default btn--full mb-0" type="submit">Post</button>
-                            </form>
-                        </div>
-                    </div>
-                </>
-            )}
-        </>
-    );
+            {isKeyboardVisible && <div style={{ height: "15vh" }} />}
+        </>)
+        }
+
+        <Keyboard
+            visible={isKeyboardVisible}
+            onSubmit={handlePostReply}
+            onKeyPress={handleKeyboardKeyPress}
+            onRequestClose={handleKeyboardClose}
+        />
+    </>);
 };
 
 const ObjectDescription: React.FC<{
@@ -119,9 +185,10 @@ const ObjectDescription: React.FC<{
     setCurrentVariant: (objectId: number, variantId: number) => void;
     onClose: () => void;
 }> = ({ objectId, variantId, headerHeight, setCurrentVariant, onClose }) => {
-    const [commentText, setCurrentNewCommentText] = useState<string>("");
-    const [isNewCommentFocused, setIsNewCommentFocused] = useState<boolean>(false);
-    const [isNewReplyFocused, setIsNewReplyFocused] = useState<boolean>(false);
+    const [isSheetMinimized, setIsSheetMinimized] = useState(false);
+    const [commentText, setCommentText] = useState<string>("");
+    const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+    const inputRef = useRef<HTMLDivElement>(null);
 
     const { scene, toggleVariantLike, toggleVariantDislike, postComment } = useSceneStore();
     const sceneObject = scene.objects.find((obj) => obj.id === objectId);
@@ -134,7 +201,17 @@ const ObjectDescription: React.FC<{
     const handleVariantLike = () => toggleVariantLike(objectId, variantId);
     const handleVariantDislike = () => toggleVariantDislike(objectId, variantId);
 
-    const postNewComment = () => {
+    const handleKeyboardKeyPress = (key: string) => {
+        if (key === "{bksp}") {
+            setCommentText(prev => prev.slice(0, -1));
+        } else if (key === "{space}") {
+            setCommentText(prev => prev + " ");
+        } else if (!key.startsWith("{")) {
+            setCommentText(prev => prev + key);
+        }
+    };
+
+    const handlePostComment = () => {
         const trimmed = commentText.trim();
         if (!trimmed) return;
 
@@ -151,102 +228,109 @@ const ObjectDescription: React.FC<{
             replies: [],
         };
 
-        setCurrentNewCommentText("");
+        setCommentText("");
         postComment(sceneObject.id, newComment);
+        setIsKeyboardVisible(false);
     };
 
-    return (
+    const handleKeyboardOpen = () => {
+        setIsKeyboardVisible(true);
+
+        // Scroll the textbox into view above the keyboard only if it is below the keyboard
+        if (inputRef.current) {
+            const inputRect = inputRef.current.getBoundingClientRect();
+            const snapToKeyboardHeight = window.innerHeight * 0.35;
+
+            if (inputRect.bottom > window.innerHeight - snapToKeyboardHeight) {
+                setTimeout(() => {
+                    inputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+                }, 50);
+            }
+        }
+    };
+
+    const handleKeyboardClose = () => {
+        setIsKeyboardVisible(false);
+    };
+
+    return (<>
         <BottomSheet
             isVisible={true}
             headerHeight={headerHeight}
             variantName={variant.name}
             onClose={onClose}
-            isNewCommentFocus={isNewCommentFocused}
-            isNewReplyFocus={isNewReplyFocused}
+            onMinimize={(minimized) => {
+                setIsSheetMinimized(minimized);
+                if (minimized) handleKeyboardClose();
+            }}
         >
             <div className="minh-100 d-flex flex-column" style={{ fontSize: "0.8rem" }}>
 
-                {!isNewCommentFocused &&
-                    <div id="scrollableContentSection" className="row">
-                        <p>{variant.description}</p>
+                <div id="scrollableContentSection" className="row">
+                    <p>{variant.description}</p>
+                </div>
+                <div className="mb-3">
+                    <h6 className="mb-2">Variants</h6>
+                    <div className="d-flex flex-wrap gap-2">
+                        {sceneObject.variants.map((variantData: VariantData) => {
+                            const isActive = variantData.id === variant.id;
+                            return (
+                                <button
+                                    key={variantData.id}
+                                    className={`variant-icon ${isActive ? "active" : ""}`}
+                                    onClick={() => {
+                                        if (variantData.id !== variant.id) {
+                                            setCurrentVariant(objectId, variantData.id);
+                                        }
+                                    }}
+                                >
+                                    <i className="fas fa-circle fa-3x"></i>
+                                </button>
+                            );
+                        })}
                     </div>
-                }
-                {!isNewCommentFocused &&
-                    <div className="mb-3">
-                        <h6 className="mb-2">Variants</h6>
-                        <div className="d-flex flex-wrap gap-2">
-                            {sceneObject.variants.map((variantData: VariantData) => {
-                                const isActive = variantData.id === variant.id;
-                                return (
-                                    <button
-                                        key={variantData.id}
-                                        className={`variant-icon ${isActive ? "active" : ""}`}
-                                        onClick={() => {
-                                            if (variantData.id !== variant.id) {
-                                                setCurrentVariant(objectId, variantData.id);
-                                            }
-                                        }}
-                                    >
-                                        <i className="fas fa-circle fa-3x"></i>
-                                    </button>
-                                );
-                            })}
+                </div>
+                <div className="row top-border">
+                    <div className="col-12 a4-comments__action-bar-container">
+                        <div className="rating">
+                            <button className={`rating-button rating-up ${variant?.isLiked && "liked"}`} onClick={handleVariantLike}>
+                                <i className="far fa-thumbs-up"></i>{variant?.likes}
+                            </button>
+                            <button className={`rating-button rating-down ${variant?.isDisliked && "disliked"}`} onClick={handleVariantDislike}>
+                                <i className="far fa-thumbs-down"></i>{variant?.dislikes}
+                            </button>
+                        </div>
+                        <div className="a4-comments__action-bar">
+                            <button className="btn btn--no-border a4-comments__action-bar__btn" type="button">
+                                <i className="far fa-comment"></i>Reply
+                            </button>
                         </div>
                     </div>
-                }
-                {!isNewCommentFocused &&
-                    <div className="row top-border">
-                        <div className="col-12 a4-comments__action-bar-container">
-                            <div className="rating">
-                                <button className={`rating-button rating-up ${variant?.isLiked && "liked"}`} onClick={handleVariantLike}>
-                                    <i className="far fa-thumbs-up"></i>{variant?.likes}
-                                </button>
-                                <button className={`rating-button rating-down ${variant?.isDisliked && "disliked"}`} onClick={handleVariantDislike}>
-                                    <i className="far fa-thumbs-down"></i>{variant?.dislikes}
-                                </button>
-                            </div>
-                            <div className="a4-comments__action-bar">
-                                <button className="btn btn--no-border a4-comments__action-bar__btn" type="button">
-                                    <i className="far fa-comment"></i>Reply
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                }
+                </div>
 
                 <div id="discussionSection" className="commenting my-0">
                     <h6>Join the discussion</h6>
                     <div className="form-group commenting__content mb-0">
-                        <form
-                            onSubmit={(e) => {
-                                e.preventDefault();
-                                postNewComment();
-                                setTimeout(() => {
-                                    if (document.activeElement instanceof HTMLElement) {
-                                        document.activeElement.blur();
-                                    }
-                                }, 100);
-                            }}
-                        >
-                            <label>
-                                Your comment
-                                <input
-                                    type="text"
-                                    enterKeyHint="send"
-                                    value={commentText}
-                                    onFocus={() => setIsNewCommentFocused(true)}
-                                    onBlur={() => {
-                                        setIsNewCommentFocused(false);
-                                    }}
-                                    onChange={(e) => setCurrentNewCommentText(e.target.value)}
-                                />
-                            </label>
-                            {!isNewCommentFocused && commentText.length > 0 && (
-                                <button className="btn btn--default btn--full mb-0" type="submit">
-                                    Post
-                                </button>
-                            )}
-                        </form>
+                        <label>
+                            Your comment
+                            <div
+                                className="input-div"
+                                role="textbox"
+                                tabIndex={0}
+                                onClick={handleKeyboardOpen}
+                                style={{ caretColor: "black", whiteSpace: "pre-wrap" }}
+                            >
+                                {commentText}
+                                {isKeyboardVisible && (
+                                    <span style={{ display: "inline-block", width: "1px", backgroundColor: "black", height: "1em" }} />
+                                )}
+                            </div>
+                        </label>
+                        <div ref={inputRef}>
+                            <button className="btn btn--default btn--full mb-0" onClick={handlePostComment}>
+                                Post
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -257,15 +341,24 @@ const ObjectDescription: React.FC<{
                             key={comment.id}
                             objectId={objectId}
                             commentId={comment.id}
-                            setIsNewReplyFocused={setIsNewReplyFocused}
+                            forceCloseKeyboard={isSheetMinimized}
                         />
                     ))
                 ) : (
                     <p>No comments yet. Be the first to comment!</p>
                 )}
             </div>
-        </BottomSheet >
-    );
+
+            {isKeyboardVisible && <div style={{ height: "15vh" }} />}
+        </BottomSheet>
+
+        <Keyboard
+            visible={isKeyboardVisible}
+            onSubmit={handlePostComment}
+            onKeyPress={handleKeyboardKeyPress}
+            onRequestClose={handleKeyboardClose}
+        />
+    </>);
 };
 
 export default ObjectDescription;
