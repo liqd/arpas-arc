@@ -70,7 +70,8 @@
         "zustand": "^4.5.7"
     },
     "optionalDependencies": {
-        "@rollup/rollup-linux-x64-gnu": "4.41.0"
+        "@rollup/rollup-linux-x64-gnu": "4.41.0",
+        "@rollup/rollup-darwin-arm64": "4.41.0"
     },
     "overrides": {
         "three": "^0.175.0"
