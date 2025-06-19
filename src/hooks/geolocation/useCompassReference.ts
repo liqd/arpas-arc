@@ -26,12 +26,12 @@ export default function useCompassReference(
 
     const [headingHistory, setHeadingHistory] = useState<number[]>([]);
     const [referenceHeading, setReferenceHeading] = useState<{ heading: number, phoneYaw: number } | null>(null);
-    const [lastUpdateTime, setLastUpdateTime] = useState<number>(Date.now());
+    const [lastDataUpdateTime, setLastDataUpdateTime] = useState<number>(0);
     const [lastCalculationTime, setLastCalculationTime] = useState<number>(0);
+    const [lastUpdateTime, setLastUpdateTime] = useState<number>(Date.now() - TIME_THRESHOLD + 1000); // Initialize to allow updates after short time and gatther some data before first update
 
     useEffect(() => {
-        if (!compassHeading || !phoneTilt)
-        {
+        if (!compassHeading || !phoneTilt) {
             console.warn("Invalid compass heading or phone tilt data.");
             return;
         }
@@ -45,7 +45,7 @@ export default function useCompassReference(
             if (updateReferenceCompassHeading) updateReferenceCompassHeading(newReference);
         }
 
-        if (
+        if ( // Skip update if phone tilt is extreme
             phoneTilt.beta == null || Math.abs(phoneTilt.beta) > MAX_TILT_ANGLE ||
             phoneTilt.gamma == null || Math.abs(phoneTilt.gamma) > MAX_TILT_ANGLE
         ) {
@@ -53,10 +53,13 @@ export default function useCompassReference(
             return;
         }
 
-        const updatedHistory = [...headingHistory, compassHeading].slice(-MAX_HISTORY_LENGTH);
-        setHeadingHistory(updatedHistory);
+        if (currentTime - lastDataUpdateTime < 200) { // Reduce data update frequency
+            const updatedHistory = [...headingHistory, compassHeading].slice(-MAX_HISTORY_LENGTH);
+            setHeadingHistory(updatedHistory);
+            setLastDataUpdateTime(currentTime);
+        }
 
-        if (currentTime - lastCalculationTime < 500) return; // Reduce calculation frequency
+        if (currentTime - lastCalculationTime < 1000) return; // Reduce calculation frequency
         setLastCalculationTime(currentTime);
 
         // Outlier Detection using Interquartile Range (IQR)
@@ -69,7 +72,7 @@ export default function useCompassReference(
             return values.filter(v => v >= q1 - 1.5 * iqr && v <= q3 + 1.5 * iqr);
         };
 
-        const filteredHeadings = removeOutliers(updatedHistory);
+        const filteredHeadings = removeOutliers(headingHistory);
 
         // Weighted Moving Average for compass heading
         const getWeightedAverage = (values: number[]) => {
