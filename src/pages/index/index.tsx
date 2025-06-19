@@ -110,10 +110,10 @@ const IndexPage = ({ minioData, data: sceneData }: { minioData: MinioData, data:
         [scene]
     );
 
-    const getObjectPosition = useMemo(() => (sceneObject: ObjectData): Position => {
+    const fontSize = "22px";
     return (
         <>
-            <XRDomOverlay style={{ width: "100%", height: "100%" }}>
+            <XRDomOverlay style={{ width: "100%", height: "100%", fontSize: fontSize, boxSizing: "border-box", }}>
                 <div id="arc-logo-header" className="py-1 px-2">
                     <span className="border-0 fw-bold text-uppercase text-dark">ARPAS</span>
                 </div>
@@ -152,6 +152,7 @@ const IndexPage = ({ minioData, data: sceneData }: { minioData: MinioData, data:
                     onClose={() => setIsHelpVisible(false)}
                     onLeave={() => store.getState().session?.end()}
                     headerHeight={headerHeight}
+                    fontSize={fontSize}
                 />
 
                 {selectedObject && (
