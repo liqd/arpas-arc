@@ -138,10 +138,18 @@ const IndexPage = ({ minioData, data: sceneData }: { minioData: MinioData, data:
                     </button>
                     <button
                         className="border-0 fw-bold text-uppercase text-dark"
-                        onClick={() => setIsHelpVisible(true)}
+                        onClick={() => setIsHelpVisible((v) => !v)}
                     >
                         <small>
-                            <i className="fas fa-info-circle"></i> Help
+                            {isHelpVisible ? (
+                                <>
+                                    <i className="fas fa-times" aria-hidden="true"></i> Close Help
+                                </>
+                            ) : (
+                                <>
+                                    <i className="fas fa-info-circle"></i> Help
+                                </>
+                            )}
                         </small>
                     </button>
                 </div>
