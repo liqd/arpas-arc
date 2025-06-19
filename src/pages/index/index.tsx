@@ -3,14 +3,13 @@ import { useXRInputSourceEvent, useXRStore, XRDomOverlay } from "@react-three/xr
 import * as THREE from "three";
 import { DirectionalArrow, HelpMenu, ObjectDescription } from "../../components-ui";
 import { SceneData, ObjectData, VariantData } from "../../types/objectData";
-import { MeshObject } from "../../components";
+import { ObjectScene } from "../../components";
 import { useThree } from "@react-three/fiber";
 import { Position, Rotation, Scale } from "../../types/transform";
 import { getIntersectedSceneObject } from "../../utility/objects";
 import { Compass2D, Compass3D } from "../../components-ui/compass";
 import "./style.css";
 import useSceneStore from "../../store/sceneStore";
-import useLocationStore from "../../store/locationStore";
 import { MinioData } from "../../types/databaseData";
 import useWorldPosition from "../../hooks/geolocation/useWorldPosition";
 import { useWorldRotation } from "../../hooks";
@@ -29,7 +28,6 @@ const IndexPage = ({ minioData, data: sceneData }: { minioData: MinioData, data:
     const state = useThree();
     const { camera } = useThree();
     const { scene, setScene } = useSceneStore();
-    const { getPosition } = useLocationStore();
     const groundMesh = store.getState().groundMesh;
     const [minioClientData, setMinioClientData] = useState<MinioData | null>(null);
 
@@ -113,14 +111,6 @@ const IndexPage = ({ minioData, data: sceneData }: { minioData: MinioData, data:
     );
 
     const getObjectPosition = useMemo(() => (sceneObject: ObjectData): Position => {
-        const variantId = selectedVariants[sceneObject.id] ?? sceneObject.variants[0]?.id;
-        const variant = sceneObject.variants.find((v) => v.id === variantId);
-
-        return getPosition(sceneObject.coordinates[0], sceneObject.coordinates[1])
-            .addedPosition(variant?.offset_position ?? new Position())
-            .substractedPosition(worldPosition);
-    }, [selectedVariants, worldPosition]);
-
     return (
         <>
             <XRDomOverlay style={{ width: "100%", height: "100%" }}>
@@ -196,51 +186,12 @@ const IndexPage = ({ minioData, data: sceneData }: { minioData: MinioData, data:
             <directionalLight intensity={10} />
             <Compass3D headingInRad={worldRotation} camera={camera} />
 
-            <group rotation={[0, worldRotation, 0]}>
-                {scene.objects?.map((sceneObject) => {
-                    if (!sceneObject || !sceneObject.variants) {
-                        console.warn('Invalid scene object:', sceneObject);
-                        return null;
-                    }
-                    const sceneObjectId = sceneObject.id;
-                    const variantId = selectedVariants[sceneObject.id] ?? sceneObject.variants[0]?.id;
-                    const variant = sceneObject.variants.find((v) => v.id === variantId);
-
-                    if (!variant || !variant.mesh_id) {
-                        console.warn('Invalid variant:', variant);
-                        return null;
-                    }
-
-                    return (
-                        <mesh
-                            key={sceneObjectId}
-                            userData={{ sceneObjectId }}
-                            position={getObjectPosition(sceneObject).toArray()}
-                            rotation={variant.offset_rotation}
-                        >
-                            {variant.mesh_id === "primitive_cube" ? (
-                                <>
-                                    <boxGeometry args={variant.offset_scale} />
-                                    <meshStandardMaterial color="#248cb5" />
-                                </>
-                            ) : variant.mesh_id === "primitive_sphere" ? (
-                                <>
-                                    <sphereGeometry args={variant.offset_scale} />
-                                    <meshStandardMaterial color="#248cb5" />
-                                </>
-                            ) : (
-                                <MeshObject
-                                    key={`${sceneObject.id}_${variant.id}`}
-                                    minioData={minioClientData}
-                                    sceneObjectId={sceneObjectId}
-                                    meshObjectId={variant.mesh_id}
-                                    scale={variant.offset_scale}
-                                />
-                            )}
-                        </mesh>
-                    );
-                })}
-            </group>
+            <ObjectScene
+                selectedVariants={selectedVariants}
+                minioClientData={minioClientData}
+                worldRotation={worldRotation}
+                worldPosition={worldPosition}
+            />
         </>
     );
 };
