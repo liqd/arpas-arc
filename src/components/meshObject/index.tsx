@@ -4,9 +4,8 @@ import * as THREE from "three";
 import { ThreeEvent } from "@react-three/fiber";
 import { fetchGLTFModel, releaseGLTFModel } from "../../utility/fetchGLTFModel";
 import { Position, Rotation, Scale } from "../../types/transform";
-import LoadingSpheres from "../loadingSpheres";
-import RoundedPlane from "../roundedPlane";
 import { MinioData } from "../../types/databaseData";
+import { LoadingSpheres, RoundedPlane } from "..";
 
 interface MeshObjectProps {
     minioData: MinioData | null;
@@ -40,7 +39,7 @@ const MeshObject = ({
 
         const loadModel = async () => {
             if (!minioData) {
-                console.error("Minio client data is missing");
+                console.error("Minio client data is missing for mesh object with id:", meshObjectId);
                 return;
             }
 
@@ -55,7 +54,7 @@ const MeshObject = ({
                 if (isMounted) {
                     setModelUrl(url);
                     setShowLabel(false);
-                    
+
                     // Add sceneObjectId to the activeModels map
                     if (!activeModels.has(meshObjectId)) {
                         activeModels.set(meshObjectId, new Set());
@@ -84,7 +83,7 @@ const MeshObject = ({
             isMounted = false;
             clearInterval(loadModelInterval);
             clearInterval(toggleLabelInterval);
-            
+
             // Remove sceneObjectId from the activeModels map
             // const activeSceneObjects = activeModels.get(meshObjectId);
             // if (activeSceneObjects) {
@@ -104,7 +103,10 @@ const MeshObject = ({
     // Add event listeners for highlighting and unhighlighting
     useEffect(() => {
         const object = objectRef.current;
-        if (!object) return;
+        if (!object){
+            console.warn("Object reference is not set. Cannot add event listeners for highlighting on object with id:", sceneObjectId);
+            return;
+        }
 
         const handleMouseEnter = () => {
             addOutline(object); // Add outline on hover
@@ -128,13 +130,13 @@ const MeshObject = ({
             // @ts-ignore
             object.removeEventListener(mouseLeave, handleMouseLeave);
         };
-    }, []);
+    }, [objectRef]);
 
     const loadingSpheresScale = new Scale(.5, .5, .5);
     const modelName = meshObjectId.replace(/\.[^/.]+$/, ""); // Removes the file extension
 
     // Render loading visuals while the model URL is being fetched
-    if (!modelUrl) {
+    if (!modelUrl || !objectRef.current) {
         return (
             <>
                 <LoadingSpheres position={position.clone().addY(loadingSpheresScale.y * .75)} scale={loadingSpheresScale} />
@@ -209,13 +211,12 @@ const ModelComponent = ({ sceneObjectId, modelUrl, objectRef, position, rotation
             scale={scale.toArray()}
             castShadow
             receiveShadow
-            userData={{ sceneObjectId }}
         >
             <primitive object={clonedScene} />
             <meshStandardMaterial color="white" transparent={false} opacity={1} depthWrite={true} />
 
             {/* Invisible object for click interaction */}
-            <mesh key={scale.x * Math.random()} position={center} userData={{ sceneObjectId }}>
+            <mesh position={center} userData={{ sceneObjectId }}>
                 <boxGeometry args={[size.x, size.y, size.z]} />
                 <meshStandardMaterial color="white" transparent={true} opacity={0.0001} depthWrite={false} /> {/* wireframe  */}
             </mesh>
