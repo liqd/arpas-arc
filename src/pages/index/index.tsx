@@ -10,6 +10,7 @@ import { getIntersectedSceneObject } from "../../utility/objects";
 import { Compass2D, Compass3D } from "../../components-ui/compass";
 import "./style.css";
 import useSceneStore from "../../store/sceneStore";
+import { useMessageStore } from "../../store/messagesStore";
 import { MinioData } from "../../types/databaseData";
 import useWorldPosition from "../../hooks/geolocation/useWorldPosition";
 import { useWorldRotation } from "../../hooks";
@@ -28,6 +29,7 @@ const IndexPage = ({ minioData, data: sceneData }: { minioData: MinioData, data:
     const state = useThree();
     const { camera } = useThree();
     const { scene, setScene } = useSceneStore();
+    const { messages, addScreenMessage, removeScreenMessage } = useMessageStore();
     const groundMesh = store.getState().groundMesh;
     const [minioClientData, setMinioClientData] = useState<MinioData | null>(null);
 
@@ -78,6 +80,14 @@ const IndexPage = ({ minioData, data: sceneData }: { minioData: MinioData, data:
         console.log('Scene objects:', scene.objects);
     }, [scene.objects]);
 
+    useEffect(() => {
+        if (!minioClientData) {
+            addScreenMessage("Wait for database...", "wait_for_database");
+        } else {
+            removeScreenMessage("wait_for_database");
+        }
+    }, [minioClientData]);
+
     useLayoutEffect(() => {
         const updateHeaderHeight = () => {
             const header = document.querySelector("#arc-header") as HTMLElement;
@@ -111,41 +121,55 @@ const IndexPage = ({ minioData, data: sceneData }: { minioData: MinioData, data:
     );
 
     const fontSize = "22px";
+
     return (
         <>
             <XRDomOverlay style={{ width: "100%", height: "100%", fontSize: fontSize, boxSizing: "border-box", }}>
-                <div id="arc-logo-header" className="py-1 px-2">
-                    <span className="border-0 fw-bold text-uppercase text-dark">ARPAS</span>
+                <div className="xr-message-stack">
+                    {messages.map((msg) => (
+                        <div
+                            key={msg.id}
+                            className="xr-loading-label py-2 px-3 fw-bold text-center"
+                            style={{ fontSize: 18, color: msg.color ?? "white" }}
+                        >
+                            {msg.text}
+                        </div>
+                    ))}
                 </div>
-                <div id="arc-header" className="py-1 px-2">
-                    <button
-                        className="border-0 fw-bold text-uppercase text-dark"
-                        onClick={() => store.getState().session?.end()}
-                    >
-                        <small>
-                            <i className="fas fa-arrow-left" aria-hidden="true"></i> Leave AR
-                        </small>
-                    </button>
-                    <button
-                        className="border-0 fw-bold text-uppercase text-dark"
-                        onClick={() => setIsHelpVisible((v) => !v)}
-                    >
-                        <small>
-                            {isHelpVisible ? (
-                                <>
-                                    <i className="fas fa-times" aria-hidden="true"></i> Close Help
-                                </>
-                            ) : (
-                                <>
-                                    <i className="fas fa-info-circle"></i> Help
-                                </>
-                            )}
-                        </small>
-                    </button>
-                </div>
-                <div style={{ top: `${headerHeight}px` }}>
-                    <Compass2D />
-                </div>
+                <>
+                    <div id="arc-logo-header" className="py-1 px-2">
+                        <span className="border-0 fw-bold text-uppercase text-dark">ARPAS</span>
+                    </div>
+                    <div id="arc-header" className="py-1 px-2">
+                        <button
+                            className="border-0 fw-bold text-uppercase text-dark"
+                            onClick={() => store.getState().session?.end()}
+                        >
+                            <small>
+                                <i className="fas fa-arrow-left" aria-hidden="true"></i> Leave AR
+                            </small>
+                        </button>
+                        <button
+                            className="border-0 fw-bold text-uppercase text-dark"
+                            onClick={() => setIsHelpVisible((v) => !v)}
+                        >
+                            <small>
+                                {isHelpVisible ? (
+                                    <>
+                                        <i className="fas fa-times" aria-hidden="true"></i> Close Help
+                                    </>
+                                ) : (
+                                    <>
+                                        <i className="fas fa-info-circle"></i> Help
+                                    </>
+                                )}
+                            </small>
+                        </button>
+                    </div>
+                    <div style={{ top: `${headerHeight}px` }}>
+                        <Compass2D />
+                    </div>
+                </>
 
                 <HelpMenu
                     isVisible={isHelpVisible}
@@ -166,7 +190,7 @@ const IndexPage = ({ minioData, data: sceneData }: { minioData: MinioData, data:
                 )}
 
                 {/* Debugging Information */}
-                {/* <div
+                <div
                     style={{
                         position: "absolute",
                         bottom: "10px",
@@ -178,21 +202,26 @@ const IndexPage = ({ minioData, data: sceneData }: { minioData: MinioData, data:
                         zIndex: 1000,
                     }}
                 >
-                    <p>Header Height: {headerHeight}px</p>
+                    <p>world rot: {worldRotation.toFixed(3)}</p>
                     <p>Selected Object: {selectedObject ?? "None"}</p>
-                </div> */}
-            </XRDomOverlay>
+                </div>
+            </XRDomOverlay >
 
-            <ambientLight intensity={5} />
-            <directionalLight intensity={10} />
-            <Compass3D headingInRad={worldRotation} camera={camera} />
+            {scene && minioClientData && (
+                <>
+                    <ambientLight intensity={5} />
+                    <directionalLight intensity={10} />
+                    <Compass3D headingInRad={worldRotation} camera={camera} />
 
-            <ObjectScene
-                selectedVariants={selectedVariants}
-                minioClientData={minioClientData}
-                worldRotation={worldRotation}
-                worldPosition={worldPosition}
-            />
+                    <ObjectScene
+                        selectedVariants={selectedVariants}
+                        minioClientData={minioClientData}
+                        worldRotation={worldRotation}
+                        worldPosition={worldPosition}
+                    />
+                </>
+            )
+            }
         </>
     );
 };
