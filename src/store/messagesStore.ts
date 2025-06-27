@@ -15,14 +15,20 @@ type ScreenMessageState = {
 
 export const useMessageStore = create<ScreenMessageState>((set, get) => ({
     messages: [],
-    addScreenMessage: (text, id, duration = undefined, color = "#fff") => {
+    addScreenMessage: (text, id, duration = undefined, color = "white") => {
         id = id ?? text + Math.random().toString(5);
-        set((state) => ({
-            messages: [...state.messages, { id, text, duration, color: color ?? "#fff"}]
-        }));
-        if (duration) {
-            setTimeout(() => get().removeScreenMessage(id), duration);
-        }
+        set((state) => {
+            // Only add if id does not yet exist
+            if (state.messages.some((m) => m.id === id)) return state;
+            
+            if (duration) {
+                setTimeout(() => get().removeScreenMessage(id), duration);
+            }
+            
+            return {
+                messages: [...state.messages, { id, text, duration, color: color ?? "white" }]
+            };
+        });
         return id;
     },
     removeScreenMessage: (id) => set((state) => ({
