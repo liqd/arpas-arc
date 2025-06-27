@@ -31,6 +31,7 @@ const MeshObject = ({
 
     const [modelUrl, setModelUrl] = useState<string | null>(null); // State to store the Blob URL for the model
     const [showLabel, setShowLabel] = useState(false);
+    const [loading, setLoading] = useState(true); // State to track loading status
     const objectRef = useRef<THREE.Group | null>(null); // Ref for managing the scene object
     const { addScreenMessage, removeScreenMessage } = useMessageStore();
 
@@ -55,6 +56,7 @@ const MeshObject = ({
                 return;
             }
 
+            setLoading(true);
             addScreenMessage(`Model ${modelName} is loading...`, `loading_model_${meshObjectId}`);
 
             try {
@@ -72,6 +74,7 @@ const MeshObject = ({
                     console.log(`Model loaded successfully: ${meshObjectId}`);
                     retryCount = 0; // Reset retry count on success
                     // Remove loading message on success
+                    setLoading(false);
                     removeScreenMessage(`loading_model_${meshObjectId}`);
                     addScreenMessage(`Model ${modelName} loaded successfully`, `model_loaded_${meshObjectId}`, 5000, "#7bf1e3");
                 }
@@ -80,6 +83,7 @@ const MeshObject = ({
                 retryCount++;
                 removeScreenMessage(`loading_model_${meshObjectId}`);
                 if (retryCount >= maxRetries) {
+                    setLoading(false);
                     clearInterval(loadModelInterval);
                     clearInterval(toggleLabelInterval);
                     setShowLabel(false);
@@ -137,8 +141,32 @@ const MeshObject = ({
         };
     }, [objectRef]);
 
+    // If loading failed
+    if (!modelUrl && !loading) {
+        return (
+            <>
+                <RoundedPlane
+                    position={position}
+                    rotation={new Rotation(0, rotation.y, 0)}
+                    radius={1}
+                    opacity={.2}
+                ></RoundedPlane>
+                <RoundedPlane
+                    position={position}
+                    rotation={new Rotation(0, rotation.y, 0)}
+                    radius={1}
+                    opacity={.2}
+                >
+                    <Text fontSize={0.2} position={new THREE.Vector3(0, 0, 0.0001)}>
+                        Not loaded: {modelName}
+                    </Text>
+                </RoundedPlane>
+            </>
+        );
+    }
+
     // Render loading visuals while the model URL is being fetched
-    if (!modelUrl || !objectRef.current) {
+    if (!modelUrl) {
         return (
             <>
                 <LoadingSpheres position={position.clone().addY(loadingSpheresScale.y * .75)} scale={loadingSpheresScale} />
