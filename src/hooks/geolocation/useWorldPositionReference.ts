@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { gpsToPosition } from "../../utility/geolocation";
 import { Position } from "../../types/transform";
 import { nullCoordinates } from "../../components/locationObjects/geolocation";
+import { getWeightedAverage, removeOutliers } from "../../utility/filtering";
 
 /**
  * A React hook that processes real-time geolocation data to determine a stable reference location.
@@ -32,7 +33,7 @@ import { nullCoordinates } from "../../components/locationObjects/geolocation";
  * console.log(`Reference Location:`, referenceLocation);
  * ```
  */
-export default function useLocationReference(
+export default function useWorldPositionReference(
     coordinatesHistory: GeolocationCoordinates[], maxHistoryLength: number,
     updateCurrentLocation?: (currentLocation: { coordinates: GeolocationCoordinates; position: Position }) => void,
     updateReferenceLocation?: (referenceLocation: { coordinates: GeolocationCoordinates; position: Position }) => void
@@ -54,29 +55,6 @@ export default function useLocationReference(
 
         if (currentTime - lastCalculationTime < 1000) return; // Reduce calculation frequency
         setLastCalculationTime(currentTime);
-
-        // Weighted Moving Average for latitude/longitude
-        const getWeightedAverage = (values: number[]) => {
-            const weights = values.map((_, i) => i + 1); // Increasing weight over time (lower impact of older values)
-            const totalWeight = weights.reduce((sum, w) => sum + w, 0);
-            return values.reduce((sum, v, i) => sum + v * weights[i], 0) / totalWeight;
-        };
-
-        // Exponential Moving Average for altitude (stronger filtering)
-        const getExponentialMovingAverage = (values: number[], smoothingFactor = 0.2) => {
-            if (values.length === 0) return 0;
-            return values.reduce((ema, v) => (smoothingFactor * v) + ((1 - smoothingFactor) * ema), values[0]);
-        };
-
-        // Outlier Detection using Interquartile Range (IQR)
-        const removeOutliers = (values: number[]) => {
-            if (values.length < 4) return values; // Skip filtering for small datasets
-            const sorted = [...values].sort((a, b) => a - b);
-            const q1 = sorted[Math.floor(sorted.length * 0.25)];
-            const q3 = sorted[Math.floor(sorted.length * 0.75)];
-            const iqr = q3 - q1;
-            return values.filter(v => v >= q1 - 1.5 * iqr && v <= q3 + 1.5 * iqr);
-        };
 
         const filteredLatitudes = removeOutliers(coordinatesHistory.map(loc => loc.latitude));
         const filteredLongitudes = removeOutliers(coordinatesHistory.map(loc => loc.longitude));
@@ -112,11 +90,12 @@ export default function useLocationReference(
         setPrevCoordinates(coordinates);
 
         const position = gpsToPosition(nullCoordinates, coordinates);
+
         position.y = 0; // set altitute: 0
         setCurrentLocation({ coordinates, position });
         if (updateCurrentLocation) updateCurrentLocation({ coordinates, position });
 
-        if (coordinatesHistory.length < maxHistoryLength) return; // Don't set reference location if there is not enough data
+        if (coordinatesHistory.length < maxHistoryLength) return; // Don't update reference location if there is not enough data
 
         // Adaptive Thresholds: Dynamically adjusts based on accuracy and movement speed
         const velocityFactor = Math.max(1, coordinates.speed ?? 1);

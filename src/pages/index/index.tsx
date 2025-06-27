@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useCallback, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useCallback, useState, useRef } from "react";
 import { useXRInputSourceEvent, useXRStore, XRDomOverlay } from "@react-three/xr";
 import * as THREE from "three";
 import { DirectionalArrow, HelpMenu, ObjectDescription } from "../../components-ui";
@@ -6,14 +6,14 @@ import { SceneData, ObjectData, VariantData } from "../../types/objectData";
 import { ObjectScene } from "../../components";
 import { useThree } from "@react-three/fiber";
 import { Position, Rotation, Scale } from "../../types/transform";
-import { getIntersectedSceneObject } from "../../utility/objects";
+import { getClosestObject, getIntersectedSceneObject, getObjectPosition } from "../../utility/objects";
 import { Compass2D, Compass3D } from "../../components-ui/compass";
 import "./style.css";
 import useSceneStore from "../../store/sceneStore";
+import useLocationStore from "../../store/locationStore";
 import { useMessageStore } from "../../store/messagesStore";
 import { MinioData } from "../../types/databaseData";
-import useWorldPosition from "../../hooks/geolocation/useWorldPosition";
-import { useWorldRotation } from "../../hooks";
+import { useWorldRotation, useWorldPosition } from "../../hooks";
 
 const debounce = (func: () => void, delay: number) => {
     let timeoutId: ReturnType<typeof setTimeout>;
@@ -29,6 +29,7 @@ const IndexPage = ({ minioData, data: sceneData }: { minioData: MinioData, data:
     const state = useThree();
     const { camera } = useThree();
     const { scene, setScene } = useSceneStore();
+    const getObjectPosition = useLocationStore(state => state.getPosition);
     const { messages, addScreenMessage, removeScreenMessage } = useMessageStore();
     const groundMesh = store.getState().groundMesh;
     const [minioClientData, setMinioClientData] = useState<MinioData | null>(null);

@@ -1,10 +1,10 @@
 import React, { useMemo } from "react";
-import { ObjectData, VariantData } from "../../types/objectData";
 import { MinioData } from "../../types/databaseData";
 import { MeshObject } from "..";
 import { Position } from "../../types/transform";
 import useLocationStore from "../../store/locationStore";
 import useSceneStore from "../../store/sceneStore";
+import { getObjectPosition } from "../../utility/objects";
 
 interface ObjectSceneProps {
     selectedVariants: Record<number, number>;
@@ -19,17 +19,8 @@ const ObjectScene: React.FC<ObjectSceneProps> = ({
     worldRotation,
     worldPosition,
 }) => {
-    const { getPosition } = useLocationStore();
     const { scene } = useSceneStore();
-
-    const getObjectPosition = (sceneObject: ObjectData, variant: VariantData, worldPosition: Position): Position => {
-        const coordinates = sceneObject.coordinates || [0, 0];
-        const offsetPosition = variant?.offset_position || new Position();
-
-        return getPosition(coordinates[0], coordinates[1])
-            .addedPosition(offsetPosition)
-            .substractedPosition(worldPosition);
-    };
+    const getPosition = useLocationStore(state => state.getPosition);
 
     const renderedObjects = useMemo(() => {
         return scene.objects?.map((sceneObject) => {
@@ -47,7 +38,7 @@ const ObjectScene: React.FC<ObjectSceneProps> = ({
                 return null;
             }
 
-            const position = getObjectPosition(sceneObject, variant, worldPosition);
+            const position = getObjectPosition(sceneObject, variant, worldPosition, getPosition);
 
             return (
                 <mesh

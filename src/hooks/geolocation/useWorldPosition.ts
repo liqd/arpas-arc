@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { Position } from "../../types/transform";
 import { lerpPosition } from "../../utility/interpolation";
 import { useCombinedLocation } from "./useCombinedLocation";
+import useMessageStore from "../../store/messagesStore";
 
 /**
  * React hook for smoothly updating world position based on a reference location.
@@ -24,31 +25,41 @@ import { useCombinedLocation } from "./useCombinedLocation";
  * console.log(`Current Position:`, worldPosition.toArray());
  * ```
  */
-export default function useWorldPosition(interpolationTreshhold: number = 15, intrepolationTimeInSec: number = 1
+export default function useWorldPosition(interpolationTreshhold: number = 15, interpolationTimeInSec: number = 1
 ): [Position] {
 
     const {
         currentGeolocation,
         locationHistory,
-        currentLocation,
-        referenceLocation,
+        currentWorldPosition,
+        referenceWorldPosition,
     } = useCombinedLocation(35, 10);
 
-    const [worldPosition, setWorldPosition] = useState<Position>(new Position());
+    const [worldPosition, setWorldPosition] = useState<Position | null>(null);
+    const { addScreenMessage } = useMessageStore();
 
     useEffect(() => {
-        if (!referenceLocation?.position) return;
+        if (!referenceWorldPosition?.position) return;
+
+        if (!worldPosition) {
+            setWorldPosition(referenceWorldPosition.position);
+            return;
+        }
 
         // Snap if difference exceeds threshold
-        if (referenceLocation.position.distanceTo(worldPosition) > interpolationTreshhold) {
-            setWorldPosition(referenceLocation.position);
+        if (referenceWorldPosition.position.distanceTo(worldPosition) > interpolationTreshhold) {
+            addScreenMessage(`The GPS position seems very unstable.`, "compass_very_unstable", 3000, "red");
+
+            setWorldPosition(referenceWorldPosition.position);
         } else {
-            lerpPosition(worldPosition, referenceLocation.position, intrepolationTimeInSec * 1000, (value) => {
+            addScreenMessage(`The GPS position seems a litte unstable.`, "compass_little_unstable", 3000, "orange");
+
+            lerpPosition(worldPosition, referenceWorldPosition.position, interpolationTimeInSec * 1000, (value) => {
                 setWorldPosition(value);
             });
         }
 
-    }, [referenceLocation]);
+    }, [referenceWorldPosition]);
 
-    return [worldPosition];
+    return [worldPosition ?? currentWorldPosition?.position ?? new Position()];
 }
