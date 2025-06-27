@@ -2,11 +2,11 @@ import { useCompassHeading } from "../../hooks";
 import "./style.css";
 
 const Compass2D = () => {
-    const [compassHeading, compassCardinal, phoneTilt] = useCompassHeading();
+    const [compassHeading, smoothedHeading, compassCardinal, phoneTilt] = useCompassHeading();
 
     return (
         <div id="compass-container">
-            <div id="compass-arrow-container" style={{ transform: `rotate(${-compassHeading}deg)` }}>
+            <div id="compass-arrow-container" style={{ transform: `rotate(${-(smoothedHeading ?? compassHeading)}deg)` }}>
                 <div id="compass-arrow-north" />
                 <div id="compass-arrow-south" />
             </div>

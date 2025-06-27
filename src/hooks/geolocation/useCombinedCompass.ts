@@ -1,16 +1,18 @@
 import * as THREE from "three";
 import useCompassHeading from "./useCompassHeading";
-import useCompassReference from "./useCompassReference";
+import useWorldRotationReference from "./useWorldRotationReference";
 
-export function useCombinedCompass(camera: THREE.Camera, snapAngle = Math.PI / 2, smoothingFactor = 1) {
+export function useCombinedCompass(camera: THREE.Camera) {
 
-    const [compassHeading, compassCardinal, phoneTilt] = useCompassHeading();
-    const [referenceCompassHeading] = useCompassReference(compassHeading ?? 0, phoneTilt, camera);
+    const [compassHeading, smoothedHeading, compassCardinal, phoneTilt] = useCompassHeading();
+    const [currentRotation, rotationReference] = useWorldRotationReference(compassHeading, smoothedHeading, phoneTilt, camera);
 
     return {
         compassHeading,
+        smoothedHeading,
         compassCardinal,
         phoneTilt,
-        referenceCompassHeading
+        currentRotation,
+        rotationReference
     };
 }

@@ -8,7 +8,7 @@ const Compass3D = ({ headingInRad, camera }: { headingInRad: number, camera: THR
 
     useFrame(() => {
         if (needleRef.current) {
-            needleRef.current.rotation.z = -headingInRad;
+            needleRef.current.rotation.z = headingInRad;
         }
     });
 
@@ -22,11 +22,11 @@ const Compass3D = ({ headingInRad, camera }: { headingInRad: number, camera: THR
             <group ref={needleRef}>
                 <mesh position={[0, -0.05, 0]}>
                     <cylinderGeometry args={[0.04, 0, 0.1, 8]} />
-                    <meshStandardMaterial color="red" metalness={1} roughness={0.8} />
+                    <meshStandardMaterial color="blue" metalness={1} roughness={0.8} />
                 </mesh>
                 <mesh position={[0, 0.05, 0]}>
                     <cylinderGeometry args={[0, 0.04, 0.1, 8]} />
-                    <meshStandardMaterial color="blue" metalness={1} roughness={0.8} />
+                    <meshStandardMaterial color="red" metalness={1} roughness={0.8} />
                 </mesh>
             </group>
         </group>
