@@ -45,7 +45,7 @@ const ObjectScene: React.FC<ObjectSceneProps> = ({
                     key={sceneObjectId}
                     userData={{ sceneObjectId }}
                     position={position.toArray()}
-                    rotation={variant.offset_rotation}
+                    rotation={[variant.offset_rotation[0], variant.offset_rotation[1] - worldRotation, variant.offset_rotation[2]]}
                 >
                     {variant.mesh_id === "primitive_cube" ? (
                         <>

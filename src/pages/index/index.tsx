@@ -203,7 +203,7 @@ const IndexPage = ({ minioData, data: sceneData }: { minioData: MinioData, data:
                         zIndex: 1000,
                     }}
                 >
-                    <p>world rot: {worldRotation.toFixed(3)}</p>
+                    <p>world rot: {THREE.MathUtils.radToDeg(worldRotation).toFixed(3)}</p>
                     <p>Selected Object: {selectedObject ?? "None"}</p>
                 </div>
             </XRDomOverlay >

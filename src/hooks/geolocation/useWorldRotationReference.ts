@@ -73,12 +73,12 @@ export default function useWorldRotationReference(
 
         // Adaptive Drift Detection
         const angleDifference = rotationReference ? Math.abs(normalizeAngleDifference(rotationReference, averagedHeading)) : 0;
-        const dynamicThreshold = Math.max(2, angleDifference / 3);
+        const dynamicThreshold = Math.max(1, angleDifference / 3);
 
         if (!rotationReference || angleDifference > dynamicThreshold) {
             if (currentTime - lastUpdateTimeRef.current > TIME_THRESHOLD) {
                 console.log(`Significant rotation drift detected. Updating reference history heading.`);
-                const updatedHistory = [...referenceHistory, averagedHeading].slice(-7);
+                const updatedHistory = [...referenceHistory, averagedHeading].slice(-5);
                 setReferenceHistory(updatedHistory);
                 const tempRotationReference = rotationReference;
                 const newRotationReference = getMedian(updatedHistory.length > 3 ? updatedHistory : [newRotation])

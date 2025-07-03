@@ -99,7 +99,7 @@ export default function useWorldPositionReference(
 
         // Adaptive Thresholds: Dynamically adjusts based on accuracy and movement speed
         const velocityFactor = Math.max(1, coordinates.speed ?? 1);
-        const dynamicThreshold = Math.max(5, avgAccuracy / 2, velocityFactor * 3);
+        const dynamicThreshold = Math.max(3, avgAccuracy / 2, velocityFactor * 3);
         // const dynamicAltitudeThreshold = Math.max(3, avgAltitudeAccuracy, velocityFactor * 1.5);
 
         // If reference location is not yet set, update instantly

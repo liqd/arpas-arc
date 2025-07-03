@@ -46,6 +46,8 @@ export default function useWorldRotation(
         if (!rotationReference) return;
 
         if (!worldRotation) {
+            addScreenMessage(`Compass initialized.`, "compass_initialized", 3000, "green");
+
             setWorldRotation(rotationReference);
             return;
         }
