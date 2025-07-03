@@ -269,27 +269,29 @@ const ObjectDescription: React.FC<{
                 <div id="scrollableContentSection" className="row">
                     <p>{variant.description}</p>
                 </div>
-                <div className="mb-3">
-                    <h6 className="mb-2">Variants</h6>
-                    <div className="d-flex flex-wrap gap-2">
-                        {sceneObject.variants.map((variantData: VariantData) => {
-                            const isActive = variantData.id === variant.id;
-                            return (
-                                <button
-                                    key={variantData.id}
-                                    className={`variant-icon ${isActive ? "active" : ""}`}
-                                    onClick={() => {
-                                        if (variantData.id !== variant.id) {
-                                            setCurrentVariant(objectId, variantData.id);
-                                        }
-                                    }}
-                                >
-                                    <i className="fas fa-circle fa-3x"></i>
-                                </button>
-                            );
-                        })}
+                {sceneObject.variants.length > 1 && (
+                    <div className="mb-3">
+                        <h6 className="mb-2">Variants</h6>
+                        <div className="d-flex flex-wrap gap-2">
+                            {sceneObject.variants.map((variantData: VariantData) => {
+                                const isActive = variantData.id === variant.id;
+                                return (
+                                    <button
+                                        key={variantData.id}
+                                        className={`variant-icon ${isActive ? "active" : ""}`}
+                                        onClick={() => {
+                                            if (variantData.id !== variant.id) {
+                                                setCurrentVariant(objectId, variantData.id);
+                                            }
+                                        }}
+                                    >
+                                        <i className="fas fa-circle fa-3x"></i>
+                                    </button>
+                                );
+                            })}
+                        </div>
                     </div>
-                </div>
+                )}
                 <div className="row top-border">
                     <div className="col-12 a4-comments__action-bar-container">
                         <div className="rating">
