@@ -29,10 +29,11 @@ const useSceneStore = create<SceneState>((set) => ({
                                 variant.id === variantId
                                     ? {
                                         ...variant,
-                                        isLiked: !variant.isLiked,
                                         likes: !variant.isLiked ? variant.likes + 1 : variant.likes - 1,
-                                        isDisliked: variant.isLiked ? variant.isDisliked : false,
-                                        dislikes: variant.isLiked ? variant.dislikes : variant.dislikes - 1,
+                                        isLiked: !variant.isLiked,
+                                        // Optionally reset dislike if switching from dislike to like
+                                        dislikes: variant.isDisliked ? variant.dislikes - 1 : variant.dislikes,
+                                        isDisliked: false,
                                     }
                                     : variant
                             ),
@@ -54,10 +55,11 @@ const useSceneStore = create<SceneState>((set) => ({
                                 variant.id === variantId
                                     ? {
                                         ...variant,
-                                        isDisliked: !variant.isDisliked,
                                         dislikes: !variant.isDisliked ? variant.dislikes + 1 : variant.dislikes - 1,
-                                        isLiked: variant.isDisliked ? variant.isLiked : false,
-                                        likes: variant.isDisliked ? variant.likes : variant.likes - 1,
+                                        isDisliked: !variant.isDisliked,
+                                        // Optionally reset like if switching from dislike to like
+                                        likes: variant.isLiked ? variant.likes - 1 : variant.likes,
+                                        isLiked: false,
                                     }
                                     : variant
                             ),
