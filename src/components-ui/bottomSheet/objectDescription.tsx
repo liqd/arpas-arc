@@ -286,6 +286,16 @@ const ObjectDescription: React.FC<{
                                         }}
                                     >
                                         <i className="fas fa-circle fa-3x"></i>
+                                        <span
+                                            style={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                fontSize: ".75em",
+                                            }}
+                                        >
+                                            {variantData.name.length > 10 ? variantData.name.slice(0, 8) + "…" : variantData.name}
+                                        </span>
                                     </button>
                                 );
                             })}
@@ -295,10 +305,10 @@ const ObjectDescription: React.FC<{
                 <div className="row top-border">
                     <div className="col-12 a4-comments__action-bar-container">
                         <div className="rating">
-                            <button className={`rating-button rating-up ${variant?.isLiked && "liked"}`} onClick={handleVariantLike}>
+                            <button className={`rating-button rating-up${variant?.isLiked ? " liked" : ""}`} onClick={handleVariantLike}>
                                 <i className="far fa-thumbs-up"></i>{variant?.likes}
                             </button>
-                            <button className={`rating-button rating-down ${variant?.isDisliked && "disliked"}`} onClick={handleVariantDislike}>
+                            <button className={`rating-button rating-down${variant?.isDisliked && " disliked"}`} onClick={handleVariantDislike}>
                                 <i className="far fa-thumbs-down"></i>{variant?.dislikes}
                             </button>
                         </div>
