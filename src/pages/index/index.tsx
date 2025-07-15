@@ -10,7 +10,6 @@ import { getClosestObject, getIntersectedSceneObject, getObjectPosition } from "
 import { Compass2D, Compass3D } from "../../components-ui/compass";
 import "./style.css";
 import useSceneStore from "../../store/sceneStore";
-import useLocationStore from "../../store/locationStore";
 import { useMessageStore } from "../../store/messagesStore";
 import { MinioData } from "../../types/databaseData";
 import { useWorldRotation, useWorldPosition } from "../../hooks";
@@ -26,10 +25,8 @@ const debounce = (func: () => void, delay: number) => {
 const IndexPage = ({ minioData, data: sceneData }: { minioData: MinioData, data: SceneData }) => {
     // XR objects and values
     const store = useXRStore();
-    const state = useThree();
-    const { camera } = useThree();
+    const { camera, ...state } = useThree();
     const { scene, setScene } = useSceneStore();
-    const getObjectPosition = useLocationStore(state => state.getPosition);
     const { messages, addScreenMessage, removeScreenMessage } = useMessageStore();
     const groundMesh = store.getState().groundMesh;
     const [minioClientData, setMinioClientData] = useState<MinioData | null>(null);
@@ -42,6 +39,7 @@ const IndexPage = ({ minioData, data: sceneData }: { minioData: MinioData, data:
     const [worldPosition] = useWorldPosition(20, 2);
 
     // Compass values
+    const [compassPosition, setCompassPosition] = useState(camera?.position?.clone() ?? new THREE.Vector3(0, 0, 0));
     const [worldRotation] = useWorldRotation(camera);
 
     // Memoized camera position for ObjectScene
@@ -116,13 +114,21 @@ const IndexPage = ({ minioData, data: sceneData }: { minioData: MinioData, data:
         (event) => {
             if (!scene) return;
 
-            const selectedObjectId = getIntersectedSceneObject(event, state, scene.objects);
+            const selectedObjectId = getIntersectedSceneObject(event, { ...state, camera }, scene.objects);
             if (selectedObjectId) {
                 setSelectedObject(selectedObjectId);
             }
         },
         [scene]
     );
+
+
+    useEffect(() => {
+        const distance = compassPosition.distanceTo(camera.position);
+        if (distance > 0.2) {
+            setCompassPosition(camera.position.clone());
+        }
+    }, [camera.position.x, camera.position.z]);
 
     const fontSize = "22px";
 
@@ -215,7 +221,7 @@ const IndexPage = ({ minioData, data: sceneData }: { minioData: MinioData, data:
                 <>
                     <ambientLight intensity={5} />
                     <directionalLight intensity={10} />
-                    <Compass3D headingInRad={worldRotation} camera={camera} />
+                    <Compass3D headingInRad={worldRotation} cameraPosition={compassPosition} />
 
                     <ObjectScene
                         selectedVariants={selectedVariants}

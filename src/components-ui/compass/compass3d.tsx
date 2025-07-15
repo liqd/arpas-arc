@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 
-const Compass3D = ({ headingInRad, camera }: { headingInRad: number, camera: THREE.Camera }) => {
+const Compass3D = ({ headingInRad, cameraPosition }: { headingInRad: number, cameraPosition: THREE.Vector3 }) => {
     const compassRef = useRef<THREE.Group>(null);
     const needleRef = useRef<THREE.Group>(null);
 
@@ -13,7 +13,7 @@ const Compass3D = ({ headingInRad, camera }: { headingInRad: number, camera: THR
     });
 
     return (
-        <group ref={compassRef} position={[camera.position.x, 0, camera.position.z]} rotation={[Math.PI / 2, 0, 0]}>
+        <group ref={compassRef} position={[cameraPosition.x, 0, cameraPosition.z]} rotation={[Math.PI / 2, 0, 0]}>
             <mesh>
                 <torusGeometry args={[0.125, 0.005, 8, 30]} />
                 <meshStandardMaterial color="gray" metalness={1} roughness={0.7} />
