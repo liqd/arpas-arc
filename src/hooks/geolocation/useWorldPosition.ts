@@ -42,17 +42,19 @@ export default function useWorldPosition(interpolationTreshhold: number = 15, in
         if (!referenceWorldPosition?.position) return;
 
         if (!worldPosition) {
+            addScreenMessage(`GPS position initialized.`, "gps_initialized", 3000, "green");
+            
             setWorldPosition(referenceWorldPosition.position);
             return;
         }
 
         // Snap if difference exceeds threshold
         if (referenceWorldPosition.position.distanceTo(worldPosition) > interpolationTreshhold) {
-            addScreenMessage(`The GPS position seems very unstable.`, "compass_very_unstable", 3000, "red");
+            addScreenMessage(`The GPS position seems very unstable.`, "gps_very_unstable", 3000, "red");
 
             setWorldPosition(referenceWorldPosition.position);
         } else {
-            addScreenMessage(`The GPS position seems a litte unstable.`, "compass_little_unstable", 3000, "orange");
+            addScreenMessage(`The GPS position seems a litte unstable.`, "gps_little_unstable", 3000, "orange");
 
             lerpPosition(worldPosition, referenceWorldPosition.position, interpolationTimeInSec * 1000, (value) => {
                 setWorldPosition(value);
