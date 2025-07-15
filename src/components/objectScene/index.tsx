@@ -1,4 +1,5 @@
 import React, { useMemo } from "react";
+import * as THREE from "three";
 import { MinioData } from "../../types/databaseData";
 import { MeshObject } from "..";
 import { Position } from "../../types/transform";
@@ -11,6 +12,7 @@ interface ObjectSceneProps {
     minioClientData: MinioData | null;
     worldRotation: number;
     worldPosition: Position;
+    cameraPosition: THREE.Vector3;
 }
 
 const ObjectScene: React.FC<ObjectSceneProps> = ({
@@ -18,6 +20,7 @@ const ObjectScene: React.FC<ObjectSceneProps> = ({
     minioClientData,
     worldRotation,
     worldPosition,
+    cameraPosition
 }) => {
     const { scene } = useSceneStore();
     const getPosition = useLocationStore(state => state.getPosition);
@@ -38,14 +41,19 @@ const ObjectScene: React.FC<ObjectSceneProps> = ({
                 return null;
             }
 
-            const position = getObjectPosition(sceneObject, variant, worldPosition, getPosition);
+            const position = getObjectPosition(sceneObject, variant, getPosition)
+                .substractedPosition(worldPosition);
+            // .substractedPosition(cameraPosition);
 
             return (
                 <mesh
                     key={sceneObjectId}
                     userData={{ sceneObjectId }}
                     position={position.toArray()}
-                    rotation={variant.offset_rotation}
+                    rotation={[
+                        THREE.MathUtils.degToRad(-variant.offset_rotation[0]),
+                        THREE.MathUtils.degToRad(-variant.offset_rotation[1]),
+                        THREE.MathUtils.degToRad(-variant.offset_rotation[2])]}
                 >
                     {variant.mesh_id === "primitive_cube" ? (
                         <>
@@ -69,14 +77,16 @@ const ObjectScene: React.FC<ObjectSceneProps> = ({
                 </mesh>
             );
         });
-    }, [scene.objects, minioClientData, selectedVariants, worldPosition]);
+    }, [scene.objects, minioClientData, selectedVariants, worldPosition, worldRotation]);
 
     if (!scene) {
         console.warn("Scene data is null or undefined.");
         return null;
     }
 
-    return <group rotation={[0, worldRotation, 0]}>{renderedObjects}</group>;
+    return <group rotation={[0, -worldRotation - Math.PI / 2, 0]}>
+        {renderedObjects}
+    </group>;
 };
 
 export default ObjectScene;

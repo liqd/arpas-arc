@@ -44,6 +44,9 @@ const IndexPage = ({ minioData, data: sceneData }: { minioData: MinioData, data:
     // Compass values
     const [worldRotation] = useWorldRotation(camera);
 
+    // Memoized camera position for ObjectScene
+    const cameraPositionMemo = useMemo(() => camera?.position?.clone() ?? new THREE.Vector3(0, 0, 0), [worldPosition]);
+
     // Scene values
     const [selectedObject, setSelectedObject] = useState<number | null>(null);
     const [selectedVariants, setSelectedVariants] = useState<Record<number, number>>({});
@@ -219,6 +222,7 @@ const IndexPage = ({ minioData, data: sceneData }: { minioData: MinioData, data:
                         minioClientData={minioClientData}
                         worldRotation={worldRotation}
                         worldPosition={worldPosition}
+                        cameraPosition={cameraPositionMemo}
                     />
                 </>
             )

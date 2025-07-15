@@ -41,22 +41,19 @@ export function getIntersectedSceneObject(event: XRInputSourceEvent, state: Root
 export const getObjectPosition = (
     sceneObject: ObjectData,
     variant: VariantData,
-    worldPosition: Position,
     getPosition: (latitude: number, longitude: number) => Position
 ): Position => {
     const coordinates = sceneObject.coordinates || [0, 0];
     const offsetPosition = variant?.offset_position || new Position();
 
     return getPosition(coordinates[0], coordinates[1])
-        .addedPosition(offsetPosition)
-        .substractedPosition(worldPosition);
+        .addedPosition(offsetPosition);
 };
 
 export function getClosestObject(
     targetPosition: Position,
     sceneObjects: ObjectData[],
     selectedVariants: Record<number, number>,
-    worldPosition: Position,
     getPosition: (latitude: number, longitude: number) => Position
 ) {
     if (!sceneObjects || sceneObjects.length === 0) return null;
@@ -70,7 +67,7 @@ export function getClosestObject(
         const variant = sceneObject.variants.find((v) => v.id === variantId);
         if (!variant) continue;
 
-        const position = getObjectPosition(sceneObject, variant, worldPosition, getPosition);
+        const position = getObjectPosition(sceneObject, variant, getPosition);
         const distance = targetPosition.distanceTo(position);
         if (distance < minDistance) {
             minDistance = distance;
