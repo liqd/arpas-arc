@@ -11,7 +11,7 @@ export default function useWorldRotationReference(
     camera: THREE.Camera,
 ): [number | null, number | null] {
 
-    const MAX_HISTORY_LENGTH = 20;
+    const MAX_HISTORY_LENGTH = 12;
     const TIME_THRESHOLD = 3000;
     const MIN_TILT_ANGLE = 25;
     const MAX_TILT_ANGLE = 45;
@@ -75,10 +75,11 @@ export default function useWorldRotationReference(
         const angleDifference = rotationReference ? Math.abs(normalizeAngleDifference(rotationReference, averagedHeading)) : 0;
         const dynamicThreshold = Math.max(2, angleDifference / 3);
 
-        if (!rotationReference || angleDifference > dynamicThreshold) {
-            if (currentTime - lastUpdateTimeRef.current > TIME_THRESHOLD) {
+        const updateTimeDelta = currentTime - lastUpdateTimeRef.current;
+        if (!rotationReference || angleDifference > dynamicThreshold || updateTimeDelta > TIME_THRESHOLD * 5) {
+            if (updateTimeDelta > TIME_THRESHOLD) {
                 console.log(`Significant rotation drift detected. Updating reference history heading.`);
-                const updatedHistory = [...referenceHistory, averagedHeading].slice(-7);
+                const updatedHistory = [...referenceHistory, averagedHeading].slice(-5);
                 setReferenceHistory(updatedHistory);
                 const tempRotationReference = rotationReference;
                 const newRotationReference = getMedian(updatedHistory.length > 3 ? updatedHistory : [newRotation])
