@@ -235,21 +235,34 @@ const ModelComponent = ({ sceneObjectId, modelUrl, objectRef, position, rotation
 
     return (
         <group
-            ref={objectRef}
-            position={position.toArray()}
-            rotation={rotation.toArray()}
-            scale={scale.toArray()}
-            castShadow
-            receiveShadow
-        >
-            <primitive object={clonedScene} />
-            <meshStandardMaterial color="white" transparent={false} opacity={1} depthWrite={true} />
+            scale={scale.toArray()}>
+            <group
+                ref={objectRef}
+                position={position.toArray()}
+                rotation={rotation.toArray()}
+                // scale={scale.toArray()}
+                castShadow
+                receiveShadow
+            >
+                <primitive object={clonedScene} />
+                <meshStandardMaterial color="white" transparent={false} opacity={1} depthWrite={true} />
 
-            {/* Invisible object for click interaction */}
-            <mesh position={center} userData={{ sceneObjectId }}>
-                <boxGeometry args={[size.x, size.y, size.z]} />
-                <meshStandardMaterial color="white" transparent={true} opacity={0.0001} depthWrite={false} /> {/* wireframe  */}
-            </mesh>
+
+                {/* Invisible object for click interaction */}
+                <mesh position={center} userData={{ sceneObjectId }}>
+                    <boxGeometry args={[size.x, size.y, size.z]} />
+                    <meshStandardMaterial color="white" transparent={true} opacity={0.0001} depthWrite={false} /> {/* wireframe  */}
+                </mesh>
+            </group>
+            <RoundedPlane
+                position={new Position(position.x, position.y - size.y / 2, position.z)}
+                rotation={new Rotation(0, rotation.y, 0)}
+                radius={2}
+                width={size.x * 1.2}
+                height={size.z * 1.2}
+                color="black"
+                opacity={.15}
+            ></RoundedPlane>
         </group>
     );
 };
