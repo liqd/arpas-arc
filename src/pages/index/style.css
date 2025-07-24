@@ -42,3 +42,25 @@
     z-index: 2000;
     border-radius: 1.5rem;
 }
+
+.compass-fix-btn {
+    z-index: 3;
+    color: transparent;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 45px;
+    outline: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: none;
+    box-shadow: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    touch-action: manipulation;
+    background: transparent;
+}
+.compass-fix-btn.active {
+    background: red;
+}

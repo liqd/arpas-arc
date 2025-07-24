@@ -37,10 +37,12 @@ const IndexPage = ({ minioData, data: sceneData }: { minioData: MinioData, data:
 
     // Location values
     const [worldPosition] = useWorldPosition(20, 2);
+    const [fixedWorldPosition, setFixedWorldPosition] = useState<Position | null>(null);
 
     // Compass values
     const [compassPosition, setCompassPosition] = useState(camera?.position?.clone() ?? new THREE.Vector3(0, 0, 0));
     const [worldRotation] = useWorldRotation(camera);
+    const [fixedWorldRotation, setFixedWorldRotation] = useState<number | null>(null);
 
     // Memoized camera position for ObjectScene
     const cameraPositionMemo = useMemo(() => camera?.position?.clone() ?? new THREE.Vector3(0, 0, 0), [worldPosition]);
@@ -177,7 +179,22 @@ const IndexPage = ({ minioData, data: sceneData }: { minioData: MinioData, data:
                         </button>
                     </div>
                     <div style={{ top: `${headerHeight}px` }}>
-                        <Compass2D />
+                        <Compass2D showCardinal={!fixedWorldPosition && !fixedWorldRotation}/>
+                        <div id="compass-container" style={{ background: "transparent" }}>
+                            <button
+                                className={`compass-fix-btn${fixedWorldPosition && fixedWorldRotation ? " active" : ""}`}
+                                onMouseDown={e => e.preventDefault()}
+                                onClick={() => {
+                                    if (fixedWorldPosition && fixedWorldRotation) {
+                                        setFixedWorldPosition(null);
+                                        setFixedWorldRotation(null);
+                                    } else {
+                                        setFixedWorldPosition(worldPosition);
+                                        setFixedWorldRotation(worldRotation);
+                                    }
+                                }}
+                            > {} </button>
+                        </div>
                     </div>
                 </>
 
@@ -226,8 +243,8 @@ const IndexPage = ({ minioData, data: sceneData }: { minioData: MinioData, data:
                     <ObjectScene
                         selectedVariants={selectedVariants}
                         minioClientData={minioClientData}
-                        worldRotation={worldRotation}
-                        worldPosition={worldPosition}
+                        worldRotation={fixedWorldRotation ?? worldRotation}
+                        worldPosition={fixedWorldPosition ?? worldPosition}
                         cameraPosition={cameraPositionMemo}
                     />
                 </>

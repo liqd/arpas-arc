@@ -1,7 +1,8 @@
 import { useCompassHeading } from "../../hooks";
 import "./style.css";
+import React, { useState } from "react";
 
-const Compass2D = () => {
+const Compass2D = ({ showCardinal = true }: { showCardinal?: boolean }) => {
     const [compassHeading, smoothedHeading, compassCardinal, phoneTilt] = useCompassHeading();
 
     return (
@@ -10,7 +11,7 @@ const Compass2D = () => {
                 <div id="compass-arrow-north" />
                 <div id="compass-arrow-south" />
             </div>
-            {compassCardinal && <p id="compass-cardinal">{compassCardinal}</p>}
+            {showCardinal && compassCardinal && <p id="compass-cardinal">{compassCardinal}</p>}
         </div>
     );
 };
