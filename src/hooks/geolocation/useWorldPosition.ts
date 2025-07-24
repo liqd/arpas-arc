@@ -35,6 +35,8 @@ export default function useWorldPosition(interpolationTreshhold: number = 15, in
         referenceWorldPosition,
     } = useCombinedLocation(35, 10);
 
+    const THRESHOLD = 2; // Minimum distance in meters to consider a position change significant
+
     const [worldPosition, setWorldPosition] = useState<Position | null>(null);
     const { addScreenMessage } = useMessageStore();
 
@@ -43,19 +45,17 @@ export default function useWorldPosition(interpolationTreshhold: number = 15, in
 
         if (!worldPosition) {
             addScreenMessage(`GPS position initialized.`, "gps_initialized", 3000, "green");
-            
             setWorldPosition(referenceWorldPosition.position);
             return;
         }
 
+        const referenceDistanceToWorldPosition = referenceWorldPosition.position.distanceTo(worldPosition);
         // Snap if difference exceeds threshold
-        if (referenceWorldPosition.position.distanceTo(worldPosition) > interpolationTreshhold) {
+        if (referenceDistanceToWorldPosition > interpolationTreshhold) {
             addScreenMessage(`The GPS position seems very unstable.`, "gps_very_unstable", 3000, "red");
-
             setWorldPosition(referenceWorldPosition.position);
-        } else {
+        } else if (referenceDistanceToWorldPosition > THRESHOLD) {
             addScreenMessage(`The GPS position seems a litte unstable.`, "gps_little_unstable", 3000, "orange");
-
             lerpPosition(worldPosition, referenceWorldPosition.position, interpolationTimeInSec * 1000, (value) => {
                 setWorldPosition(value);
             });

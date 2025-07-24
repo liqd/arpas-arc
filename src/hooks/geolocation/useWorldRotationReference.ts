@@ -81,13 +81,13 @@ export default function useWorldRotationReference(
                 console.log(`Significant rotation drift detected. Updating reference history heading.`);
                 const updatedHistory = [...referenceHistory, averagedHeading].slice(-5);
                 setReferenceHistory(updatedHistory);
-                const tempRotationReference = rotationReference;
+                // const tempRotationReference = rotationReference;
                 const newRotationReference = getMedian(updatedHistory.length > 3 ? updatedHistory : [newRotation])
                 setRotationReference(newRotationReference);
 
-                if (newRotationReference && tempRotationReference != newRotationReference) {
-                    console.log(`Updated rotation reference: ${THREE.MathUtils.radToDeg(newRotationReference).toFixed(2)}°`);
-                }
+                // if (newRotationReference && tempRotationReference != newRotationReference) {
+                //     console.log(`Updated rotation reference: ${THREE.MathUtils.radToDeg(newRotationReference).toFixed(2)}°`);
+                // }
 
                 lastUpdateTimeRef.current = currentTime;
             }

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { gpsToPosition } from "../../utility/geolocation";
 import { Position } from "../../types/transform";
 import { nullCoordinates } from "../../components/locationObjects/geolocation";
-import { getWeightedAverage, removeOutliers } from "../../utility/filtering";
+import { getMedian, getWeightedAverage, removeOutliers } from "../../utility/filtering";
 
 /**
  * A React hook that processes real-time geolocation data to determine a stable reference location.
@@ -41,7 +41,8 @@ export default function useWorldPositionReference(
 
     const [blockLocationUpdateTime, setBlockLocationUpdateTime] = useState<number>(Date.now());
     const [currentLocation, setCurrentLocation] = useState<{ coordinates: GeolocationCoordinates; position: Position } | null>(null);
-    const [referenceLocation, setReferenceLocation] = useState<{ coordinates: GeolocationCoordinates; position: Position } | null>(null);
+    const [locationReference, setLocationReference] = useState<{ coordinates: GeolocationCoordinates; position: Position } | null>(null);
+    const [referenceHistory, setReferenceHistory] = useState<{ coordinates: GeolocationCoordinates; position: Position }[]>([]);
     const [prevCoordinates, setPrevCoordinates] = useState<GeolocationCoordinates | null>(null);
     const [lastCalculationTime, setLastCalculationTime] = useState<number>(0);
 
@@ -99,15 +100,15 @@ export default function useWorldPositionReference(
 
         // Adaptive Thresholds: Dynamically adjusts based on accuracy and movement speed
         const velocityFactor = Math.max(1, coordinates.speed ?? 1);
-        const dynamicThreshold = Math.max(5, avgAccuracy / 2, velocityFactor * 3);
+        const dynamicThreshold = Math.max(3, avgAccuracy / 2, velocityFactor * 3);
         // const dynamicAltitudeThreshold = Math.max(3, avgAltitudeAccuracy, velocityFactor * 1.5);
 
         // If reference location is not yet set, update instantly
-        if (!referenceLocation) {
-            setReferenceLocation({ coordinates, position });
+        if (!locationReference) {
+            setLocationReference({ coordinates, position });
             if (updateReferenceLocation) updateReferenceLocation({ coordinates, position });
         } else { // Otherwise, wait for significant changes before updating
-            const distanceVector = referenceLocation.position.substractedPosition(position);
+            const distanceVector = locationReference.position.substractedPosition(position);
 
             const positionDriftDetected = Math.sqrt(distanceVector.x ** 2 + distanceVector.z ** 2) > dynamicThreshold;
             // const altitudeDriftDetected = Math.abs(distanceVector.y) > dynamicAltitudeThreshold;
@@ -117,10 +118,20 @@ export default function useWorldPositionReference(
                 const timeThreshold = 10000;
                 console.log(`Large geolocation drift detected! Waiting ${timeThreshold / 1000} seconds for updating reference location...`);
 
-                if (currentTime - blockLocationUpdateTime > timeThreshold) {
+                const updatedHistory = [...referenceHistory, { coordinates, position }].slice(-7)
+                    .sort((a, b) => {
+                        const distA = Math.sqrt(a.position.x ** 2 + a.position.z ** 2);
+                        const distB = Math.sqrt(b.position.x ** 2 + b.position.z ** 2);
+                        return distA - distB;
+                    });
+                if (updatedHistory.length < 3 || currentTime - blockLocationUpdateTime > timeThreshold) {
                     console.log("Updating reference coordinates due to sustained drift:", coordinates);
-                    setReferenceLocation({ coordinates, position });
-                    if (updateReferenceLocation) updateReferenceLocation({ coordinates, position });
+                    // const tempLocationReference = locationReference;
+                    const newLocationReference = updatedHistory[Math.floor(updatedHistory.length / 2)];
+                    setReferenceHistory(updatedHistory);
+                    
+                    setLocationReference(newLocationReference);
+                    if (updateReferenceLocation) updateReferenceLocation(newLocationReference);
                     setBlockLocationUpdateTime(currentTime);
                 }
             } else {
@@ -130,5 +141,5 @@ export default function useWorldPositionReference(
         }
     }, [coordinatesHistory]);
 
-    return [currentLocation, referenceLocation];
+    return [currentLocation, locationReference];
 }

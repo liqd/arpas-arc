@@ -55,14 +55,12 @@ export default function useWorldRotation(
         // Snap if difference exceeds threshold
         if (Math.abs(rotationReference - worldRotation) > interpolationTreshhold) {
             addScreenMessage(`The compass seems very unstable.`, "compass_very_unstable", 3000, "red");
-
             setWorldRotation(rotationReference);
 
         } else {
             if (Math.abs(rotationReference - worldRotation) > 2) {
                 addScreenMessage(`The compass seems a litte unstable.`, "compass_little_unstable", 3000, "orange");
             }
-
             lerpValue(worldRotation, rotationReference, intrepolationTimeInSec * 1000, (value) => {
                 setWorldRotation(value);
             });
