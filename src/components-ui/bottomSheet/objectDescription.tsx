@@ -286,6 +286,16 @@ const ObjectDescription: React.FC<{
                                         }}
                                     >
                                         <i className="fas fa-circle fa-3x"></i>
+                                        <span
+                                            style={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                fontSize: ".75em",
+                                            }}
+                                        >
+                                            {variantData.name.length > 10 ? variantData.name.slice(0, 8) + "…" : variantData.name}
+                                        </span>
                                     </button>
                                 );
                             })}
