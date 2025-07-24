@@ -108,10 +108,11 @@ const useSceneStore = create<SceneState>((set) => ({
                                 comment.id === commentId
                                     ? {
                                         ...comment,
-                                        isLiked: !comment.isLiked,
                                         likes: !comment.isLiked ? comment.likes + 1 : comment.likes - 1,
-                                        isDisliked: comment.isLiked ? comment.isDisliked : false,
-                                        dislikes: comment.isLiked ? comment.dislikes : comment.dislikes - 1,
+                                        isLiked: !comment.isLiked,
+                                        // Optionally reset dislike if switching from dislike to like
+                                        dislikes: comment.isDisliked ? comment.dislikes - 1 : comment.dislikes,
+                                        isDisliked: false,
                                     }
                                     : comment
                             ),
@@ -133,10 +134,11 @@ const useSceneStore = create<SceneState>((set) => ({
                                 comment.id === commentId
                                     ? {
                                         ...comment,
-                                        isDisliked: !comment.isDisliked,
                                         dislikes: !comment.isDisliked ? comment.dislikes + 1 : comment.dislikes - 1,
-                                        isLiked: comment.isDisliked ? comment.isLiked : false,
-                                        likes: comment.isDisliked ? comment.likes : comment.likes - 1,
+                                        isDisliked: !comment.isDisliked,
+                                        // Optionally reset like if switching from dislike to like
+                                        likes: comment.isLiked ? comment.likes - 1 : comment.likes,
+                                        isLiked: false,
                                     }
                                     : comment
                             ),
