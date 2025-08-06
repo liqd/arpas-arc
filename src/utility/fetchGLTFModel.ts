@@ -6,27 +6,43 @@ import { MinioData } from "../types/databaseData";
 const modelCache = new Map<string, { blobUrl: string; instances: number }>();
 const loadingModels = new Map<string, Promise<string>>(); // Track models currently being loaded
 
-export const fetchGLTFModel = async (minioData: MinioData, modelId: string): Promise<string> => {
+export const fetchGLTFModel = async (modelId: string, presignedUrl: string): Promise<string> => {
     const cacheKey = modelId;
 
-    // If the model is already being loaded, wait for the existing promise
-    if (loadingModels.has(modelId)) {
-        console.log(`Model ${modelId} is already being loaded. Waiting for existing promise.`);
-        const blobUrl = await loadingModels.get(modelId)!;
-        console.log(`Model ${modelId} was successfully loaded and found in the cache after waiting for existing promise.`);
-        return blobUrl;
-    }
+    const cachedOrLoading = await getCachedOrLoadingModel(modelId, cacheKey);
+    if (cachedOrLoading) return cachedOrLoading;
 
-    // Check if the model is already in the cache
-    if (modelCache.has(cacheKey)) {
-        const cachedEntry = modelCache.get(cacheKey)!;
-        cachedEntry.instances += 1; // Increment instance count
-        console.log(`Cache hit for model: ${cacheKey}. Active instances: ${cachedEntry.instances}`);
-        return cachedEntry.blobUrl; // Return the cached Blob URL
-    }
+    const loadPromise = (async () => {
+        try {
+            if (!presignedUrl) {
+                throw new Error("Presigned URL not found!");
+            }
 
-    // Cache miss: Fetch the model from the database
-    console.log(`Cache miss for model: ${cacheKey}. Fetching from database...`);
+            // Fetch the GLTF file from the presigned URL
+            const response = await fetch(presignedUrl);
+            if (!response.ok) {
+                throw new Error("Failed to fetch model from presigned URL!");
+            }
+
+            const blob = await response.blob();
+            const blobUrl = URL.createObjectURL(blob);
+
+            modelCache.set(cacheKey, { blobUrl, instances: 1 });
+            return blobUrl;
+        } finally {
+            loadingModels.delete(modelId);
+        }
+    })();
+
+    loadingModels.set(modelId, loadPromise);
+    return loadPromise;
+};
+
+export const fetchGLTFModelFromMinio = async (modelId: string, minioData: MinioData): Promise<string> => {
+    const cacheKey = modelId;
+
+    const cachedOrLoading = await getCachedOrLoadingModel(modelId, cacheKey);
+    if (cachedOrLoading) return cachedOrLoading;
 
     // Create a promise for the loading process and store it in loadingModels
     const loadPromise = (async () => {
@@ -53,6 +69,29 @@ export const fetchGLTFModel = async (minioData: MinioData, modelId: string): Pro
 
     loadingModels.set(modelId, loadPromise); // Store the promise in loadingModels
     return loadPromise; // Return the promise
+};
+
+const getCachedOrLoadingModel = async (modelId: string, cacheKey: string) => {
+    // Check if the model is currently being loaded or cached
+    if (loadingModels.has(modelId)) {
+        console.log(`Model ${modelId} is already being loaded. Waiting for existing promise.`);
+        const blobUrl = await loadingModels.get(modelId)!;
+        console.log(`Model ${modelId} was successfully loaded and found in the cache after waiting for existing promise.`);
+        return blobUrl;
+    }
+
+    // Check if the model is already cached
+    if (modelCache.has(cacheKey)) {
+        const cachedEntry = modelCache.get(cacheKey)!;
+        cachedEntry.instances += 1;
+        console.log(`Cache hit for model: ${cacheKey}. Active instances: ${cachedEntry.instances}`);
+        return cachedEntry.blobUrl;
+    }
+
+    // Cache miss: Fetch the model from the database
+    console.log(`Cache miss for model: ${cacheKey}.`);
+
+    return null;
 };
 
 // Decrement instance count and clean up if all instances are removed

@@ -2,19 +2,20 @@ import React, { useEffect, useState, Suspense, useRef } from "react";
 import { useGLTF, Text } from "@react-three/drei";
 import * as THREE from "three";
 import { ThreeEvent } from "@react-three/fiber";
-import { fetchGLTFModel, releaseGLTFModel } from "../../utility/fetchGLTFModel";
+import { fetchGLTFModel, fetchGLTFModelFromMinio, releaseGLTFModel } from "../../utility/fetchGLTFModel";
 import { Position, Rotation, Scale } from "../../types/transform";
 import { MinioData } from "../../types/databaseData";
 import { LoadingSpheres, RoundedPlane } from "..";
 import useMessageStore from "../../store/messagesStore";
 
 interface MeshObjectProps {
-    minioData: MinioData | null;
     sceneObjectId: number;
     meshObjectId: string;
+    meshObjectUrl: string | null;
     position?: Position;
     rotation?: Rotation;
     scale?: Scale | [number, number, number];
+    minioData?: MinioData | null;
     onClick?: (e: ThreeEvent<MouseEvent>) => void;
     showOutline?: boolean;
     userData?: Record<string, any> | Readonly<Record<string, any> | undefined>;
@@ -23,10 +24,11 @@ interface MeshObjectProps {
 const activeModels = new Map<string, Set<number>>(); // Map to track active sceneObjectIds for each meshObjectId
 
 const MeshObject = ({
-    minioData,
     sceneObjectId,
     meshObjectId,
+    meshObjectUrl,
     position = new Position(), rotation = new Rotation(), scale = new Scale(),
+    minioData,
     onClick, showOutline = false, userData }: MeshObjectProps) => {
 
     const [modelUrl, setModelUrl] = useState<string | null>(null); // State to store the Blob URL for the model
@@ -36,7 +38,7 @@ const MeshObject = ({
     const { addScreenMessage, removeScreenMessage } = useMessageStore();
 
     const loadingSpheresScale = new Scale(.5, .5, .5);
-    const modelName = meshObjectId.replace(/\.[^/.]+$/, ""); // Removes the file extension
+    const modelName = meshObjectId.split("/").pop()?.replace(/\.[^/.]+$/, "") ?? meshObjectId;
 
     useEffect(() => {
         let isMounted = true;
@@ -44,11 +46,7 @@ const MeshObject = ({
         const maxRetries = 5; // Set a maximum number of retries
 
         const loadModel = async () => {
-            if (!minioData) {
-                console.error("Minio client data is missing for mesh object with id:", meshObjectId);
-                // Remove loading message if failed
-                return;
-            }
+            console.log(`Loading model for meshObjectId: ${meshObjectId}, sceneObjectId: ${sceneObjectId}`);
 
             // Skip loading if modelUrl is already set
             if (modelUrl) {
@@ -60,7 +58,23 @@ const MeshObject = ({
             addScreenMessage(`Model ${modelName} is loading...`, `loading_model_${meshObjectId}`);
 
             try {
-                const url = await fetchGLTFModel(minioData, meshObjectId);
+                let url: string;
+                if (meshObjectUrl) {
+                    // If meshObjectUrl is provided, use it directly
+                    url = meshObjectUrl;
+                    await fetchGLTFModel(meshObjectId, url);
+                } else {
+                    console.log("Presigned URL not provided, try fetching from MinIO...");
+
+                    if (!minioData) {
+                        console.error("Minio client data is missing for mesh object with id:", meshObjectId);
+                        // Remove loading message if failed
+                        return;
+                    }
+                    // Fetch the model URL from MinIO
+                    url = await fetchGLTFModelFromMinio(meshObjectId, minioData);
+                }
+
                 if (isMounted) {
                     setModelUrl(url);
                     setShowLabel(false);
@@ -107,7 +121,7 @@ const MeshObject = ({
             removeScreenMessage(`loading_model_${meshObjectId}`);
         };
         // Add meshObjectId and minioData to dependencies
-    }, [meshObjectId, minioData, modelUrl]);
+    }, [meshObjectId, meshObjectUrl, minioData, modelUrl]);
 
     // Add event listeners for highlighting and unhighlighting
     useEffect(() => {

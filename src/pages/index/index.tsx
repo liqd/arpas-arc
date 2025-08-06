@@ -22,7 +22,7 @@ const debounce = (func: () => void, delay: number) => {
     };
 };
 
-const IndexPage = ({ minioData, data: sceneData }: { minioData: MinioData, data: SceneData }) => {
+const IndexPage = ({ data: sceneData, minioData }: { data: SceneData, minioData?: MinioData }) => {
     // XR objects and values
     const store = useXRStore();
     const { camera, ...state } = useThree();
@@ -57,12 +57,9 @@ const IndexPage = ({ minioData, data: sceneData }: { minioData: MinioData, data:
 
     // Apply data
     useEffect(() => {
-        if (!minioData) {
-            console.error("Minio data is missing.");
-            return;
-        }
+        if (!minioData) return;
         setMinioClientData(minioData);
-        console.log("Minio data updated:", minioData);
+        console.log("Minio data set:", minioData);
     }, [minioData]);
 
     useEffect(() => {
@@ -83,14 +80,6 @@ const IndexPage = ({ minioData, data: sceneData }: { minioData: MinioData, data:
     useEffect(() => {
         console.log('Scene objects:', scene.objects);
     }, [scene.objects]);
-
-    useEffect(() => {
-        if (!minioClientData) {
-            addScreenMessage("Wait for database...", "wait_for_database");
-        } else {
-            removeScreenMessage("wait_for_database");
-        }
-    }, [minioClientData]);
 
     useLayoutEffect(() => {
         const updateHeaderHeight = () => {
@@ -234,7 +223,7 @@ const IndexPage = ({ minioData, data: sceneData }: { minioData: MinioData, data:
                 </div>
             </XRDomOverlay >
 
-            {scene && minioClientData && (
+            {scene && (
                 <>
                     <ambientLight intensity={5} />
                     <directionalLight intensity={10} />
