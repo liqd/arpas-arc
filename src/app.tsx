@@ -9,9 +9,9 @@ interface AppProps {
     buttonClassName?: string,
     buttonText?: string | JSX.Element,
     view3dButtonText?: string | JSX.Element,
-    minioData: MinioData,
     scene: SceneData,
     topic: TopicData
+    minioData: MinioData,
 }
 
 const store = createXRStore({ controller: false });
@@ -20,19 +20,19 @@ const App = ({
     buttonClassName = "start-button",
     buttonText = "Enter AR",
     view3dButtonText = "View in 3D",
-    minioData,
     scene,
-    topic
+    topic,
+    minioData
 }: AppProps) => {
     return (<div className="arc-app">
         <div className="button-group">
-            <button className={buttonClassName} onClick={() => store.enterAR()}>{ buttonText }</button>
-            <button className={buttonClassName}>{ view3dButtonText }</button>
+            <button className={buttonClassName} onClick={() => store.enterAR()}>{buttonText}</button>
+            <button className={buttonClassName}>{view3dButtonText}</button>
         </div>
         <Canvas style={{ width: "100%", height: "100%" }}>
             <XR store={store}>
                 <IfInSessionMode allow="immersive-ar">
-                    <IndexPage minioData={minioData} data={scene} />
+                    <IndexPage data={scene} /* minioData={minioData} */ />
                 </IfInSessionMode>
             </XR>
         </Canvas>

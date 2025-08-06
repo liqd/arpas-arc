@@ -6,27 +6,28 @@ export type SceneData = {
 }
 
 export type ObjectData = {
-    id: number,
-    name: string,
-    qr_id: string,
-    variants: Array<VariantData>,
-    coordinates: [number, number, number], // [latitude, longitude, altitude]
-    comments: Array<CommentData> // not given by django as of now
+    id: number,                                     // ARObject ID
+    name: string,                                   // ARObject name
+    qr_id: string,                                  // QR code identifier   
+    variants: Array<VariantData>,                   // Array of variants for this AR object
+    coordinates: [number, number, number],          // [latitude, longitude, altitude]
+    comments: Array<CommentData>                    // not given by django as of now
 }
 
 export type VariantData = {
-    id: number,
-    name: string,
-    description: string,
-    mesh_id: string,
-    offset_position: [number, number, number],
-    offset_rotation: [number, number, number],
-    offset_scale: [number, number, number],
-    weight: number,
-    likes: number, // not given by django as of now
-    isLiked: boolean, // not given by django as of now
-    dislikes: number, // not given by django as of now
-    isDisliked: boolean // not given by django as of now
+    id: number,                                     // Variant ID
+    name: string,                                   // Variant name
+    description: string,                            // Variant description
+    mesh_id: string,                                // MinIO mesh identifier (bucket/path format)
+    mesh_url: string | null                         // Presigned URL for the 3D mesh file
+    offset_position: [number, number, number],      // Position offset [x, y, z]
+    offset_rotation: [number, number, number],      // Rotation offset [x, y, z] in degrees
+    offset_scale: [number, number, number],         // Scale offset [x, y, z]
+    weight: number,                                 // Ordering weight
+    likes: number,                                  // Not given by Django as of now
+    isLiked: boolean,                               // Not given by Django as of now
+    dislikes: number,                               // Not given by Django as of now
+    isDisliked: boolean                             // Not given by Django as of now
 }
 
 export type CommentData = {

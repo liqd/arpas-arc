@@ -68,10 +68,11 @@ const ObjectScene: React.FC<ObjectSceneProps> = ({
                     ) : (
                         <MeshObject
                             key={`${sceneObject.id}_${variant.id}`}
-                            minioData={minioClientData}
                             sceneObjectId={sceneObjectId}
                             meshObjectId={variant.mesh_id}
+                            meshObjectUrl={variant.mesh_url || null}
                             scale={variant.offset_scale}
+                            minioData={minioClientData}
                         />
                     )}
                 </mesh>
