@@ -255,7 +255,7 @@ const ModelComponent = ({ sceneObjectId, modelUrl, objectRef, position, rotation
                 </mesh>
             </group>
             <RoundedPlane
-                position={new Position(position.x, position.y - size.y / 2, position.z)}
+                position={new Position(position.x, center.y - size.y / 2, position.z)}
                 rotation={new Rotation(0, rotation.y, 0)}
                 radius={2}
                 width={size.x * 1.2}
