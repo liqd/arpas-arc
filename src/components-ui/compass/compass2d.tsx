@@ -1,16 +1,17 @@
 import { useCompassHeading } from "../../hooks";
 import "./style.css";
+import React, { useState } from "react";
 
-const Compass2D = () => {
-    const [compassHeading, compassCardinal, phoneTilt] = useCompassHeading();
+const Compass2D = ({ showCardinal = true }: { showCardinal?: boolean }) => {
+    const [compassHeading, smoothedHeading, compassCardinal, phoneTilt] = useCompassHeading();
 
     return (
         <div id="compass-container">
-            <div id="compass-arrow-container" style={{ transform: `rotate(${-compassHeading}deg)` }}>
+            <div id="compass-arrow-container" style={{ transform: `rotate(${-(smoothedHeading ?? compassHeading)}deg)` }}>
                 <div id="compass-arrow-north" />
                 <div id="compass-arrow-south" />
             </div>
-            {compassCardinal && <p id="compass-cardinal">{compassCardinal}</p>}
+            {showCardinal && compassCardinal && <p id="compass-cardinal">{compassCardinal}</p>}
         </div>
     );
 };

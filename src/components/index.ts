@@ -1,3 +1,4 @@
+export { default as ObjectScene } from "./objectScene";
 export { default as MeshObject } from "./meshObject";
 export { default as Reticle } from "./reticle";
 export { default as LoadingSpheres } from "./loadingSpheres";

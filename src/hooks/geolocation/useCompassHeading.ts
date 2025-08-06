@@ -34,11 +34,38 @@ export default function useCompassHeading(
     updateCompassHeading?: (heading: number) => void,
     updateCompassCardinal?: (cardinal: string) => void,
     updatePhoneTilt?: (tilt: { alpha: number, beta: number, gamma: number }) => void
-) : [number, string, { alpha: number, beta: number, gamma: number }] {
+): [number, number | null, string, { alpha: number, beta: number, gamma: number }] {
 
     const [compassHeading, setCompassHeading] = useState<number>(0);
     const [compassCardinal, setCompassCardinal] = useState<string>("undef");
-    const [phoneTilt, setPhoneTilt] = useState<{alpha: number, beta: number, gamma: number}>({ alpha: 0, beta: 0, gamma: 0 });
+    const [phoneTilt, setPhoneTilt] = useState<{ alpha: number, beta: number, gamma: number }>({ alpha: 0, beta: 0, gamma: 0 });
+    const [smoothedHeading, setSmoothedHeading] = useState<number | null>(null);
+
+    useEffect(() => {
+        if (!compassHeading || !phoneTilt) {
+            console.warn("Invalid compass heading.");
+            return;
+        }
+
+        if (!smoothedHeading) {
+            if (compassHeading != 0)
+                setSmoothedHeading(compassHeading);
+            return;
+        }
+
+        if (Math.abs(smoothedHeading - compassHeading) < 0.1) {
+            // console.warn("Skipping update due to minimal heading change");
+            return;
+        }
+
+        // Calculate shortest angular difference to handle wrap-around at 0/360
+        let delta = ((compassHeading - smoothedHeading + 540) % 360) - 180;
+        setSmoothedHeading((smoothedHeading + delta * 0.1 + 360) % 360);
+
+        let cardinalDirection = getCardinalDirection(smoothedHeading);
+        setCompassCardinal(cardinalDirection);
+        if (updateCompassCardinal) updateCompassCardinal(cardinalDirection);
+    }, [compassHeading]);
 
     useEffect(() => {
         /**
@@ -91,12 +118,9 @@ export default function useCompassHeading(
                     (heading + magneticDeclination + 360) % // + offsetRef.current) %
                     360;
 
-                let cardinalDirection = getCardinalDirection(adjustedHeading);
-
                 setCompassHeading(adjustedHeading);
                 if (updateCompassHeading) updateCompassHeading(adjustedHeading);
-                setCompassCardinal(cardinalDirection);
-                if (updateCompassCardinal) updateCompassCardinal(cardinalDirection);
+
                 var tilt = {
                     alpha: event.alpha ?? 0,
                     beta: event.beta ?? 0,
@@ -154,5 +178,5 @@ export default function useCompassHeading(
         requestPermission();
     }, []);
 
-    return [compassHeading, compassCardinal, phoneTilt];
+    return [compassHeading, smoothedHeading, compassCardinal, phoneTilt];
 }

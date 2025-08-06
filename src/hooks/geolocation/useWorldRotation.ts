@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import * as THREE from "three";
 import { lerpValue } from "../../utility/interpolation";
 import { useCombinedCompass } from "./useCombinedCompass";
+import useMessageStore from "../../store/messagesStore";
 
 /**
  * React hook for smoothly updating the world's Y-axis rotation based on compass heading and device orientation.
@@ -32,32 +33,39 @@ export default function useWorldRotation(
 
     const {
         compassHeading,
+        smoothedHeading,
         compassCardinal,
         phoneTilt,
-        referenceCompassHeading } = useCombinedCompass(camera);
+        currentRotation,
+        rotationReference } = useCombinedCompass(camera);
 
-    const [worldRotationEulerY, setWorldRotationEulerY] = useState<number>(Math.PI); // Start facing north (180° (π radians))
+    const [worldRotation, setWorldRotation] = useState<number | null>(null);
+    const { addScreenMessage } = useMessageStore();
 
     useEffect(() => {
-        if (!referenceCompassHeading) return;
+        if (!rotationReference) return;
 
-        let currentWorldRotationEulerY = 0;
+        if (!worldRotation) {
+            addScreenMessage(`Compass initialized.`, "compass_initialized", 3000, "green");
 
-        const cameraUp = new THREE.Vector3().copy(camera.up).applyQuaternion(camera.quaternion);
-        const phoneAngleRad = Math.atan2(cameraUp.x, cameraUp.z);
-        const phoneAngleDeg = (THREE.MathUtils.radToDeg(phoneAngleRad) + 360) % 360;
-
-        currentWorldRotationEulerY = THREE.MathUtils.degToRad((referenceCompassHeading.heading + phoneAngleDeg + 540) % 360);
+            setWorldRotation(rotationReference);
+            return;
+        }
 
         // Snap if difference exceeds threshold
-        if (Math.abs(currentWorldRotationEulerY - worldRotationEulerY) > interpolationTreshhold) {
-            setWorldRotationEulerY(currentWorldRotationEulerY);
+        if (Math.abs(rotationReference - worldRotation) > interpolationTreshhold) {
+            addScreenMessage(`The compass seems very unstable.`, "compass_very_unstable", 3000, "red");
+            setWorldRotation(rotationReference);
+
         } else {
-            lerpValue(worldRotationEulerY, currentWorldRotationEulerY, intrepolationTimeInSec * 1000, (value) => {
-                setWorldRotationEulerY(value);
+            if (Math.abs(rotationReference - worldRotation) > 2) {
+                addScreenMessage(`The compass seems a litte unstable.`, "compass_little_unstable", 3000, "orange");
+            }
+            lerpValue(worldRotation, rotationReference, intrepolationTimeInSec * 1000, (value) => {
+                setWorldRotation(value);
             });
         }
-    }, [referenceCompassHeading]);
+    }, [rotationReference]);
 
-    return [worldRotationEulerY];
+    return [worldRotation ?? 0];
 };

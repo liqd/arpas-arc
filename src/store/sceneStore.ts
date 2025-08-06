@@ -29,10 +29,11 @@ const useSceneStore = create<SceneState>((set) => ({
                                 variant.id === variantId
                                     ? {
                                         ...variant,
-                                        isLiked: !variant.isLiked,
                                         likes: !variant.isLiked ? variant.likes + 1 : variant.likes - 1,
-                                        isDisliked: variant.isLiked ? variant.isDisliked : false,
-                                        dislikes: variant.isLiked ? variant.dislikes : variant.dislikes - 1,
+                                        isLiked: !variant.isLiked,
+                                        // Optionally reset dislike if switching from dislike to like
+                                        dislikes: variant.isDisliked ? variant.dislikes - 1 : variant.dislikes,
+                                        isDisliked: false,
                                     }
                                     : variant
                             ),
@@ -54,10 +55,11 @@ const useSceneStore = create<SceneState>((set) => ({
                                 variant.id === variantId
                                     ? {
                                         ...variant,
-                                        isDisliked: !variant.isDisliked,
                                         dislikes: !variant.isDisliked ? variant.dislikes + 1 : variant.dislikes - 1,
-                                        isLiked: variant.isDisliked ? variant.isLiked : false,
-                                        likes: variant.isDisliked ? variant.likes : variant.likes - 1,
+                                        isDisliked: !variant.isDisliked,
+                                        // Optionally reset like if switching from dislike to like
+                                        likes: variant.isLiked ? variant.likes - 1 : variant.likes,
+                                        isLiked: false,
                                     }
                                     : variant
                             ),
@@ -106,10 +108,11 @@ const useSceneStore = create<SceneState>((set) => ({
                                 comment.id === commentId
                                     ? {
                                         ...comment,
-                                        isLiked: !comment.isLiked,
                                         likes: !comment.isLiked ? comment.likes + 1 : comment.likes - 1,
-                                        isDisliked: comment.isLiked ? comment.isDisliked : false,
-                                        dislikes: comment.isLiked ? comment.dislikes : comment.dislikes - 1,
+                                        isLiked: !comment.isLiked,
+                                        // Optionally reset dislike if switching from dislike to like
+                                        dislikes: comment.isDisliked ? comment.dislikes - 1 : comment.dislikes,
+                                        isDisliked: false,
                                     }
                                     : comment
                             ),
@@ -131,10 +134,11 @@ const useSceneStore = create<SceneState>((set) => ({
                                 comment.id === commentId
                                     ? {
                                         ...comment,
-                                        isDisliked: !comment.isDisliked,
                                         dislikes: !comment.isDisliked ? comment.dislikes + 1 : comment.dislikes - 1,
-                                        isLiked: comment.isDisliked ? comment.isLiked : false,
-                                        likes: comment.isDisliked ? comment.likes : comment.likes - 1,
+                                        isDisliked: !comment.isDisliked,
+                                        // Optionally reset like if switching from dislike to like
+                                        likes: comment.isLiked ? comment.likes - 1 : comment.likes,
+                                        isLiked: false,
                                     }
                                     : comment
                             ),

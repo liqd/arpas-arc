@@ -4,9 +4,9 @@ import * as THREE from "three";
 import { ThreeEvent } from "@react-three/fiber";
 import { fetchGLTFModel, releaseGLTFModel } from "../../utility/fetchGLTFModel";
 import { Position, Rotation, Scale } from "../../types/transform";
-import LoadingSpheres from "../loadingSpheres";
-import RoundedPlane from "../roundedPlane";
 import { MinioData } from "../../types/databaseData";
+import { LoadingSpheres, RoundedPlane } from "..";
+import useMessageStore from "../../store/messagesStore";
 
 interface MeshObjectProps {
     minioData: MinioData | null;
@@ -31,7 +31,12 @@ const MeshObject = ({
 
     const [modelUrl, setModelUrl] = useState<string | null>(null); // State to store the Blob URL for the model
     const [showLabel, setShowLabel] = useState(false);
+    const [loading, setLoading] = useState(true); // State to track loading status
     const objectRef = useRef<THREE.Group | null>(null); // Ref for managing the scene object
+    const { addScreenMessage, removeScreenMessage } = useMessageStore();
+
+    const loadingSpheresScale = new Scale(.5, .5, .5);
+    const modelName = meshObjectId.replace(/\.[^/.]+$/, ""); // Removes the file extension
 
     useEffect(() => {
         let isMounted = true;
@@ -40,7 +45,8 @@ const MeshObject = ({
 
         const loadModel = async () => {
             if (!minioData) {
-                console.error("Minio client data is missing");
+                console.error("Minio client data is missing for mesh object with id:", meshObjectId);
+                // Remove loading message if failed
                 return;
             }
 
@@ -50,12 +56,15 @@ const MeshObject = ({
                 return;
             }
 
+            setLoading(true);
+            addScreenMessage(`Model ${modelName} is loading...`, `loading_model_${meshObjectId}`);
+
             try {
                 const url = await fetchGLTFModel(minioData, meshObjectId);
                 if (isMounted) {
                     setModelUrl(url);
                     setShowLabel(false);
-                    
+
                     // Add sceneObjectId to the activeModels map
                     if (!activeModels.has(meshObjectId)) {
                         activeModels.set(meshObjectId, new Set());
@@ -64,13 +73,23 @@ const MeshObject = ({
 
                     console.log(`Model loaded successfully: ${meshObjectId}`);
                     retryCount = 0; // Reset retry count on success
+                    // Remove loading message on success
+                    setLoading(false);
+                    removeScreenMessage(`loading_model_${meshObjectId}`);
+                    addScreenMessage(`Model ${modelName} loaded successfully`, `model_loaded_${meshObjectId}`, 5000, "#7bf1e3");
                 }
             } catch (error) {
                 console.warn(`Failed to load model: ${meshObjectId}. Retry attempt ${retryCount + 1}`);
                 retryCount++;
+                removeScreenMessage(`loading_model_${meshObjectId}`);
                 if (retryCount >= maxRetries) {
-                    console.error(`Max retries reached for model: ${meshObjectId}`);
-                    clearInterval(loadModelInterval); // Stop retrying after max retries
+                    setLoading(false);
+                    clearInterval(loadModelInterval);
+                    clearInterval(toggleLabelInterval);
+                    setShowLabel(false);
+                    addScreenMessage(`Model ${modelName} failed to load!`, `model_faild_to_load${meshObjectId}`, 7000, "red");
+                } else {
+                    addScreenMessage(`Model ${modelName} loading failed. Retrying...`, `model_loading_failed_${meshObjectId}`, 5000, "orange");
                 }
             }
         };
@@ -84,27 +103,19 @@ const MeshObject = ({
             isMounted = false;
             clearInterval(loadModelInterval);
             clearInterval(toggleLabelInterval);
-            
-            // Remove sceneObjectId from the activeModels map
-            // const activeSceneObjects = activeModels.get(meshObjectId);
-            // if (activeSceneObjects) {
-            //     activeSceneObjects.delete(sceneObjectId);
-            //     console.log(`Removed sceneObjectId: ${sceneObjectId} for meshObjectId: ${meshObjectId}. Remaining: ${activeSceneObjects.size}`);
-
-            //     // Only release the model if no active objects remain
-            //     if (activeSceneObjects.size === 0) {
-            //         activeModels.delete(meshObjectId);
-            //         releaseGLTFModel(meshObjectId); // Decrement instance count and clean up cache
-            //         console.log(`Released model: ${meshObjectId} as no active objects remain.`);
-            //     }
-            // }
+            // Remove loading message on unmount
+            removeScreenMessage(`loading_model_${meshObjectId}`);
         };
+        // Add meshObjectId and minioData to dependencies
     }, [meshObjectId, minioData, modelUrl]);
 
     // Add event listeners for highlighting and unhighlighting
     useEffect(() => {
         const object = objectRef.current;
-        if (!object) return;
+        if (!object) {
+            console.warn("Object reference is not set. Cannot add event listeners for highlighting on object with id:", sceneObjectId);
+            return;
+        }
 
         const handleMouseEnter = () => {
             addOutline(object); // Add outline on hover
@@ -128,10 +139,31 @@ const MeshObject = ({
             // @ts-ignore
             object.removeEventListener(mouseLeave, handleMouseLeave);
         };
-    }, []);
+    }, [objectRef]);
 
-    const loadingSpheresScale = new Scale(.5, .5, .5);
-    const modelName = meshObjectId.replace(/\.[^/.]+$/, ""); // Removes the file extension
+    // If loading failed
+    if (!modelUrl && !loading) {
+        return (
+            <>
+                <RoundedPlane
+                    position={position}
+                    rotation={new Rotation(0, rotation.y, 0)}
+                    radius={1}
+                    opacity={.2}
+                ></RoundedPlane>
+                <RoundedPlane
+                    position={position}
+                    rotation={new Rotation(0, rotation.y, 0)}
+                    radius={1}
+                    opacity={.2}
+                >
+                    <Text fontSize={0.2} position={new THREE.Vector3(0, 0, 0.0001)}>
+                        Not loaded: {modelName}
+                    </Text>
+                </RoundedPlane>
+            </>
+        );
+    }
 
     // Render loading visuals while the model URL is being fetched
     if (!modelUrl) {
@@ -203,22 +235,34 @@ const ModelComponent = ({ sceneObjectId, modelUrl, objectRef, position, rotation
 
     return (
         <group
-            ref={objectRef}
-            position={position.toArray()}
-            rotation={rotation.toArray()}
-            scale={scale.toArray()}
-            castShadow
-            receiveShadow
-            userData={{ sceneObjectId }}
-        >
-            <primitive object={clonedScene} />
-            <meshStandardMaterial color="white" transparent={false} opacity={1} depthWrite={true} />
+            scale={scale.toArray()}>
+            <group
+                ref={objectRef}
+                position={position.toArray()}
+                rotation={rotation.toArray()}
+                // scale={scale.toArray()}
+                castShadow
+                receiveShadow
+            >
+                <primitive object={clonedScene} />
+                <meshStandardMaterial color="white" transparent={false} opacity={1} depthWrite={true} />
 
-            {/* Invisible object for click interaction */}
-            <mesh key={scale.x * Math.random()} position={center} userData={{ sceneObjectId }}>
-                <boxGeometry args={[size.x, size.y, size.z]} />
-                <meshStandardMaterial color="white" transparent={true} opacity={0.0001} depthWrite={false} /> {/* wireframe  */}
-            </mesh>
+
+                {/* Invisible object for click interaction */}
+                <mesh position={center} userData={{ sceneObjectId }}>
+                    <boxGeometry args={[size.x, size.y, size.z]} />
+                    <meshStandardMaterial color="white" transparent={true} opacity={0.0001} depthWrite={false} /> {/* wireframe  */}
+                </mesh>
+            </group>
+            <RoundedPlane
+                position={new Position(position.x, center.y - size.y / 2, position.z)}
+                rotation={new Rotation(0, rotation.y, 0)}
+                radius={2}
+                width={size.x * 1.2}
+                height={size.z * 1.2}
+                color="black"
+                opacity={.15}
+            ></RoundedPlane>
         </group>
     );
 };

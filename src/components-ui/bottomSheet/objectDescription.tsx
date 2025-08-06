@@ -117,11 +117,11 @@ const Comment: React.FC<{ objectId: number; commentId: number; forceCloseKeyboar
                 <div className="row">
                     <div className="col-12 a4-comments__action-bar-container">
                         <div className="rating">
-                            <button className={`rating-button rating-up ${comment.isLiked && "liked"}`} onClick={handleLike}>
+                            <button className={`rating-button rating-up${comment?.isLiked && " liked"}`} onClick={handleLike}>
                                 <i className="far fa-thumbs-up"></i>{comment.likes}
                             </button>
-                            <button className={`rating-button rating-down ${comment.isDisliked && "disliked"}`} onClick={handleDislike}>
-                                <i className="far fa-thumbs-down"></i>{comment.dislikes}
+                            <button className={`rating-button rating-down${comment?.isDisliked && " disliked"}`} onClick={handleDislike}>
+                                <i className="far fa-thumbs-down"></i>{comment?.dislikes}
                             </button>
                         </div>
                         {!isReply && (
@@ -269,34 +269,46 @@ const ObjectDescription: React.FC<{
                 <div id="scrollableContentSection" className="row">
                     <p>{variant.description}</p>
                 </div>
-                <div className="mb-3">
-                    <h6 className="mb-2">Variants</h6>
-                    <div className="d-flex flex-wrap gap-2">
-                        {sceneObject.variants.map((variantData: VariantData) => {
-                            const isActive = variantData.id === variant.id;
-                            return (
-                                <button
-                                    key={variantData.id}
-                                    className={`variant-icon ${isActive ? "active" : ""}`}
-                                    onClick={() => {
-                                        if (variantData.id !== variant.id) {
-                                            setCurrentVariant(objectId, variantData.id);
-                                        }
-                                    }}
-                                >
-                                    <i className="fas fa-circle fa-3x"></i>
-                                </button>
-                            );
-                        })}
+                {sceneObject.variants.length > 1 && (
+                    <div className="mb-3">
+                        <h6 className="mb-2">Variants</h6>
+                        <div className="d-flex flex-wrap gap-2">
+                            {sceneObject.variants.map((variantData: VariantData) => {
+                                const isActive = variantData.id === variant.id;
+                                return (
+                                    <button
+                                        key={variantData.id}
+                                        className={`variant-icon ${isActive ? "active" : ""}`}
+                                        onClick={() => {
+                                            if (variantData.id !== variant.id) {
+                                                setCurrentVariant(objectId, variantData.id);
+                                            }
+                                        }}
+                                    >
+                                        <i className="fas fa-circle fa-3x"></i>
+                                        <span
+                                            style={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                fontSize: ".75em",
+                                            }}
+                                        >
+                                            {variantData.name.length > 10 ? variantData.name.slice(0, 8) + "…" : variantData.name}
+                                        </span>
+                                    </button>
+                                );
+                            })}
+                        </div>
                     </div>
-                </div>
+                )}
                 <div className="row top-border">
                     <div className="col-12 a4-comments__action-bar-container">
                         <div className="rating">
-                            <button className={`rating-button rating-up ${variant?.isLiked && "liked"}`} onClick={handleVariantLike}>
+                            <button className={`rating-button rating-up${variant?.isLiked && " liked"}`} onClick={handleVariantLike}>
                                 <i className="far fa-thumbs-up"></i>{variant?.likes}
                             </button>
-                            <button className={`rating-button rating-down ${variant?.isDisliked && "disliked"}`} onClick={handleVariantDislike}>
+                            <button className={`rating-button rating-down${variant?.isDisliked && " disliked"}`} onClick={handleVariantDislike}>
                                 <i className="far fa-thumbs-down"></i>{variant?.dislikes}
                             </button>
                         </div>

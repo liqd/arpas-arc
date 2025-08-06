@@ -11,11 +11,13 @@ const SideSheet = ({
     onClose,
     onLeave,
     children,
+    headerHeight = 0,
 }: {
     isVisible: boolean;
     onClose?: () => void;
     onLeave?: () => void;
     children?: React.ReactNode;
+    headerHeight?: number;
 }) => {
     const x = useMotionValue(closedX);
     const [shouldRender, setShouldRender] = useState(isVisible);
@@ -38,18 +40,9 @@ const SideSheet = ({
     return (
         <motion.div
             className="side-sheet d-flex flex-column vh-100"
-            style={{ x }}
+            style={{ x, marginTop: headerHeight }}
             initial={false}
         >
-            <div id="arc-header" className="py-1 px-2">
-                <button className="border-0 fw-bold text-uppercase text-dark" onClick={onLeave}>
-                    <small><i className="fas fa-arrow-left" aria-hidden="true"></i> Leave AR</small>
-                </button>
-                <button className="border-0 fw-bold text-uppercase text-dark" onClick={onClose}>
-                    <small><i className="fas fa-times"></i></small>
-                </button>
-            </div>
-
             <div className="flex-grow-1 overflow-auto px-3 pt-3 d-flex flex-column">
                 {children}
             </div>

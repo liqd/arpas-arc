@@ -1,19 +1,18 @@
-import { useEffect, useLayoutEffect, useMemo, useCallback, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useCallback, useState, useRef } from "react";
 import { useXRInputSourceEvent, useXRStore, XRDomOverlay } from "@react-three/xr";
 import * as THREE from "three";
 import { DirectionalArrow, HelpMenu, ObjectDescription } from "../../components-ui";
 import { SceneData, ObjectData, VariantData } from "../../types/objectData";
-import { MeshObject } from "../../components";
+import { ObjectScene } from "../../components";
 import { useThree } from "@react-three/fiber";
 import { Position, Rotation, Scale } from "../../types/transform";
-import { getIntersectedSceneObject } from "../../utility/objects";
+import { getClosestObject, getIntersectedSceneObject, getObjectPosition } from "../../utility/objects";
 import { Compass2D, Compass3D } from "../../components-ui/compass";
 import "./style.css";
 import useSceneStore from "../../store/sceneStore";
-import useLocationStore from "../../store/locationStore";
+import { useMessageStore } from "../../store/messagesStore";
 import { MinioData } from "../../types/databaseData";
-import useWorldPosition from "../../hooks/geolocation/useWorldPosition";
-import { useWorldRotation } from "../../hooks";
+import { useWorldRotation, useWorldPosition } from "../../hooks";
 
 const debounce = (func: () => void, delay: number) => {
     let timeoutId: ReturnType<typeof setTimeout>;
@@ -26,10 +25,9 @@ const debounce = (func: () => void, delay: number) => {
 const IndexPage = ({ minioData, data: sceneData }: { minioData: MinioData, data: SceneData }) => {
     // XR objects and values
     const store = useXRStore();
-    const state = useThree();
-    const { camera } = useThree();
+    const { camera, ...state } = useThree();
     const { scene, setScene } = useSceneStore();
-    const { getPosition } = useLocationStore();
+    const { messages, addScreenMessage, removeScreenMessage } = useMessageStore();
     const groundMesh = store.getState().groundMesh;
     const [minioClientData, setMinioClientData] = useState<MinioData | null>(null);
 
@@ -39,9 +37,15 @@ const IndexPage = ({ minioData, data: sceneData }: { minioData: MinioData, data:
 
     // Location values
     const [worldPosition] = useWorldPosition(20, 2);
+    const [fixedWorldPosition, setFixedWorldPosition] = useState<Position | null>(null);
 
     // Compass values
+    const [compassPosition, setCompassPosition] = useState(camera?.position?.clone() ?? new THREE.Vector3(0, 0, 0));
     const [worldRotation] = useWorldRotation(camera);
+    const [fixedWorldRotation, setFixedWorldRotation] = useState<number | null>(null);
+
+    // Memoized camera position for ObjectScene
+    const cameraPositionMemo = useMemo(() => camera?.position?.clone() ?? new THREE.Vector3(0, 0, 0), [worldPosition]);
 
     // Scene values
     const [selectedObject, setSelectedObject] = useState<number | null>(null);
@@ -80,6 +84,14 @@ const IndexPage = ({ minioData, data: sceneData }: { minioData: MinioData, data:
         console.log('Scene objects:', scene.objects);
     }, [scene.objects]);
 
+    useEffect(() => {
+        if (!minioClientData) {
+            addScreenMessage("Wait for database...", "wait_for_database");
+        } else {
+            removeScreenMessage("wait_for_database");
+        }
+    }, [minioClientData]);
+
     useLayoutEffect(() => {
         const updateHeaderHeight = () => {
             const header = document.querySelector("#arc-header") as HTMLElement;
@@ -104,7 +116,7 @@ const IndexPage = ({ minioData, data: sceneData }: { minioData: MinioData, data:
         (event) => {
             if (!scene) return;
 
-            const selectedObjectId = getIntersectedSceneObject(event, state, scene.objects);
+            const selectedObjectId = getIntersectedSceneObject(event, { ...state, camera }, scene.objects);
             if (selectedObjectId) {
                 setSelectedObject(selectedObjectId);
             }
@@ -112,48 +124,86 @@ const IndexPage = ({ minioData, data: sceneData }: { minioData: MinioData, data:
         [scene]
     );
 
-    const getObjectPosition = useMemo(() => (sceneObject: ObjectData): Position => {
-        const variantId = selectedVariants[sceneObject.id] ?? sceneObject.variants[0]?.id;
-        const variant = sceneObject.variants.find((v) => v.id === variantId);
 
-        return getPosition(sceneObject.coordinates[0], sceneObject.coordinates[1])
-            .addedPosition(variant?.offset_position ?? new Position())
-            .substractedPosition(worldPosition);
-    }, [selectedVariants, worldPosition]);
+    useEffect(() => {
+        const distance = compassPosition.distanceTo(camera.position);
+        if (distance > 0.2) {
+            setCompassPosition(camera.position.clone());
+        }
+    }, [camera.position.x, camera.position.z]);
+
+    const fontSize = "22px";
 
     return (
         <>
-            <XRDomOverlay style={{ width: "100%", height: "100%" }}>
-                <div id="arc-logo-header" className="py-1 px-2">
-                    <span className="border-0 fw-bold text-uppercase text-dark">ARPAS</span>
+            <XRDomOverlay style={{ width: "100%", height: "100%", fontSize: fontSize, boxSizing: "border-box", }}>
+                <div className="xr-message-stack">
+                    {messages.map((msg) => (
+                        <div
+                            key={msg.id}
+                            className="xr-loading-label py-2 px-3 fw-bold text-center"
+                            style={{ fontSize: 18, color: msg.color ?? "white" }}
+                        >
+                            {msg.text}
+                        </div>
+                    ))}
                 </div>
-                <div id="arc-header" className="py-1 px-2">
-                    <button
-                        className="border-0 fw-bold text-uppercase text-dark"
-                        onClick={() => store.getState().session?.end()}
-                    >
-                        <small>
-                            <i className="fas fa-arrow-left" aria-hidden="true"></i> Leave AR
-                        </small>
-                    </button>
-                    <button
-                        className="border-0 fw-bold text-uppercase text-dark"
-                        onClick={() => setIsHelpVisible(true)}
-                    >
-                        <small>
-                            <i className="fas fa-info-circle"></i> Help
-                        </small>
-                    </button>
-                </div>
-                <div style={{ top: `${headerHeight}px` }}>
-                    <Compass2D />
-                </div>
+                <>
+                    <div id="arc-logo-header" className="py-1 px-2">
+                        <span className="border-0 fw-bold text-uppercase text-dark">ARPAS</span>
+                    </div>
+                    <div id="arc-header" className="py-1 px-2">
+                        <button
+                            className="border-0 fw-bold text-uppercase text-dark"
+                            onClick={() => store.getState().session?.end()}
+                        >
+                            <small>
+                                <i className="fas fa-arrow-left" aria-hidden="true"></i> Leave AR
+                            </small>
+                        </button>
+                        <button
+                            className="border-0 fw-bold text-uppercase text-dark"
+                            onClick={() => setIsHelpVisible((v) => !v)}
+                        >
+                            <small>
+                                {isHelpVisible ? (
+                                    <>
+                                        <i className="fas fa-times" aria-hidden="true"></i> Close Help
+                                    </>
+                                ) : (
+                                    <>
+                                        <i className="fas fa-info-circle"></i> Help
+                                    </>
+                                )}
+                            </small>
+                        </button>
+                    </div>
+                    <div style={{ top: `${headerHeight}px` }}>
+                        <Compass2D showCardinal={!fixedWorldPosition && !fixedWorldRotation}/>
+                        <div id="compass-container" style={{ background: "transparent" }}>
+                            <button
+                                className={`compass-fix-btn${fixedWorldPosition && fixedWorldRotation ? " active" : ""}`}
+                                onMouseDown={e => e.preventDefault()}
+                                onClick={() => {
+                                    if (fixedWorldPosition && fixedWorldRotation) {
+                                        setFixedWorldPosition(null);
+                                        setFixedWorldRotation(null);
+                                    } else {
+                                        setFixedWorldPosition(worldPosition);
+                                        setFixedWorldRotation(worldRotation);
+                                    }
+                                }}
+                            > {} </button>
+                        </div>
+                    </div>
+                </>
 
                 <HelpMenu
                     isVisible={isHelpVisible}
                     onClose={() => setIsHelpVisible(false)}
                     onLeave={() => store.getState().session?.end()}
                     headerHeight={headerHeight}
+                    fontSize={fontSize}
                 />
 
                 {selectedObject && (
@@ -167,7 +217,7 @@ const IndexPage = ({ minioData, data: sceneData }: { minioData: MinioData, data:
                 )}
 
                 {/* Debugging Information */}
-                {/* <div
+                <div
                     style={{
                         position: "absolute",
                         bottom: "10px",
@@ -179,60 +229,27 @@ const IndexPage = ({ minioData, data: sceneData }: { minioData: MinioData, data:
                         zIndex: 1000,
                     }}
                 >
-                    <p>Header Height: {headerHeight}px</p>
+                    <p>world rot: {worldRotation.toFixed(3)}</p>
                     <p>Selected Object: {selectedObject ?? "None"}</p>
-                </div> */}
-            </XRDomOverlay>
+                </div>
+            </XRDomOverlay >
 
-            <ambientLight intensity={5} />
-            <directionalLight intensity={10} />
-            <Compass3D headingInRad={worldRotation} camera={camera} />
+            {scene && minioClientData && (
+                <>
+                    <ambientLight intensity={5} />
+                    <directionalLight intensity={10} />
+                    <Compass3D headingInRad={worldRotation} cameraPosition={compassPosition} />
 
-            <group rotation={[0, worldRotation, 0]}>
-                {scene.objects?.map((sceneObject) => {
-                    if (!sceneObject || !sceneObject.variants) {
-                        console.warn('Invalid scene object:', sceneObject);
-                        return null;
-                    }
-                    const sceneObjectId = sceneObject.id;
-                    const variantId = selectedVariants[sceneObject.id] ?? sceneObject.variants[0]?.id;
-                    const variant = sceneObject.variants.find((v) => v.id === variantId);
-
-                    if (!variant || !variant.mesh_id) {
-                        console.warn('Invalid variant:', variant);
-                        return null;
-                    }
-
-                    return (
-                        <mesh
-                            key={sceneObjectId}
-                            userData={{ sceneObjectId }}
-                            position={getObjectPosition(sceneObject).toArray()}
-                            rotation={variant.offset_rotation}
-                        >
-                            {variant.mesh_id === "primitive_cube" ? (
-                                <>
-                                    <boxGeometry args={variant.offset_scale} />
-                                    <meshStandardMaterial color="#248cb5" />
-                                </>
-                            ) : variant.mesh_id === "primitive_sphere" ? (
-                                <>
-                                    <sphereGeometry args={variant.offset_scale} />
-                                    <meshStandardMaterial color="#248cb5" />
-                                </>
-                            ) : (
-                                <MeshObject
-                                    key={`${sceneObject.id}_${variant.id}`}
-                                    minioData={minioClientData}
-                                    sceneObjectId={sceneObjectId}
-                                    meshObjectId={variant.mesh_id}
-                                    scale={variant.offset_scale}
-                                />
-                            )}
-                        </mesh>
-                    );
-                })}
-            </group>
+                    <ObjectScene
+                        selectedVariants={selectedVariants}
+                        minioClientData={minioClientData}
+                        worldRotation={fixedWorldRotation ?? worldRotation}
+                        worldPosition={fixedWorldPosition ?? worldPosition}
+                        cameraPosition={cameraPositionMemo}
+                    />
+                </>
+            )
+            }
         </>
     );
 };
