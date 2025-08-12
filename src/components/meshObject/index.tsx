@@ -247,11 +247,27 @@ interface ModelComponentProps {
 const ModelComponent = ({ sceneObjectId, modelUrl, objectRef, position, rotation, scale }: ModelComponentProps) => {
     const { scene } = useGLTF(modelUrl); // Load the model using useGLTF
 
-    const clonedScene = scene.clone();
+    const clonedScene = React.useMemo(() => scene.clone(true), [scene]); // Clone the scene to avoid modifying the original
+
+    React.useEffect(() => {
+        clonedScene.traverse((child) => {
+            // attach the id to each mesh's userData
+            const mesh = child as unknown as THREE.Mesh;
+            if ((mesh as any).isMesh) {
+                mesh.userData = { ...mesh.userData, sceneObjectId };
+            }
+        });
+    }, [clonedScene, sceneObjectId]);
+
     const boundingBox = new THREE.Box3().setFromObject(clonedScene); // Compute bounding box
     const size = boundingBox.getSize(new THREE.Vector3(1, 1, 1));
     const center = boundingBox.getCenter(new THREE.Vector3());
 
+    {/* Invisible object for click interaction */ }
+    //            <mesh position={center} userData={{ sceneObjectId }}>
+    //                <boxGeometry args={[size.x, size.y, size.z]} />
+    //                <meshStandardMaterial color="green" transparent={false} opacity={0.0001} depthWrite={false} wireframe={true} /> {/* wireframe  */}
+    //            </mesh>
     return (
         <group
             scale={scale.toArray()}>
@@ -265,13 +281,6 @@ const ModelComponent = ({ sceneObjectId, modelUrl, objectRef, position, rotation
             >
                 <primitive object={clonedScene} />
                 <meshStandardMaterial color="white" transparent={false} opacity={1} depthWrite={true} />
-
-
-                {/* Invisible object for click interaction */}
-                <mesh position={center} userData={{ sceneObjectId }}>
-                    <boxGeometry args={[size.x, size.y, size.z]} />
-                    <meshStandardMaterial color="white" transparent={true} opacity={0.0001} depthWrite={false} /> {/* wireframe  */}
-                </mesh>
             </group>
             <RoundedPlane
                 position={new Position(position.x, center.y - size.y / 2, position.z)}
