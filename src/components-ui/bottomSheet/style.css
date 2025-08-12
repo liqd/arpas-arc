@@ -53,6 +53,15 @@
     align-items: center;
 }
 
+.variant-icon {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+  background: transparent;
+}
+
 .variant-icon.active i {
     color: #007bff;
 }
@@ -96,4 +105,40 @@
 
 .placeholder {
     color: #888;
+}
+
+.variant-circle {
+  position: relative;
+  width: 40px; /* adjust to match fa-3x size */
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.variant-circle > .fa-circle {
+  position: absolute;
+  transform: translate(-15%, 0%);
+  inset: 0;
+  line-height: 40px;
+  text-align: center;
+}
+
+.variant-circle__label {
+  position: relative; /* sits on top of the circle */
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  pointer-events: none;
+}
+
+.variant-name {
+  font-size: 0.6rem;
+  line-height: 1;
+  text-align: center;
+  max-width: 64px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 4px;
 }
