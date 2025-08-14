@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useCallback, useState, useRef } from "react";
 import { useXRInputSourceEvent, useXRStore, XRDomOverlay } from "@react-three/xr";
 import * as THREE from "three";
-import { DirectionalArrow, HelpMenu, ObjectDescription } from "../../components-ui";
+import { Header, Footer, DirectionalArrow, HelpMenu, ObjectDescription } from "../../components-ui";
 import { SceneData, ObjectData, VariantData } from "../../types/objectData";
 import { ObjectScene } from "../../components";
 import { useThree } from "@react-three/fiber";
@@ -113,7 +113,6 @@ const IndexPage = ({ data: sceneData, minioData }: { data: SceneData, minioData?
         [scene]
     );
 
-
     useEffect(() => {
         const distance = compassPosition.distanceTo(camera.position);
         if (distance > 0.2) {
@@ -125,67 +124,43 @@ const IndexPage = ({ data: sceneData, minioData }: { data: SceneData, minioData?
 
     return (
         <>
-            <XRDomOverlay style={{ width: "100%", height: "100%", fontSize: fontSize, boxSizing: "border-box", }}>
+            <XRDomOverlay style={{ width: "100%", height: "100%", fontSize: fontSize, boxSizing: "border-box" }}>
                 <div className="xr-message-stack">
                     {messages.map((msg) => (
-                        <div
-                            key={msg.id}
-                            className="xr-loading-label py-2 px-3 fw-bold text-center"
-                            style={{ fontSize: 18, color: msg.color ?? "white" }}
-                        >
+                        <div key={msg.id} className="xr-loading-label py-2 px-3 fw-bold text-center" style={{ fontSize: 18, color: msg.color ?? "white" }}>
                             {msg.text}
                         </div>
                     ))}
                 </div>
-                <>
-                    <div id="arc-logo-header" className="py-1 px-2">
-                        <span className="border-0 fw-bold text-uppercase text-dark">ARPAS</span>
-                    </div>
-                    <div id="arc-header" className="py-1 px-2">
+
+                {/* Header */}
+                <Header
+                    isHelpVisible={isHelpVisible}
+                    onToggleHelp={() => setIsHelpVisible((v) => !v)}
+                    onLeave={() => store.getState().session?.end()}
+                />
+
+                {/* Content */}
+                <div style={{ top: `${headerHeight}px` }}>
+                    <Compass2D showCardinal={!fixedWorldPosition && !fixedWorldRotation} />
+                    <div id="compass-container" style={{ background: "transparent" }}>
                         <button
-                            className="border-0 fw-bold text-uppercase text-dark"
-                            onClick={() => store.getState().session?.end()}
+                            className={`compass-fix-btn${fixedWorldPosition && fixedWorldRotation ? " active" : ""}`}
+                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={() => {
+                                if (fixedWorldPosition && fixedWorldRotation) {
+                                    setFixedWorldPosition(null);
+                                    setFixedWorldRotation(null);
+                                } else {
+                                    setFixedWorldPosition(worldPosition);
+                                    setFixedWorldRotation(worldRotation);
+                                }
+                            }}
                         >
-                            <small>
-                                <i className="fas fa-arrow-left" aria-hidden="true"></i> Leave AR
-                            </small>
-                        </button>
-                        <button
-                            className="border-0 fw-bold text-uppercase text-dark"
-                            onClick={() => setIsHelpVisible((v) => !v)}
-                        >
-                            <small>
-                                {isHelpVisible ? (
-                                    <>
-                                        <i className="fas fa-times" aria-hidden="true"></i> Close Help
-                                    </>
-                                ) : (
-                                    <>
-                                        <i className="fas fa-info-circle"></i> Help
-                                    </>
-                                )}
-                            </small>
+                            { }
                         </button>
                     </div>
-                    <div style={{ top: `${headerHeight}px` }}>
-                        <Compass2D showCardinal={!fixedWorldPosition && !fixedWorldRotation}/>
-                        <div id="compass-container" style={{ background: "transparent" }}>
-                            <button
-                                className={`compass-fix-btn${fixedWorldPosition && fixedWorldRotation ? " active" : ""}`}
-                                onMouseDown={e => e.preventDefault()}
-                                onClick={() => {
-                                    if (fixedWorldPosition && fixedWorldRotation) {
-                                        setFixedWorldPosition(null);
-                                        setFixedWorldRotation(null);
-                                    } else {
-                                        setFixedWorldPosition(worldPosition);
-                                        setFixedWorldRotation(worldRotation);
-                                    }
-                                }}
-                            > {} </button>
-                        </div>
-                    </div>
-                </>
+                </div>
 
                 <HelpMenu
                     isVisible={isHelpVisible}
@@ -205,8 +180,14 @@ const IndexPage = ({ data: sceneData, minioData }: { data: SceneData, minioData?
                     />
                 )}
 
-                {/* Debugging Information */}
-                <div
+                {/* Footer */}
+                {/* <Footer>
+                  <small className="text-dark">Selected: {selectedObject ?? "None"}</small>
+                  <small className="text-muted">Heading: {worldRotation.toFixed(2)} rad</small>
+                </Footer> */}
+
+                {/* Debugging box can be removed or kept */}
+                {/* <div
                     style={{
                         position: "absolute",
                         bottom: "10px",
@@ -220,9 +201,10 @@ const IndexPage = ({ data: sceneData, minioData }: { data: SceneData, minioData?
                 >
                     <p>world rot: {worldRotation.toFixed(3)}</p>
                     <p>Selected Object: {selectedObject ?? "None"}</p>
-                </div>
-            </XRDomOverlay >
+                </div> */}
+            </XRDomOverlay>
 
+            {/* 3D Scene */}
             {scene && (
                 <>
                     <ambientLight intensity={5} />
@@ -230,15 +212,15 @@ const IndexPage = ({ data: sceneData, minioData }: { data: SceneData, minioData?
                     <Compass3D headingInRad={worldRotation} cameraPosition={compassPosition} />
 
                     <ObjectScene
-                        selectedVariants={selectedVariants}
                         minioClientData={minioClientData}
                         worldRotation={fixedWorldRotation ?? worldRotation}
                         worldPosition={fixedWorldPosition ?? worldPosition}
                         cameraPosition={cameraPositionMemo}
+                        selectedVariants={selectedVariants}
+                        selectedObject={selectedObject}
                     />
                 </>
-            )
-            }
+            )}
         </>
     );
 };

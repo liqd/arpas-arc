@@ -1,0 +1,16 @@
+/* Footer fixed at bottom */
+#arc-footer {
+  position: fixed;
+  left: 0; right: 0;
+  bottom: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(4px);
+  border-top: 1px solid rgba(0,0,0,0.1);
+  color: #222;
+  pointer-events: auto;
+}
