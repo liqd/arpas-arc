@@ -46,7 +46,6 @@ const MeshObject = ({
         const maxRetries = 5; // Set a maximum number of retries
 
         const loadModel = async () => {
-            console.log(`Loading model for meshObjectId: ${meshObjectId}, sceneObjectId: ${sceneObjectId}`);
 
             // Skip loading if modelUrl is already set
             if (modelUrl) {
@@ -55,14 +54,17 @@ const MeshObject = ({
             }
 
             setLoading(true);
+            console.log(`Loading model for meshObjectId: ${meshObjectId}, sceneObjectId: ${sceneObjectId}`);
             addScreenMessage(`Model ${modelName} is loading...`, `loading_model_${meshObjectId}`);
 
             try {
-                let url: string;
+                let blobUrl: string;
+                let wasCached = false;
                 if (meshObjectUrl) {
                     // If meshObjectUrl is provided, use it directly
-                    url = meshObjectUrl;
-                    await fetchGLTFModel(meshObjectId, url);
+                    blobUrl = meshObjectUrl;
+                    const result = await fetchGLTFModel(meshObjectId, blobUrl);
+                    wasCached = result.wasCached;
                 } else {
                     console.log("Presigned URL not provided, try fetching from MinIO...");
 
@@ -72,11 +74,13 @@ const MeshObject = ({
                         return;
                     }
                     // Fetch the model URL from MinIO
-                    url = await fetchGLTFModelFromMinio(meshObjectId, minioData);
+                    const result = await fetchGLTFModelFromMinio(meshObjectId, minioData);
+                    blobUrl = await result.blobUrl; // Wait for the Blob URL to be ready
+                    wasCached = result.wasCached;
                 }
 
                 if (isMounted) {
-                    setModelUrl(url);
+                    setModelUrl(blobUrl);
                     setShowLabel(false);
 
                     // Add sceneObjectId to the activeModels map
@@ -90,7 +94,8 @@ const MeshObject = ({
                     // Remove loading message on success
                     setLoading(false);
                     removeScreenMessage(`loading_model_${meshObjectId}`);
-                    addScreenMessage(`Model ${modelName} loaded successfully`, `model_loaded_${meshObjectId}`, 5000, "#7bf1e3");
+                    if (!wasCached)
+                        addScreenMessage(`Model ${modelName} loaded successfully`, `model_loaded_${meshObjectId}`, 5000, "#7bf1e3");
                 }
             } catch (error) {
                 console.warn(`Failed to load model: ${meshObjectId}. Retry attempt ${retryCount + 1}`);
@@ -242,11 +247,27 @@ interface ModelComponentProps {
 const ModelComponent = ({ sceneObjectId, modelUrl, objectRef, position, rotation, scale }: ModelComponentProps) => {
     const { scene } = useGLTF(modelUrl); // Load the model using useGLTF
 
-    const clonedScene = scene.clone();
+    const clonedScene = React.useMemo(() => scene.clone(true), [scene]); // Clone the scene to avoid modifying the original
+
+    React.useEffect(() => {
+        clonedScene.traverse((child) => {
+            // attach the id to each mesh's userData
+            const mesh = child as unknown as THREE.Mesh;
+            if ((mesh as any).isMesh) {
+                mesh.userData = { ...mesh.userData, sceneObjectId };
+            }
+        });
+    }, [clonedScene, sceneObjectId]);
+
     const boundingBox = new THREE.Box3().setFromObject(clonedScene); // Compute bounding box
     const size = boundingBox.getSize(new THREE.Vector3(1, 1, 1));
     const center = boundingBox.getCenter(new THREE.Vector3());
 
+    {/* Invisible object for click interaction */ }
+    //            <mesh position={center} userData={{ sceneObjectId }}>
+    //                <boxGeometry args={[size.x, size.y, size.z]} />
+    //                <meshStandardMaterial color="green" transparent={false} opacity={0.0001} depthWrite={false} wireframe={true} /> {/* wireframe  */}
+    //            </mesh>
     return (
         <group
             scale={scale.toArray()}>
@@ -260,13 +281,6 @@ const ModelComponent = ({ sceneObjectId, modelUrl, objectRef, position, rotation
             >
                 <primitive object={clonedScene} />
                 <meshStandardMaterial color="white" transparent={false} opacity={1} depthWrite={true} />
-
-
-                {/* Invisible object for click interaction */}
-                <mesh position={center} userData={{ sceneObjectId }}>
-                    <boxGeometry args={[size.x, size.y, size.z]} />
-                    <meshStandardMaterial color="white" transparent={true} opacity={0.0001} depthWrite={false} /> {/* wireframe  */}
-                </mesh>
             </group>
             <RoundedPlane
                 position={new Position(position.x, center.y - size.y / 2, position.z)}

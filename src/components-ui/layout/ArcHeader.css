@@ -1,0 +1,45 @@
+/* Header bars */
+#arc-logo-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: env(safe-area-inset-top, 0px);
+    z-index: 10000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(4px);
+}
+
+#arc-header {
+    position: fixed;
+    top: env(safe-area-inset-top, 0px);
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 10000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(4px);
+}
+
+/* Header buttons */
+#arc-header button,
+#arc-logo-header button {
+    background: transparent !important;
+}
+
+#arc-header button:hover,
+#arc-logo-header button:hover {
+    background: rgba(0, 0, 0, 0.06);
+}
+
+#arc-header button:active,
+#arc-logo-header button:active {
+    background: rgba(0, 0, 0, 0.12);
+}

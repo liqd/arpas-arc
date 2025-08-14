@@ -79,7 +79,7 @@ const Comment: React.FC<{ objectId: number; commentId: number; forceCloseKeyboar
         const newReply: ReplyData = {
             id: Date.now(),
             commentId: commentId,
-            username: "Republica",
+            username: "Username",
             isModerator: false,
             text: trimmed,
             timestamp: Date.now(),
@@ -285,17 +285,14 @@ const ObjectDescription: React.FC<{
                                             }
                                         }}
                                     >
-                                        <i className="fas fa-circle fa-3x"></i>
-                                        <span
-                                            style={{
-                                                display: "flex",
-                                                alignItems: "center",
-                                                justifyContent: "center",
-                                                fontSize: ".75em",
-                                            }}
-                                        >
-                                            {variantData.name.length > 10 ? variantData.name.slice(0, 8) + "…" : variantData.name}
+                                        {/* Circle with centered ID */}
+                                        <span className="variant-circle">
+                                            <i className="fas fa-circle fa-3x"></i>
+                                            <span className="variant-circle__label">{variantData.id}</span>
                                         </span>
+
+                                        {/* Name below the circle */}
+                                        <span className="variant-name">{variantData.name}</span>
                                     </button>
                                 );
                             })}

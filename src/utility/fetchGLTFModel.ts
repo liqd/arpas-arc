@@ -6,12 +6,13 @@ import { MinioData } from "../types/databaseData";
 const modelCache = new Map<string, { blobUrl: string; instances: number }>();
 const loadingModels = new Map<string, Promise<string>>(); // Track models currently being loaded
 
-export const fetchGLTFModel = async (modelId: string, presignedUrl: string): Promise<string> => {
+export const fetchGLTFModel = async (modelId: string, presignedUrl: string): Promise<{ wasCached: boolean; }> => {
     const cacheKey = modelId;
 
     const cachedOrLoading = await getCachedOrLoadingModel(modelId, cacheKey);
-    if (cachedOrLoading) return cachedOrLoading;
+    if (cachedOrLoading) return { wasCached: true };
 
+    // Create a promise for the loading process and store it in loadingModels
     const loadPromise = (async () => {
         try {
             if (!presignedUrl) {
@@ -27,22 +28,23 @@ export const fetchGLTFModel = async (modelId: string, presignedUrl: string): Pro
             const blob = await response.blob();
             const blobUrl = URL.createObjectURL(blob);
 
-            modelCache.set(cacheKey, { blobUrl, instances: 1 });
+            modelCache.set(cacheKey, { blobUrl, instances: 1 }); // Add to cache
             return blobUrl;
         } finally {
+            // Remove the modelId from loadingModels once loading is complete
             loadingModels.delete(modelId);
         }
     })();
 
-    loadingModels.set(modelId, loadPromise);
-    return loadPromise;
+    loadingModels.set(modelId, loadPromise); // Store the promise in loadingModels
+    return { wasCached: false };
 };
 
-export const fetchGLTFModelFromMinio = async (modelId: string, minioData: MinioData): Promise<string> => {
+export const fetchGLTFModelFromMinio = async (modelId: string, minioData: MinioData): Promise<{ blobUrl: Promise<string>; wasCached: boolean }> => {
     const cacheKey = modelId;
 
     const cachedOrLoading = await getCachedOrLoadingModel(modelId, cacheKey);
-    if (cachedOrLoading) return cachedOrLoading;
+    if (cachedOrLoading) return { blobUrl: Promise.resolve(cachedOrLoading), wasCached: true };
 
     // Create a promise for the loading process and store it in loadingModels
     const loadPromise = (async () => {
@@ -68,7 +70,7 @@ export const fetchGLTFModelFromMinio = async (modelId: string, minioData: MinioD
     })();
 
     loadingModels.set(modelId, loadPromise); // Store the promise in loadingModels
-    return loadPromise; // Return the promise
+    return { blobUrl: loadPromise, wasCached: false };
 };
 
 const getCachedOrLoadingModel = async (modelId: string, cacheKey: string) => {
