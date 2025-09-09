@@ -71,7 +71,7 @@ const IndexPage = ({ contentTypes, sceneData, topicData, minioData }:
         }
 
         // Set content types
-        useCommentsStore.getState().setContentType(contentTypes.comments_content_type_id);
+        // useCommentsStore.getState().setContentType(contentTypes.comments_content_type_id);
         console.log("Content types set:", contentTypes);
 
         // Apply scene data
@@ -235,7 +235,7 @@ const IndexPage = ({ contentTypes, sceneData, topicData, minioData }:
                         worldPosition={fixedWorldPosition ?? worldPosition}
                         cameraPosition={cameraPositionMemo}
                         selectedVariants={selectedVariants}
-                        selectedObject={selectedObject}
+                        // selectedObject={selectedObject}
                     />
                 </>
             )}
