@@ -4,6 +4,7 @@ import * as THREE from "three";
 import { Header, Footer, DirectionalArrow, HelpMenu, ObjectDescription } from "../../components-ui";
 import { ContentTypesData } from "../../types/contentTypesData";
 import { SceneData, ObjectData, VariantData } from "../../types/objectData";
+import { TopicData } from "../../types/topicData";
 import { ObjectScene } from "../../components";
 import { useThree } from "@react-three/fiber";
 import { Position, Rotation, Scale } from "../../types/transform";
@@ -23,7 +24,8 @@ const debounce = (func: () => void, delay: number) => {
     };
 };
 
-const IndexPage = ({ contentTypes, sceneData, minioData }: { contentTypes: ContentTypesData, sceneData: SceneData, minioData?: MinioData }) => {
+const IndexPage = ({ contentTypes, sceneData, topicData, minioData }:
+    { contentTypes: ContentTypesData, sceneData: SceneData, topicData: TopicData, minioData?: MinioData }) => {
     // XR objects and values
     const store = useXRStore();
     const { camera, ...state } = useThree();
@@ -82,6 +84,10 @@ const IndexPage = ({ contentTypes, sceneData, minioData }: { contentTypes: Conte
         setSelectedVariants(variants);
         setSelectedObject(sceneData.objects[0]?.id ?? null);
     }, [contentTypes, sceneData]);
+
+     useEffect(() => {
+        console.log('Topic data updated:', topicData);
+    }, [topicData]);
 
     useEffect(() => {
         if (!minioData) return;

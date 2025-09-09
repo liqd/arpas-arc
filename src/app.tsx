@@ -33,7 +33,7 @@ const App = ({
         <Canvas style={{ width: "100%", height: "100%" }}>
             <XR store={store}>
                 <IfInSessionMode allow="immersive-ar">
-                    <IndexPage contentTypes={content_types} sceneData={scene} />
+                    <IndexPage contentTypes={content_types} sceneData={scene} topicData={topic} />
                 </IfInSessionMode>
             </XR>
         </Canvas>
