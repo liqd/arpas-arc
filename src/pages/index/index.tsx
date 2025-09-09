@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useCallback, useState, useRef } fr
 import { useXRInputSourceEvent, useXRStore, XRDomOverlay } from "@react-three/xr";
 import * as THREE from "three";
 import { Header, Footer, DirectionalArrow, HelpMenu, ObjectDescription } from "../../components-ui";
+import { ContentTypesData } from "../../types/contentTypesData";
 import { SceneData, ObjectData, VariantData } from "../../types/objectData";
 import { ObjectScene } from "../../components";
 import { useThree } from "@react-three/fiber";
@@ -22,7 +23,7 @@ const debounce = (func: () => void, delay: number) => {
     };
 };
 
-const IndexPage = ({ data: sceneData, minioData }: { data: SceneData, minioData?: MinioData }) => {
+const IndexPage = ({ contentTypes, sceneData, minioData }: { contentTypes: ContentTypesData, sceneData: SceneData, minioData?: MinioData }) => {
     // XR objects and values
     const store = useXRStore();
     const { camera, ...state } = useThree();
@@ -57,17 +58,21 @@ const IndexPage = ({ data: sceneData, minioData }: { data: SceneData, minioData?
 
     // Apply data
     useEffect(() => {
-        if (!minioData) return;
-        setMinioClientData(minioData);
-        console.log("Minio data set:", minioData);
-    }, [minioData]);
+        if (!contentTypes) {
+            console.warn("No content types provided.");
+            return;
+        }
 
-    useEffect(() => {
         if (!sceneData) {
             console.warn("No scene data provided to add object data.");
             return;
         }
 
+        // Set content types
+        useCommentsStore.getState().setContentType(contentTypes.comments_content_type_id);
+        console.log("Content types set:", contentTypes);
+
+        // Apply scene data
         setScene(sceneData);
         console.log("Scene data updated:", sceneData);
         const variants = sceneData.objects.reduce((acc, object) => {
@@ -75,7 +80,14 @@ const IndexPage = ({ data: sceneData, minioData }: { data: SceneData, minioData?
             return acc;
         }, {} as Record<number, number>);
         setSelectedVariants(variants);
-    }, [sceneData]);
+        setSelectedObject(sceneData.objects[0]?.id ?? null);
+    }, [contentTypes, sceneData]);
+
+    useEffect(() => {
+        if (!minioData) return;
+        setMinioClientData(minioData);
+        console.log("Minio data set:", minioData);
+    }, [minioData]);
 
     useEffect(() => {
         console.log('Scene objects:', scene.objects);

@@ -1,7 +1,13 @@
+import { ContentTypesData } from "../types/contentTypesData";
 import { SceneData } from "../types/objectData";
 import { TopicData } from "../types/topicData";
 
 // thanks gpt
+
+export const ContentTypes : ContentTypesData = {
+    variant_content_type_id: 74,
+    comments_content_type_id: 122,
+};
 
 export const BenchScene: SceneData = {
     id: 4,
@@ -58,6 +64,7 @@ export const BenchScene: SceneData = {
                     name: "Var 1",
                     description: "A plain wooden bench with a natural wood texture. The surface is untreated, showcasing the raw grain and organic color variations of the timber. Ideal for rustic or traditional outdoor settings.",
                     mesh_id: "test/bench/bench.glb",
+                    mesh_url: null,
                     offset_position: [100, 0, 0],
                     offset_rotation: [0, 0, 0],
                     offset_scale: [1, 1, 1],
@@ -72,6 +79,7 @@ export const BenchScene: SceneData = {
                     name: "Var 2",
                     description: "A shiny varnished version of the wooden bench that enhances the natural wood grain while providing a protective glossy coating. Resistant to weathering and ideal for maintaining a polished look in exposed environments.",
                     mesh_id: "republica/Stop1 Fabmobil/billboard.glb",
+                    mesh_url: null,
                     offset_position: [0, 0, 0],
                     offset_rotation: [0, 0, 0],
                     offset_scale: [5, 5, 5],
@@ -121,6 +129,7 @@ export const BenchScene: SceneData = {
                     name: "Green Painted",
                     description: "A durable metal bench coated with a dark green paint finish. Designed to blend well with park and garden surroundings while providing excellent resistance to rust and environmental wear.",
                     mesh_id: "republica/Stop1 Fabmobil/billboard.glb",
+                    mesh_url: null,
                     offset_position: [0, 0, 0],
                     offset_rotation: [0, 0, 0],
                     offset_scale: [1, 1, 1],

@@ -1,57 +1,66 @@
+import { ContentTypesData } from "./contentTypesData";
+import type { TopicData } from "./topicData";
+
 export type SceneData = {
-    id: number,
-    object_id: number,
-    content_type: number,
-    objects: Array<ObjectData>
-}
+    id: number;                             // Unique scene id (DB primary key)
+    object_id: number;                      // Foreign key back to the logical object/entity
+    content_type: number;                   // Django content type id for the scene model
+    objects: Array<ObjectData>;             // AR-capable objects placed in this scene
+};
 
 export type ObjectData = {
-    id: number,                                     // ARObject ID
-    name: string,                                   // ARObject name
-    qr_id: string,                                  // QR code identifier   
-    variants: Array<VariantData>,                   // Array of variants for this AR object
-    coordinates: [number, number, number],          // [latitude, longitude, altitude]
-    comments: Array<CommentData>                    // not given by django as of now
-}
+    id: number;                              // Unique object id
+    name: string;                            // Human-readable name
+    qr_id: string;                           // Optional QR code identifier
+    variants: Array<VariantData>;            // Visual / mesh variants
+    coordinates: [number, number, number];   // World / geo coordinates: [lat, lng, alt]
+    comments: Array<CommentData>;            // Initial comments (roots with replies)
+};
 
 export type VariantData = {
-    id: number,                                     // Variant ID
-    name: string,                                   // Variant name
-    description: string,                            // Variant description
-    mesh_id: string,                                // MinIO mesh identifier (bucket/path format)
-    mesh_url: string | null                         // Presigned URL for the 3D mesh file
-    offset_position: [number, number, number],      // Position offset [x, y, z]
-    offset_rotation: [number, number, number],      // Rotation offset [x, y, z] in degrees
-    offset_scale: [number, number, number],         // Scale offset [x, y, z]
-    weight: number,                                 // Ordering weight
-    likes: number,                                  // Not given by Django as of now
-    isLiked: boolean,                               // Not given by Django as of now
-    dislikes: number,                               // Not given by Django as of now
-    isDisliked: boolean                             // Not given by Django as of now
-}
+    id: number;                                 // Variant primary key
+    name: string;                               // Display name
+    description: string;                        // Optional description text
+    mesh_id: string;                            // Internal mesh identifier
+    mesh_url: string | null;                    // Pre-signed URL or null if not resolved
+    offset_position: [number, number, number];  // Local position offset
+    offset_rotation: [number, number, number];  // Local rotation offset (pitch,yaw,roll) in degrees
+    offset_scale: [number, number, number];     // Local scale multiplier
+    weight: number;                             // Weight / relevance factor
+    likes: number;                              // Positive reaction count
+    isLiked: boolean;                           // Whether current user liked
+    dislikes: number;                           // Negative reaction count
+    isDisliked: boolean;                        // Whether current user disliked
+};
 
 export type CommentData = {
-    id: number,
-    username: string,
-    isModerator: boolean,
-    timestamp: number,
-    text: string,
-    likes: number,
-    isLiked: boolean,
-    dislikes: number,
-    isDisliked: boolean,
-    replies: Array<ReplyData>
-}
+    id: number;                              // Root comment id
+    username: string;                        // Author display name
+    isModerator: boolean;                    // Whether author is a moderator
+    timestamp: number;                       // Unix timestamp (ms) created
+    text: string;                            // Comment body text
+    likes: number;                           // Positive reaction count
+    isLiked: boolean;                        // Whether current user liked
+    dislikes: number;                        // Negative reaction count
+    isDisliked: boolean;                     // Whether current user disliked
+    replies: Array<ReplyData>;               // Direct replies (will be normalized)
+};
 
 export type ReplyData = {
-    id: number,
-    commentId: number,
-    username: string,
-    isModerator: boolean,
-    timestamp: number,
-    text: string,
-    likes: number,
-    isLiked: boolean,
-    dislikes: number,
-    isDisliked: boolean
-}
+    id: number;                              // Reply id
+    commentId: number;                       // Parent root comment id
+    username: string;                        // Author display name
+    isModerator: boolean;                    // Whether author is a moderator
+    timestamp: number;                       // Unix timestamp (ms) created
+    text: string;                            // Reply text
+    likes: number;                           // Positive reaction count
+    isLiked: boolean;                        // Whether current user liked
+    dislikes: number;                        // Negative reaction count
+    isDisliked: boolean;                     // Whether current
+};
+
+export type SceneEnvelope = {
+    content_types: ContentTypesData;         // Content type data (ids)
+    topic: TopicData;                        // Topic metadata
+    scene: SceneData;                        // Scene payload
+};
