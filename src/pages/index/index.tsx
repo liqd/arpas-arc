@@ -89,7 +89,7 @@ const IndexPage = ({ contentTypes, sceneData, topicData, minioData }:
             return acc;
         }, {} as Record<number, number>);
         setSelectedVariants(variants);
-        setSelectedObject(sceneData.objects[0]?.id ?? null);
+        // setSelectedObject(sceneData.objects[0]?.id ?? null);
     }, [contentTypes, sceneData]);
 
      useEffect(() => {
