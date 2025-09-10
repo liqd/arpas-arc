@@ -9,12 +9,14 @@ const BottomSheet = ({
     onClose,
     onMinimize,
     children,
+    fontSize,
 }: {
     isVisible: boolean;
     headerHeight: number;
     variantName: string;
     onClose?: () => void;
     onMinimize?: (minimized: boolean) => void;
+    fontSize: number;
     children?: React.ReactNode;
 }) => {
     const screenHeight = typeof window !== "undefined" ? window.innerHeight : 800;
@@ -84,7 +86,7 @@ const BottomSheet = ({
                 <div></div>
             </div>
             <div className="bottom-sheet-content-header">
-                <div className="minh-100 d-flex flex-column" style={{ fontSize: "0.8rem" }}>
+                <div className="minh-100 d-flex flex-column" style={{ fontSize: `${fontSize * 0.8}px` }}>
                     <div className="row align-items-center">
                         <div className="col-10">
                             <h3>{variantName}</h3>
@@ -93,7 +95,7 @@ const BottomSheet = ({
                             <i
                                 className="fas fa-times"
                                 onClick={onClose}
-                                style={{ cursor: "pointer", fontSize: "0.8rem" }}
+                                style={{ cursor: "pointer", fontSize: `${fontSize * 0.8}px` }}
                             ></i>
                         </div>
                     </div>
