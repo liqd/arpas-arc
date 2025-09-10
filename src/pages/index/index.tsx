@@ -37,7 +37,7 @@ const IndexPage = ({ contentTypes, sceneData, topicData, minioData }:
     const [minioClientData, setMinioClientData] = useState<MinioData | null>(null);
 
     // UI values
-    const fontSize = "1rem";
+    const fontSize = 22;
     const [isHelpVisible, setIsHelpVisible] = useState(false);
     const [headerHeight, setHeaderHeight] = useState(0);
 
@@ -149,10 +149,10 @@ const IndexPage = ({ contentTypes, sceneData, topicData, minioData }:
 
     return (
         <>
-            <XRDomOverlay style={{ width: "100%", height: "100%", fontSize: fontSize, boxSizing: "border-box" }}>
+            <XRDomOverlay style={{ width: "100%", height: "100%", fontSize: `${fontSize}px`, boxSizing: "border-box" }}>
                 <div className="xr-message-stack">
                     {messages.map((msg) => (
-                        <div key={msg.id} className="xr-loading-label py-2 px-3 fw-bold text-center" style={{ fontSize: "0.8rem", color: msg.color ?? "white" }}>
+                        <div key={msg.id} className="xr-loading-label py-2 px-3 fw-bold text-center" style={{ fontSize: `${fontSize * 0.8}px`, color: msg.color ?? "white" }}>
                             {msg.text}
                         </div>
                     ))}
@@ -163,6 +163,7 @@ const IndexPage = ({ contentTypes, sceneData, topicData, minioData }:
                     isHelpVisible={isHelpVisible}
                     onToggleHelp={() => setIsHelpVisible((v) => !v)}
                     onLeave={() => store.getState().session?.end()}
+                    fontSize={fontSize}
                 />
 
                 {/* Content */}
@@ -202,6 +203,7 @@ const IndexPage = ({ contentTypes, sceneData, topicData, minioData }:
                         headerHeight={headerHeight}
                         setCurrentVariant={setCurrentVariant}
                         onClose={() => setSelectedObject(null)}
+                        fontSize={fontSize}
                     />
                 )}
 

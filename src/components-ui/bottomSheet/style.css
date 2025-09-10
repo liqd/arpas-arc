@@ -36,7 +36,7 @@
 }
 
 .bottom-sheet-content {
-    padding: 0 3% 1rem;
+    padding: 0 3% 5px;
     overflow-y: auto;
     flex: 1;
     -webkit-overflow-scrolling: touch;
@@ -81,8 +81,8 @@
     min-height: 36px;
     background: white;
     cursor: text;
+    -webkit-user-select: none;
     user-select: none;
-
     display: block;
     max-width: 100%;
     background-color: #fff;

@@ -5,15 +5,16 @@ type ArcHeaderProps = {
   isHelpVisible: boolean;
   onToggleHelp: () => void;
   onLeave: () => void;
+  fontSize: number;
 };
 
-const ArcHeader: React.FC<ArcHeaderProps> = ({ isHelpVisible, onToggleHelp, onLeave }) => {
+const ArcHeader: React.FC<ArcHeaderProps> = ({ isHelpVisible, onToggleHelp, onLeave, fontSize }) => {
   return (
     <>
-      <div id="arc-logo-header" className="py-1 px-2">
+      <div id="arc-logo-header" className="py-1 px-3" style={{ fontSize: `${fontSize}px` }}>
         <span className="border-0 fw-bold text-uppercase text-dark">ARPAS</span>
       </div>
-      <div id="arc-header" className="py-1 px-2">
+      <div id="arc-header" className="py-2 px-3" style={{ fontSize: `${fontSize}px` }}>
         <button className="border-0 fw-bold text-uppercase text-dark" onClick={onLeave}>
           <small>
             <i className="fas fa-arrow-left" aria-hidden="true"></i> Leave AR

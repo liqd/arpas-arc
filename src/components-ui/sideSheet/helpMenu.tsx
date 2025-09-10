@@ -1,7 +1,7 @@
 import { useState } from "react";
 import SideSheet from ".";
 
-const Accordion = ({ title, children, fontSize }: { title: string, children: React.ReactNode, fontSize: string | number }) => {
+const Accordion = ({ title, children, fontSize }: { title: string, children: React.ReactNode, fontSize: number }) => {
     const [isExpanded, setIsExpanded] = useState(false);
 
     return (
@@ -11,7 +11,7 @@ const Accordion = ({ title, children, fontSize }: { title: string, children: Rea
                 aria-haspopup="true"
                 aria-expanded={isExpanded}
                 data-bs-toggle="collapse">
-                <h6 style={fontSize ? { fontSize } : undefined}>
+                <h6 style={{ fontSize: `${fontSize}px` }}>
                     {title}
                     <i className={"fas fa-chevron-down"} aria-hidden="true"></i>
                 </h6>
@@ -34,7 +34,7 @@ const HelpMenu = ({
     onClose?: () => void;
     onLeave?: () => void;
     headerHeight: number;
-    fontSize: string | number;
+    fontSize: number;
 }) => {
     return (
         <SideSheet
@@ -51,12 +51,12 @@ const HelpMenu = ({
                         top: 0,
                         zIndex: 2,
                         background: "white",
-                        padding: "0 0 0.5rem 0",
+                        padding: "1px 10px 1px 10px",
                         fontSize: fontSize,
                     }}
                 >
-                    <h3 style={{ marginBottom: 0, fontSize: typeof fontSize === "number" ? fontSize * 1.3 : `calc(${fontSize} * 1.3)` }}>AR Help Guide</h3>
-                    <p style={{ marginBottom: 0 }}>
+                    <h3 style={{ marginBottom: 0, fontSize: `${fontSize * 1.3}px` }}>AR Help Guide</h3>
+                    <p style={{ marginBottom: 0, fontSize: `${fontSize}px` }}>
                         Welcome to the <strong>Augmented Reality experience on <a href="https://adhocracy.plus/" target="_blank" rel="noopener noreferrer">Adhocracy.plus</a>!</strong><br />
                     </p>
                 </div>
@@ -64,31 +64,32 @@ const HelpMenu = ({
                 <div
                     className="flex-grow-1"
                     style={{
-                        fontSize: fontSize,
+                        fontSize: `${fontSize}px`,
                         overflowY: "auto",
                         minHeight: 0,
+                        padding: "1px 10px 1px 10px",
                     }}
                 >
-                    <Accordion title="What is Adhocracy.plus AR Beta?">
+                    <Accordion title="What is Adhocracy.plus AR Beta?" fontSize={fontSize}>
                         <p>
                             <a href="https://adhocracy.plus/" target="_blank" rel="noopener noreferrer">Adhocracy.plus</a> AR Beta is an experimental feature that allows users to interact with Augmented Reality elements in their environment.
                             It is designed to enhance civic engagement by providing immersive experiences for exploring projects, proposals, and ideas in a spatial context.
                         </p>
                     </Accordion>
-                    <Accordion title="What is Augmented Reality?">
+                    <Accordion title="What is Augmented Reality?" fontSize={fontSize}>
                         <p>
                             Augmented Reality (AR) is a technology that overlays digital content onto the real world through devices like smartphones, tablets, or AR glasses.
                             Unlike virtual reality, AR enhances your physical surroundings by adding interactive elements, such as 3D models, animations, or information panels.
                         </p>
                     </Accordion>
-                    <Accordion title="Why should I participate?">
+                    <Accordion title="Why should I participate?" fontSize={fontSize}>
                         <p>
                             Participating in AR experiences allows you to engage with projects and proposals in a more interactive and visual way.
                             It helps you better understand spatial relationships, visualize ideas, and contribute feedback in a meaningful manner.
                             Plus, it's a fun and innovative way to shape your community!
                         </p>
                     </Accordion>
-                    <Accordion title="How do I use AR mode?">
+                    <Accordion title="How do I use AR mode?" fontSize={fontSize}>
                         <p>
                             To use AR mode:
                             <ul>
@@ -98,7 +99,7 @@ const HelpMenu = ({
                             </ul>
                         </p>
                     </Accordion>
-                    <Accordion title="Tips">
+                    <Accordion title="Tips" fontSize={fontSize}>
                         <p>
                             Here are some tips for using AR mode effectively:
                             <ul>
@@ -107,7 +108,7 @@ const HelpMenu = ({
                             </ul>
                         </p>
                     </Accordion>
-                    <p className="mt-auto pt-3">
+                    <p className="mt-auto pt-3" style={{ padding: "1px 10px 1px 10px", fontSize: `${fontSize}px` }}>
                         Still need help? Reach out at <a href="mailto:support@adhocracy.plus">support@adhocracy.plus</a><br />
                         Thanks for shaping your city with us!
                     </p>

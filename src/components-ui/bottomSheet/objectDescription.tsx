@@ -61,7 +61,7 @@ const Comment: React.FC<{
 
     return (
         <>
-            <div className={`row top-border ${isReply && "ps-3 pb-2"}`}>
+            <div className={`row top-border ${isReply && "ps-4 pb-2"}`}>
                 <div className="a4-comments__box pt-3">
                     <div className="a4-comments__box--user row">
                         <div className="col-2 col-lg-1 a4-comments__user-img">
@@ -193,7 +193,8 @@ const ObjectDescription: React.FC<{
     headerHeight: number;
     setCurrentVariant: (objectId: number, variantId: number) => void;
     onClose: () => void;
-}> = ({ objectId, variantId, headerHeight, setCurrentVariant, onClose }) => {
+    fontSize: number;
+}> = ({ objectId, variantId, headerHeight, setCurrentVariant, onClose, fontSize }) => {
     const [isSheetMinimized, setIsSheetMinimized] = useState(false);
     const [commentText, setCommentText] = useState<string>("");
     const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
@@ -212,11 +213,11 @@ const ObjectDescription: React.FC<{
 
     const sceneObject = scene.objects.find(o => o.id === objectId);
     if (!sceneObject)
-        return <BottomSheet isVisible={false} headerHeight={headerHeight} variantName="" />;
+        return <BottomSheet isVisible={false} headerHeight={headerHeight} variantName="" fontSize={fontSize} />;
 
     const variant = sceneObject.variants.find(v => v.id === variantId);
     if (!variant)
-        return <BottomSheet isVisible={false} headerHeight={headerHeight} variantName="" />;
+        return <BottomSheet isVisible={false} headerHeight={headerHeight} variantName="" fontSize={fontSize} />;
 
     useEffect(() => {
         ensureLoaded(objectId);
@@ -276,15 +277,16 @@ const ObjectDescription: React.FC<{
                     setIsSheetMinimized(minimized);
                     if (minimized) handleKeyboardClose();
                 }}
+                fontSize={fontSize}
             >
-                <div className="minh-100 d-flex flex-column" style={{ fontSize: "0.8rem" }}>
+                <div className="minh-100 d-flex flex-column" style={{ fontSize: `${fontSize * 0.8}px` }}>
                     <div id="scrollableContentSection" className="row">
                         <p>{variant.description}</p>
                     </div>
 
                     {sceneObject.variants.length > 1 && (
                         <div className="mb-3">
-                            <h6 className="mb-2">Variants</h6>
+                            <h4>Variants</h4>
                             <div className="d-flex flex-wrap gap-3">
                                 {sceneObject.variants.map((variantData: VariantData) => {
                                     const isActive = variantData.id === variant.id;
@@ -298,7 +300,7 @@ const ObjectDescription: React.FC<{
                                         >
                                             <span className="variant-circle">
                                                 <i className="fas fa-circle fa-3x"></i>
-                                                <span className="variant-circle__label">{variantData.id}</span>
+                                                <span className="variant-circle__label" style={{ fontSize: `${fontSize}px` }}>{variantData.id}</span>
                                             </span>
                                             <span className="variant-name">{variantData.name}</span>
                                         </button>
@@ -335,7 +337,7 @@ const ObjectDescription: React.FC<{
                     </div>
 
                     <div id="discussionSection" className="commenting my-0">
-                        <h6>Join the discussion</h6>
+                        <h4>Join the discussion</h4>
                         <div className="form-group commenting__content mb-0">
                             <label>
                                 Your comment
@@ -382,7 +384,7 @@ const ObjectDescription: React.FC<{
                         </div>
                     </div>
 
-                    <h6 className="my-4">Discussion</h6>
+                    <h4>Discussion</h4>
                     {roots.length > 0 ? (
                         roots
                             .slice()
