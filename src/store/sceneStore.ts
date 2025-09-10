@@ -1,152 +1,160 @@
 import { create } from "zustand";
 import { SceneData, ObjectData, VariantData, CommentData, ReplyData } from "../types/objectData";
+import { useCommentsStore } from "./commentsStore";
+import { useRatingStore } from "./ratingStore";
 
 interface SceneState {
     scene: SceneData;
     setScene: (scene: SceneData) => void;
-    toggleVariantLike: (objectId: number, variantId: number) => void;
-    toggleVariantDislike: (objectId: number, variantId: number) => void;
-    postComment: (objectId: number, comment: CommentData) => void;
-    postCommentReply: (objectId: number, commentId: number, reply: ReplyData) => void;
-    toggleCommentLike: (objectId: number, commentId: number) => void;
-    toggleCommentDislike: (objectId: number, commentId: number) => void;
+    // toggleVariantLike: (objectId: number, variantId: number) => void;
+    // toggleVariantDislike: (objectId: number, variantId: number) => void;
+    // postComment: (objectId: number, comment: CommentData) => void;
+    // postCommentReply: (objectId: number, commentId: number, reply: ReplyData) => void;
+    // toggleCommentLike: (objectId: number, commentId: number) => void;
+    // toggleCommentDislike: (objectId: number, commentId: number) => void;
 }
 
 const useSceneStore = create<SceneState>((set) => ({
     scene: { id: 0, object_id: 0, content_type: 0, objects: [] },
 
-    setScene: (scene) => set({ scene }),
+    setScene: (scene) => {
+        set({ scene });
+        if (scene?.objects && scene.content_type) {
+            useCommentsStore.getState().initFromScene(scene.objects);
+            useRatingStore.getState().initFromScene(scene.objects);
+        }
+    },
 
-    toggleVariantLike: (objectId, variantId) =>
-        set((state) => ({
-            scene: {
-                ...state.scene,
-                objects: state.scene.objects.map((obj) =>
-                    obj.id === objectId
-                        ? {
-                            ...obj,
-                            variants: obj.variants.map((variant) =>
-                                variant.id === variantId
-                                    ? {
-                                        ...variant,
-                                        likes: !variant.isLiked ? variant.likes + 1 : variant.likes - 1,
-                                        isLiked: !variant.isLiked,
-                                        // Optionally reset dislike if switching from dislike to like
-                                        dislikes: variant.isDisliked ? variant.dislikes - 1 : variant.dislikes,
-                                        isDisliked: false,
-                                    }
-                                    : variant
-                            ),
-                        }
-                        : obj
-                ),
-            },
-        })),
+    // toggleVariantLike: (objectId, variantId) =>
+    //     set((state) => ({
+    //         scene: {
+    //             ...state.scene,
+    //             objects: state.scene.objects.map((obj) =>
+    //                 obj.id === objectId
+    //                     ? {
+    //                         ...obj,
+    //                         variants: obj.variants.map((variant) =>
+    //                             variant.id === variantId
+    //                                 ? {
+    //                                     ...variant,
+    //                                     likes: !variant.isLiked ? variant.likes + 1 : variant.likes - 1,
+    //                                     isLiked: !variant.isLiked,
+    //                                     // Optionally reset dislike if switching from dislike to like
+    //                                     dislikes: variant.isDisliked ? variant.dislikes - 1 : variant.dislikes,
+    //                                     isDisliked: false,
+    //                                 }
+    //                                 : variant
+    //                         ),
+    //                     }
+    //                     : obj
+    //             ),
+    //         },
+    //     })),
 
-    toggleVariantDislike: (objectId, variantId) =>
-        set((state) => ({
-            scene: {
-                ...state.scene,
-                objects: state.scene.objects.map((obj) =>
-                    obj.id === objectId
-                        ? {
-                            ...obj,
-                            variants: obj.variants.map((variant) =>
-                                variant.id === variantId
-                                    ? {
-                                        ...variant,
-                                        dislikes: !variant.isDisliked ? variant.dislikes + 1 : variant.dislikes - 1,
-                                        isDisliked: !variant.isDisliked,
-                                        // Optionally reset like if switching from dislike to like
-                                        likes: variant.isLiked ? variant.likes - 1 : variant.likes,
-                                        isLiked: false,
-                                    }
-                                    : variant
-                            ),
-                        }
-                        : obj
-                ),
-            },
-        })),
+    // toggleVariantDislike: (objectId, variantId) =>
+    //     set((state) => ({
+    //         scene: {
+    //             ...state.scene,
+    //             objects: state.scene.objects.map((obj) =>
+    //                 obj.id === objectId
+    //                     ? {
+    //                         ...obj,
+    //                         variants: obj.variants.map((variant) =>
+    //                             variant.id === variantId
+    //                                 ? {
+    //                                     ...variant,
+    //                                     dislikes: !variant.isDisliked ? variant.dislikes + 1 : variant.dislikes - 1,
+    //                                     isDisliked: !variant.isDisliked,
+    //                                     // Optionally reset like if switching from dislike to like
+    //                                     likes: variant.isLiked ? variant.likes - 1 : variant.likes,
+    //                                     isLiked: false,
+    //                                 }
+    //                                 : variant
+    //                         ),
+    //                     }
+    //                     : obj
+    //             ),
+    //         },
+    //     })),
 
-    postComment: (objectId, comment) =>
-        set((state) => ({
-            scene: {
-                ...state.scene,
-                objects: state.scene.objects.map((obj) =>
-                    obj.id === objectId ? { ...obj, comments: [...obj.comments, comment] } : obj
-                ),
-            },
-        })),
+    // postComment: (objectId, comment) =>
+    //     set((state) => ({
+    //         scene: {
+    //             ...state.scene,
+    //             objects: state.scene.objects.map((obj) =>
+    //                 obj.id === objectId ? { ...obj, comments: [...obj.comments, comment] } : obj
+    //             ),
+    //         },
+    //     })),
 
-    postCommentReply: (objectId, commentId, reply) =>
-        set((state) => ({
-            scene: {
-                ...state.scene,
-                objects: state.scene.objects.map((obj) =>
-                    obj.id === objectId
-                        ? {
-                            ...obj,
-                            comments: obj.comments.map((comment) =>
-                                comment.id === commentId ? { ...comment, replies: [...comment.replies, reply] } : comment
-                            ),
-                        }
-                        : obj
-                ),
-            },
-        })),
+    // postCommentReply: (objectId, commentId, reply) =>
+    //     set((state) => ({
+    //         scene: {
+    //             ...state.scene,
+    //             objects: state.scene.objects.map((obj) =>
+    //                 obj.id === objectId
+    //                     ? {
+    //                         ...obj,
+    //                         comments: obj.comments.map((comment) =>
+    //                             comment.id === commentId ? { ...comment, replies: [...comment.replies, reply] } : comment
+    //                         ),
+    //                     }
+    //                     : obj
+    //             ),
+    //         },
+    //     })),
 
-    toggleCommentLike: (objectId, commentId) =>
-        set((state) => ({
-            scene: {
-                ...state.scene,
-                objects: state.scene.objects.map((obj) =>
-                    obj.id === objectId
-                        ? {
-                            ...obj,
-                            comments: obj.comments.map((comment) =>
-                                comment.id === commentId
-                                    ? {
-                                        ...comment,
-                                        likes: !comment.isLiked ? comment.likes + 1 : comment.likes - 1,
-                                        isLiked: !comment.isLiked,
-                                        // Optionally reset dislike if switching from dislike to like
-                                        dislikes: comment.isDisliked ? comment.dislikes - 1 : comment.dislikes,
-                                        isDisliked: false,
-                                    }
-                                    : comment
-                            ),
-                        }
-                        : obj
-                ),
-            },
-        })),
+    // toggleCommentLike: (objectId, commentId) =>
+    //     set((state) => ({
+    //         scene: {
+    //             ...state.scene,
+    //             objects: state.scene.objects.map((obj) =>
+    //                 obj.id === objectId
+    //                     ? {
+    //                         ...obj,
+    //                         comments: obj.comments.map((comment) =>
+    //                             comment.id === commentId
+    //                                 ? {
+    //                                     ...comment,
+    //                                     likes: !comment.isLiked ? comment.likes + 1 : comment.likes - 1,
+    //                                     isLiked: !comment.isLiked,
+    //                                     // Optionally reset dislike if switching from dislike to like
+    //                                     dislikes: comment.isDisliked ? comment.dislikes - 1 : comment.dislikes,
+    //                                     isDisliked: false,
+    //                                 }
+    //                                 : comment
+    //                         ),
+    //                     }
+    //                     : obj
+    //             ),
+    //         },
+    //     })),
 
-    toggleCommentDislike: (objectId, commentId) =>
-        set((state) => ({
-            scene: {
-                ...state.scene,
-                objects: state.scene.objects.map((obj) =>
-                    obj.id === objectId
-                        ? {
-                            ...obj,
-                            comments: obj.comments.map((comment) =>
-                                comment.id === commentId
-                                    ? {
-                                        ...comment,
-                                        dislikes: !comment.isDisliked ? comment.dislikes + 1 : comment.dislikes - 1,
-                                        isDisliked: !comment.isDisliked,
-                                        // Optionally reset like if switching from dislike to like
-                                        likes: comment.isLiked ? comment.likes - 1 : comment.likes,
-                                        isLiked: false,
-                                    }
-                                    : comment
-                            ),
-                        }
-                        : obj
-                ),
-            },
-        })),
+    // toggleCommentDislike: (objectId, commentId) =>
+    //     set((state) => ({
+    //         scene: {
+    //             ...state.scene,
+    //             objects: state.scene.objects.map((obj) =>
+    //                 obj.id === objectId
+    //                     ? {
+    //                         ...obj,
+    //                         comments: obj.comments.map((comment) =>
+    //                             comment.id === commentId
+    //                                 ? {
+    //                                     ...comment,
+    //                                     dislikes: !comment.isDisliked ? comment.dislikes + 1 : comment.dislikes - 1,
+    //                                     isDisliked: !comment.isDisliked,
+    //                                     // Optionally reset like if switching from dislike to like
+    //                                     likes: comment.isLiked ? comment.likes - 1 : comment.likes,
+    //                                     isLiked: false,
+    //                                 }
+    //                                 : comment
+    //                         ),
+    //                     }
+    //                     : obj
+    //             ),
+    //         },
+    //     })),
 }));
 
 export default useSceneStore;

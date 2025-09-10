@@ -15,6 +15,8 @@ import useSceneStore from "../../store/sceneStore";
 import { useMessageStore } from "../../store/messagesStore";
 import { MinioData } from "../../types/databaseData";
 import { useWorldRotation, useWorldPosition } from "../../hooks";
+import { useCommentsStore } from "../../store/commentsStore";
+import { useRatingStore } from "../../store/ratingStore";
 
 const debounce = (func: () => void, delay: number) => {
     let timeoutId: ReturnType<typeof setTimeout>;
@@ -71,7 +73,11 @@ const IndexPage = ({ contentTypes, sceneData, topicData, minioData }:
         }
 
         // Set content types
-        // useCommentsStore.getState().setContentType(contentTypes.comments_content_type_id);
+        useCommentsStore.getState().setVariantContentType(contentTypes.variant_content_type_id);
+        useCommentsStore.getState().setCommentContentType(contentTypes.comments_content_type_id);
+        useRatingStore.getState().setSceneContentType(sceneData.content_type);
+        useRatingStore.getState().setVariantContentType(contentTypes.variant_content_type_id);
+        useRatingStore.getState().setCommentContentType(contentTypes.comments_content_type_id);
         console.log("Content types set:", contentTypes);
 
         // Apply scene data

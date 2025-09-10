@@ -1,5 +1,6 @@
 interface ImportMetaEnv {
     readonly BASE_URL: string;
+    readonly API_BASE: string;
     readonly VITE_MINIO_ENDPOINT: string;
     readonly VITE_MINIO_REGION: string;
     readonly VITE_MINIO_ALLOWED_BUCKETS: string[];
