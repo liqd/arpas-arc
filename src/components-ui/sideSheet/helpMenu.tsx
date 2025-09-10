@@ -1,17 +1,17 @@
 import { useState } from "react";
 import SideSheet from ".";
 
-const Accordion = ({ title, children }: { title: string, children: React.ReactNode }) => {
+const Accordion = ({ title, children, fontSize }: { title: string, children: React.ReactNode, fontSize: string | number }) => {
     const [isExpanded, setIsExpanded] = useState(false);
 
     return (
         <div className="accordion">
-            <a className={`accordion__title ${isExpanded && "collapsed"}`} 
-            onClick={() => setIsExpanded((prev) => !prev)} 
-            aria-haspopup="true" 
-            aria-expanded={isExpanded} 
-            data-bs-toggle="collapse">
-                <h6>
+            <a className={`accordion__title ${isExpanded && "collapsed"}`}
+                onClick={() => setIsExpanded((prev) => !prev)}
+                aria-haspopup="true"
+                aria-expanded={isExpanded}
+                data-bs-toggle="collapse">
+                <h6 style={fontSize ? { fontSize } : undefined}>
                     {title}
                     <i className={"fas fa-chevron-down"} aria-hidden="true"></i>
                 </h6>
@@ -55,7 +55,7 @@ const HelpMenu = ({
                         fontSize: fontSize,
                     }}
                 >
-                    <h3 style={{ marginBottom: 0 }}>AR Help Guide</h3>
+                    <h3 style={{ marginBottom: 0, fontSize: typeof fontSize === "number" ? fontSize * 1.3 : `calc(${fontSize} * 1.3)` }}>AR Help Guide</h3>
                     <p style={{ marginBottom: 0 }}>
                         Welcome to the <strong>Augmented Reality experience on <a href="https://adhocracy.plus/" target="_blank" rel="noopener noreferrer">Adhocracy.plus</a>!</strong><br />
                     </p>

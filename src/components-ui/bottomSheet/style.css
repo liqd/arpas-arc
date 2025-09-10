@@ -54,12 +54,13 @@
 }
 
 .variant-icon {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  position: relative;
-  background: transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    background: transparent;
+    border: none;
+    padding: 0;
 }
 
 .variant-icon.active i {
@@ -108,37 +109,38 @@
 }
 
 .variant-circle {
-  position: relative;
-  width: 40px; /* adjust to match fa-3x size */
-  height: 40px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
 }
 
 .variant-circle > .fa-circle {
-  position: absolute;
-  transform: translate(-15%, 0%);
-  inset: 0;
-  line-height: 40px;
-  text-align: center;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 40px;
 }
 
 .variant-circle__label {
-  position: relative; /* sits on top of the circle */
-  color: #fff;
-  font-weight: 700;
-  font-size: 1rem;
-  pointer-events: none;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: 700;
+    font-size: 0.85rem;
+    pointer-events: none;
+    z-index: 2;
 }
 
 .variant-name {
-  font-size: 0.6rem;
-  line-height: 1;
-  text-align: center;
-  max-width: 64px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-top: 4px;
+    font-size: 0.85rem;
+    text-align: center;
+    max-width: 64px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

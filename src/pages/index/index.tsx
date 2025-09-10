@@ -37,6 +37,7 @@ const IndexPage = ({ contentTypes, sceneData, topicData, minioData }:
     const [minioClientData, setMinioClientData] = useState<MinioData | null>(null);
 
     // UI values
+    const fontSize = "1rem";
     const [isHelpVisible, setIsHelpVisible] = useState(false);
     const [headerHeight, setHeaderHeight] = useState(0);
 
@@ -105,6 +106,7 @@ const IndexPage = ({ contentTypes, sceneData, topicData, minioData }:
         console.log('Scene objects:', scene.objects);
     }, [scene.objects]);
 
+    // Update header height on mount and window resize
     useLayoutEffect(() => {
         const updateHeaderHeight = () => {
             const header = document.querySelector("#arc-header") as HTMLElement;
@@ -137,6 +139,7 @@ const IndexPage = ({ contentTypes, sceneData, topicData, minioData }:
         [scene]
     );
 
+    // Update compass position if camera moves significantly
     useEffect(() => {
         const distance = compassPosition.distanceTo(camera.position);
         if (distance > 0.2) {
@@ -144,14 +147,12 @@ const IndexPage = ({ contentTypes, sceneData, topicData, minioData }:
         }
     }, [camera.position.x, camera.position.z]);
 
-    const fontSize = "22px";
-
     return (
         <>
             <XRDomOverlay style={{ width: "100%", height: "100%", fontSize: fontSize, boxSizing: "border-box" }}>
                 <div className="xr-message-stack">
                     {messages.map((msg) => (
-                        <div key={msg.id} className="xr-loading-label py-2 px-3 fw-bold text-center" style={{ fontSize: 18, color: msg.color ?? "white" }}>
+                        <div key={msg.id} className="xr-loading-label py-2 px-3 fw-bold text-center" style={{ fontSize: "0.8rem", color: msg.color ?? "white" }}>
                             {msg.text}
                         </div>
                     ))}
@@ -236,12 +237,11 @@ const IndexPage = ({ contentTypes, sceneData, topicData, minioData }:
                     <Compass3D headingInRad={worldRotation} cameraPosition={compassPosition} />
 
                     <ObjectScene
+                        selectedVariants={selectedVariants}
                         minioClientData={minioClientData}
                         worldRotation={fixedWorldRotation ?? worldRotation}
                         worldPosition={fixedWorldPosition ?? worldPosition}
                         cameraPosition={cameraPositionMemo}
-                        selectedVariants={selectedVariants}
-                        // selectedObject={selectedObject}
                     />
                 </>
             )}

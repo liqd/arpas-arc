@@ -1,8 +1,98 @@
-.keyboard-default {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 2000;
-    color: black;
+/* Lay out each keyboard row as an auto-fit grid */
+.arc-keyboard-container .hg-row {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  column-gap: 6px;
+  row-gap: 4px;
+  padding: 6px 4px;
+  margin: 2px 0;
+}
+
+/* Keys should fill their grid cell and be allowed to shrink */
+.arc-keyboard-container .hg-button {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0 !important;
+  margin: 0 !important;
+  height: 44px;
+  border-radius: 18px !important;
+  font-size: 16px !important;
+  line-height: 44px;
+  background: #f2f3f5 !important;
+  color: #111 !important;
+  padding: 0 !important;
+  flex: 1 0 0;
+}
+
+/* Spacebar & wide mode keys keep flexibility */
+.arc-keyboard-container .hg-button.key-space {
+  grid-column: span 4;
+  min-width: 120px;
+  width: 100%;
+}
+
+/* Function keys */
+.arc-keyboard-container .hg-button.key-mode,
+.arc-keyboard-container .hg-button.key-enter,
+.arc-keyboard-container .hg-button.key-bksp,
+.arc-keyboard-container .hg-button.key-shift {
+  width: 60px;
+  min-width: 60px;
+}
+
+/* Phone tweaks */
+@media (max-width: 420px) {
+  .arc-keyboard-container .hg-row {
+    column-gap: 2px;
+    row-gap: 2px;
+    padding: 2px 3px;
+  }
+
+  .arc-keyboard-container .hg-button {
+    height: 40px;
+    font-size: 16px !important;
+  }
+}
+
+/* Ensure the keyboard background fills width and stays attached to bottom */
+.arc-keyboard-container {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 11000;
+  display: flex;
+  justify-content: center;
+  pointer-events: auto;
+  padding: 0;
+}
+
+.arc-keyboard-container .hg-theme-default {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  border-radius: 0;
+  background: #ffffff;
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.12);
+  overflow-x: hidden;
+  /* prevent accidental horizontal scroll */
+  padding-bottom: env(safe-area-inset-bottom, 00px);
+  padding: 4px 6px;
+}
+
+/* Make letters a bit tighter horizontally on narrow screens */
+@media (max-width: 600px) {
+  .arc-keyboard-container .hg-row .hg-button {
+    min-width: 36px !important;
+    height: 40px;
+    line-height: 40px;
+    font-size: 14px;
+    margin: 1.5px;
+  }
+}
+
+/* Optional: slightly smaller overall look */
+.arc-keyboard-container .hg-row .hg-button:active {
+  transform: scale(.95);
 }
