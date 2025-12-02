@@ -182,6 +182,7 @@ const Comment: React.FC<{
                 onSubmit={handlePostReply}
                 onKeyPress={handleKeyboardKeyPress}
                 onRequestClose={handleKeyboardClose}
+                inputRef={inputRef}
             />
         </>
     );
@@ -200,6 +201,11 @@ const ObjectDescription: React.FC<{
     const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
     const [hasHardwareKeyboard, setHasHardwareKeyboard] = useState(false);
     const inputRef = useRef<HTMLDivElement>(null);
+
+    // Test: Tastatur automatisch öffnen
+    useEffect(() => {
+        setIsKeyboardVisible(true);  
+    }, []);
 
     const { scene } = useSceneStore();
 
@@ -234,6 +240,7 @@ const ObjectDescription: React.FC<{
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, []);
+    
 
     const handleVariantLike = () => likeVariant(objectId, variantId);
     const handleVariantDislike = () => dislikeVariant(objectId, variantId);
@@ -410,6 +417,7 @@ const ObjectDescription: React.FC<{
                 onSubmit={handlePostComment}
                 onKeyPress={handleKeyboardKeyPress}
                 onRequestClose={handleKeyboardClose}
+                inputRef={inputRef}
             />
         </>
     );

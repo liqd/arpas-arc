@@ -9,6 +9,7 @@ type KeyboardProps = {
     onSubmit?: () => void;
     onKeyPress?: (key: string) => void;
     onRequestClose?: () => void;
+    inputRef?: React.RefObject<HTMLElement>;
 };
 
 const Keyboard: React.FC<KeyboardProps> = ({
@@ -17,10 +18,21 @@ const Keyboard: React.FC<KeyboardProps> = ({
     onSubmit,
     onKeyPress,
     onRequestClose,
+    inputRef
 }) => {
-    const [layout, setLayout] = useState<KeyboardOptions['layoutName']>("default");
+    const [layout, setLayout] = useState<KeyboardOptions['layoutName']>("default");  
     const keyboardRef = useRef<HTMLDivElement>(null);
     const repeatRef = useRef<number | null>(null);
+
+    const [popupInfo, setPopupInfo] = useState<{ 
+        key: string;
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+    } | null>(null);
+
+    const [pressedKey, setPressedKey] = useState<string | null>(null);
 
     const stopRepeat = () => {
         if (repeatRef.current !== null) {
@@ -40,6 +52,33 @@ const Keyboard: React.FC<KeyboardProps> = ({
     };
 
     const handleKeyPress = (button: string) => {
+        //Jump to input field
+        if(inputRef?.current){
+            inputRef.current.scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+            });
+        }
+
+        let btnEl: HTMLElement | null = null;
+
+        if(!button.startsWith("{") && button.length === 1){
+            btnEl = keyboardRef.current?.querySelector(`[data-skbtn="${button}"]`) as HTMLElement | null;
+        }
+
+        if(btnEl && keyboardRef.current){
+            const rect = btnEl.getBoundingClientRect();
+            const parentRect = keyboardRef.current?.getBoundingClientRect();
+            setPopupInfo({
+                key: button,
+                x: rect.left - parentRect.left + rect.width / 2,
+                y: rect.top - parentRect.top - rect.height * 0.3,
+                width: rect.width,
+                height: rect.height
+            });
+            setTimeout(() => setPopupInfo(null), 300);
+        }
+        
         if (button === "{shift}" && layout !== "symbols") {
             setLayout((prev) => (prev === "shift" ? "default" : "shift"));
         } else if (button === "{special}") {
@@ -48,6 +87,8 @@ const Keyboard: React.FC<KeyboardProps> = ({
             setLayout("symbols");
         } else if (button === "{abc}") {
             setLayout("default");
+        } else if (button === "{emoji}") {
+            setLayout("emoji");
         } else if (button === "{enter}") {
             onSubmit?.();
         } else if (button === "←" || button === "→") {
@@ -119,44 +160,61 @@ const Keyboard: React.FC<KeyboardProps> = ({
                         "q w e r t y u i o p",
                         "a s d f g h j k l",
                         "{shift} z x c v b n m {bksp}",
-                        "{special} , {space} . {enter}"
+                        "{special} {emoji} , {space} . {enter}"
                     ],
                     shift: [
                         "Q W E R T Y U I O P",
                         "A S D F G H J K L",
                         "{shift} Z X C V B N M {bksp}",
-                        "{special} , {space} . {enter}"
+                        "{special} {emoji} , {space} . {enter}"
                     ],
                     numbers: [
                         "1 2 3 4 5 6 7 8 9 0",
                         "@ # € _ & - + ( ) /",
                         "{symbols} * \" ' : ; ! ? {bksp}",
-                        "{abc} , {space} . {enter}"
+                        "{abc} {emoji} , {space} . {enter}"
                     ],
                     symbols: [
                         "~ ` | • √ π ÷ × ¶",
                         "£ $ ¢ ¥ ^ ° = { }",
                         "{special} [ ] < > % © ® ™ {bksp}",
-                        "{abc} , {space} . {enter}"
+                        "{abc} {emoji} , {space} . {enter}"
+                    ],
+                    emoji: [
+                        "😀 😃 😄 😁 😆 😅 😂 🤣 😊 😇",
+                        "🙂 🙃 😉 😌 😍 🥰 😘 😗 😙 😚",
+                        "😋 😛 😝 😜 🤪 🤨 🧐 🤓 😎 🥳",
+                        "{abc} ❤️ 👍 👎 🙌 👏 🙏 🔥 💯"
                     ]
                 }}
                 buttonTheme={[
-                    { class: "key-mod key-shift fas fa-caret-square-up", buttons: "{shift}" },
-                    { class: "key-mod key-bksp fas fa-backspace", buttons: "{bksp}" },
-                    { class: "key-mod key-enter fas fa-arrow-right", buttons: "{enter}" },
+                    { class: "key-mod key-shift", buttons: "{shift}" },
+                    { class: "key-mod key-bksp", buttons: "{bksp}" },
+                    { class: "key-mod key-enter", buttons: "{enter}" },
                     { class: "key-wide key-space", buttons: "{space}" },
-                    { class: "key-wide key-mode", buttons: "{special} {symbols} {abc}" }
+                    { class: "key-wide key-mode", buttons: "{special} {symbols} {abc} {emoji}" }
                 ]}
                 display={{
-                    "{shift}": " ",
+                    "{shift}": "⇧",
                     "{space}": " ",
-                    "{bksp}": " ",
-                    "{enter}": " ",
-                    "{special}": "?123",
-                    "{symbols}": "=\\<",
-                    "{abc}": "ABC"
+                    "{bksp}": "⌫",
+                    "{enter}": "↵",
+                    "{special}": "123",
+                    "{symbols}": "#+=",
+                    "{abc}": "ABC",
+                    "{emoji}": "❤️"
                 }}
             />
+            {popupInfo && (
+                <div className="popup-key"
+                    style={{
+                        left: popupInfo.x,
+                        top: popupInfo.y - popupInfo.height - 10,
+                    }}
+                >
+                    {popupInfo.key}
+                </div>
+            )}
         </div>
     );
 };
