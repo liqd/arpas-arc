@@ -95,8 +95,6 @@ export function gpsToMeters(
     originCoords: GeolocationCoordinates,
     targetCoords: GeolocationCoordinates
 ): { x: number, y: number, z: number } {
-    const earthRadius = 6371000; // Earth's radius in meters
-
     // Convert lat/lon to radians
     const lat1 = (originCoords.latitude * Math.PI) / 180;
     const lat2 = (targetCoords.latitude * Math.PI) / 180;

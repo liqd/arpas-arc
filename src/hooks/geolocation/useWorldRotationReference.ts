@@ -9,12 +9,12 @@ export default function useWorldRotationReference(
     smoothedHeading: number | null,
     phoneTilt: { beta: number | null, gamma: number | null } | null,
     camera: THREE.Camera,
+    minTiltAngle: number = 25,
+    maxTiltAngle: number = 45,
 ): [number | null, number | null] {
 
     const MAX_HISTORY_LENGTH = 12;
     const TIME_THRESHOLD = 3000;
-    const MIN_TILT_ANGLE = 25;
-    const MAX_TILT_ANGLE = 45;
 
     const [rotationHistory, setRotationHistory] = useState<number[]>([]);
     const [currentRotation, setCurrentRotation] = useState<number | null>(null);
@@ -26,14 +26,21 @@ export default function useWorldRotationReference(
     const lastDataUpdateTimeRef = useRef(0);
 
     useEffect(() => {
-        if (!smoothedHeading || !phoneTilt) {
+        // ensure we actually have data (allow zero-valued headings)
+        if (smoothedHeading == null || !phoneTilt) {
             console.warn("Invalid smoothed compass heading or phone tilt data.");
             return;
         }
 
-        if ( // Skip update if phone tilt is extreme
-            phoneTilt.beta == null || phoneTilt.beta < MIN_TILT_ANGLE || phoneTilt.beta > MAX_TILT_ANGLE) {
-            // console.warn("Skipping update due to extreme tilt");
+        // Compute a combined tilt magnitude from beta and gamma so we account for
+        // both front/back and left/right tilt. Use 0 for missing components.
+        const beta = phoneTilt.beta ?? 0;
+        const gamma = phoneTilt.gamma ?? 0;
+        const tiltMag = Math.sqrt(beta * beta + gamma * gamma);
+
+        // Skip update if phone tilt is outside the allowed magnitude window
+        if (tiltMag < minTiltAngle || tiltMag > maxTiltAngle) {
+            // console.warn("Skipping update due to extreme tilt", { tiltMag });
             return;
         }
 
@@ -49,7 +56,6 @@ export default function useWorldRotationReference(
         }
 
         const newRotation = getWorldRotationFromCompassAndCamera(smoothedHeading, camera);
-        if (!newRotation) return;
         setCurrentRotation(newRotation);
 
         const currentTime = Date.now();
