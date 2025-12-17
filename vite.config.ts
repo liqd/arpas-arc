@@ -17,7 +17,8 @@ export default defineConfig({
         },
         allowedHosts: [
             'akita-awake-oarfish.ngrok-free.app',
-            'allowed-normal-flea.ngrok-free.app'
+            'allowed-normal-flea.ngrok-free.app',
+            'nonstrategical-alijah-couth.ngrok-free.dev'
         ]
     },
     build: {

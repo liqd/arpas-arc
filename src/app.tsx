@@ -12,7 +12,8 @@ interface AppProps {
     view3dButtonText?: string | JSX.Element,
     content_types: ContentTypesData,
     scene: SceneData,
-    topic: TopicData
+    topic: TopicData,
+    minioData?: MinioData | undefined
 }
 
 const store = createXRStore({ controller: false });
@@ -24,6 +25,7 @@ const App = ({
     content_types,
     scene,
     topic,
+    minioData = undefined
 }: AppProps) => {
     return (<div className="arc-app">
         <div className="button-group">
@@ -33,7 +35,7 @@ const App = ({
         <Canvas style={{ width: "100%", height: "100%" }}>
             <XR store={store}>
                 <IfInSessionMode allow="immersive-ar">
-                    <IndexPage contentTypes={content_types} sceneData={scene} topicData={topic} />
+                    <IndexPage contentTypes={content_types} sceneData={scene} topicData={topic} minioData={minioData} />
                 </IfInSessionMode>
             </XR>
         </Canvas>
