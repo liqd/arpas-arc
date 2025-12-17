@@ -131,10 +131,38 @@ export default function useCompassHeading(
             }
         };
 
-        const DEVICE_ORIENTATION_EVENT = "deviceorientationabsolute";
+        const ABS_EVENT = "deviceorientationabsolute";
+        const EVENT = "deviceorientation";
+
+        let listenersAdded = false;
+        const addListeners = () => {
+            if (listenersAdded) return;
+            try {
+                window.addEventListener(ABS_EVENT, handleOrientation as EventListener);
+            } catch (e) {
+                // ignore: some browsers may not support this event
+            }
+            try {
+                window.addEventListener(EVENT, handleOrientation as EventListener);
+            } catch (e) {
+                // ignore
+            }
+            listenersAdded = true;
+        };
+
+        const removeListeners = () => {
+            if (!listenersAdded) return;
+            try {
+                window.removeEventListener(ABS_EVENT, handleOrientation as EventListener);
+            } catch (e) { }
+            try {
+                window.removeEventListener(EVENT, handleOrientation as EventListener);
+            } catch (e) { }
+            listenersAdded = false;
+        };
+
         /**
-         * Requests permission to use device orientation
-         * Handles different permission models for iOS and other devices
+         * Requests permission to use device orientation (iOS) and adds listeners where supported.
          */
         const requestPermission = async () => {
             if (!checkSupport()) return;
@@ -148,18 +176,15 @@ export default function useCompassHeading(
                 try {
                     // @ts-expect-error requestPermission is supported in iOS
                     const response = await DeviceOrientationEvent.requestPermission();
-
                     if (response === "granted") {
-                        window.addEventListener(DEVICE_ORIENTATION_EVENT, handleOrientation);
-
+                        addListeners();
                     }
                 } catch (error) {
                     console.error("Error requesting orientation permission:", error);
                 }
             } else {
-                // Non-iOS devices - add listener directly
-                window.addEventListener(DEVICE_ORIENTATION_EVENT, handleOrientation);
-                return () => window.removeEventListener(DEVICE_ORIENTATION_EVENT, handleOrientation);
+                // Non-iOS devices - add listeners directly
+                addListeners();
             }
         };
 
