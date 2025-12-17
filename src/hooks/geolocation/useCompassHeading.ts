@@ -1,33 +1,56 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { getCardinalDirection, getMagneticDeclination } from "../../utility/geolocation";
 
 /**
- * A React hook that **retrieves and processes device orientation** data for compass heading tracking.
- * It integrates with the browser's `DeviceOrientationEvent` to provide real-time heading, cardinal direction, and phone tilt.
+ * useCompassHeading
+ * ------------------
+ * Lightweight React hook that subscribes to the DeviceOrientation sensor and
+ * derives a usable compass heading for AR or mapping features.
  *
- * @param {GeolocationPosition | null} geoPosition - Optional geolocation data, used for magnetic declination calculations.
- * @param {(heading: number) => void} [updateCompassHeading] - Optional callback to receive updated compass heading.
- * @param {(cardinal: string) => void} [updateCompassCardinal] - Optional callback to receive updated cardinal direction.
- * @param {(tilt: { alpha: number, beta: number, gamma: number }) => void} [updatePhoneTilt] - Optional callback to receive updated tilt data.
- * @returns {[number, string, { alpha: number, beta: number, gamma: number }]} - The computed compass heading, cardinal direction, and phone tilt.
+ * Returns a tuple: [compassHeading, smoothedHeading, compassCardinal, phoneTilt]
+ *  - compassHeading: number — adjusted heading in degrees in the range [0, 360).
+ *  - smoothedHeading: number | null — short-term smoothed heading (null until initialized).
+ *  - compassCardinal: string — human-friendly cardinal (N, NE, E, ...).
+ *  - phoneTilt: { alpha, beta, gamma } — last raw orientation angles from the device.
  *
- * ## Features:
- * - **Real-time compass tracking** using `DeviceOrientationEvent`.
- * - **Supports both iOS and Android device orientation mechanisms**.
- * - **Applies magnetic declination adjustments**, ensuring accurate heading calculations.
- * - **Filters invalid orientation data**, preventing unreliable updates.
- * - **Handles permission requests** for accessing device motion sensors.
+ * Parameters:
+ * @param geoPosition? GeolocationPosition | null — optional. When provided the hook
+ *        will fetch and apply magnetic declination (NOAA) to compute a truer heading.
+ * @param updateCompassHeading? (heading: number) => void — optional callback invoked
+ *        with each adjusted heading update (useful to mirror into stores).
+ * @param updateCompassCardinal? (cardinal: string) => void — optional callback invoked
+ *        when the computed cardinal changes.
+ * @param updatePhoneTilt? (tilt) => void — optional callback invoked with raw alpha/beta/gamma.
  *
- * ## Behavior:
- * - If the device **does not support orientation events**, it defaults to `N` (North) with a heading of `0°`.
- * - If `alpha`, `beta`, or `gamma` exceed a certain threshold, updates are **blocked** to maintain reliable readings.
- * - Uses `updateCompassHeading`, `updateCompassCardinal`, and `updatePhoneTilt` callbacks **if provided** for external synchronization.
+ * Behavior & caveats:
+ *  - On iOS, browsers require an explicit permission via DeviceOrientationEvent.requestPermission().
+ *    The hook attempts that automatically and only adds listeners when permitted.
+ *  - The hook listens to both `deviceorientationabsolute` and `deviceorientation` as
+ *    fallbacks; `event.alpha` is used to compute heading when available.
+ *  - Magnetic declination is fetched (when `geoPosition` is provided) and applied.
+ *  - The hook exposes both an immediate `compassHeading` and a `smoothedHeading` which
+ *    uses a light interpolation to reduce jitter — prefer the smoothed value for UI.
+ *  - Tilt handling: the hook always reports raw tilt via `phoneTilt`; higher-level
+ *    consumers (e.g. `useWorldRotationReference`) may choose to ignore heading updates
+ *    when the device tilt is extreme to avoid noisy/reliable readings.
+ *  - Cleanup: listeners are removed on unmount (even after iOS permission flows).
  *
- * ## Example Usage:
+ * Example usage — read-only
  * ```tsx
- * const [heading, cardinalDirection, tilt] = useCompassHeading(geoPosition, updateCompassHeading, updateCompassCardinal, updatePhoneTilt);
- * console.log(`Compass Heading: ${heading}° (${cardinalDirection})`);
+ * const [heading, smoothed, cardinal, tilt] = useCompassHeading();
+ * console.log(`Heading ${heading.toFixed(1)}° (${cardinal})`);
  * ```
+ *
+ * Example usage — mirroring to parent/store
+ * ```tsx
+ * const onHeading = (h:number) => dispatch({ type: 'compass:update', payload: h });
+ * const [heading] = useCompassHeading(undefined, onHeading);
+ * ```
+ *
+ * Notes:
+ *  - Test on real mobile devices; desktop browsers typically don't expose orientation sensors.
+ *  - If headings appear unstable at high tilt angles, tune the tilt-gating logic in
+ *    `useWorldRotationReference` or pass a `geoPosition` so declination can be applied.
  */
 export default function useCompassHeading(
     geoPosition?: GeolocationPosition | null,
@@ -40,16 +63,16 @@ export default function useCompassHeading(
     const [compassCardinal, setCompassCardinal] = useState<string>("undef");
     const [phoneTilt, setPhoneTilt] = useState<{ alpha: number, beta: number, gamma: number }>({ alpha: 0, beta: 0, gamma: 0 });
     const [smoothedHeading, setSmoothedHeading] = useState<number | null>(null);
+    const magneticDeclinationRef = useRef<number>(0);
 
     useEffect(() => {
-        if (!compassHeading || !phoneTilt) {
+        if (compassHeading == null || !phoneTilt) {
             console.warn("Invalid compass heading.");
             return;
         }
 
-        if (!smoothedHeading) {
-            if (compassHeading != 0)
-                setSmoothedHeading(compassHeading);
+        if (smoothedHeading == null) {
+            if (compassHeading !== 0) setSmoothedHeading(compassHeading);
             return;
         }
 
@@ -60,12 +83,14 @@ export default function useCompassHeading(
 
         // Calculate shortest angular difference to handle wrap-around at 0/360
         let delta = ((compassHeading - smoothedHeading + 540) % 360) - 180;
-        setSmoothedHeading((smoothedHeading + delta * 0.1 + 360) % 360);
+        const newSmoothed = (smoothedHeading + delta * 0.1 + 360) % 360;
+        setSmoothedHeading(newSmoothed);
 
-        let cardinalDirection = getCardinalDirection(smoothedHeading);
+        // Derive cardinal direction from the newly computed smoothed heading
+        const cardinalDirection = getCardinalDirection(newSmoothed);
         setCompassCardinal(cardinalDirection);
         if (updateCompassCardinal) updateCompassCardinal(cardinalDirection);
-    }, [compassHeading]);
+    }, [compassHeading, phoneTilt]);
 
     useEffect(() => {
         /**
@@ -111,7 +136,7 @@ export default function useCompassHeading(
                 return;
             }
 
-            const magneticDeclination = 0;
+            const magneticDeclination = magneticDeclinationRef.current ?? 0;
             if (heading !== undefined) {
                 // Apply magnetic declination and manual offset corrections
                 const adjustedHeading =
@@ -190,18 +215,35 @@ export default function useCompassHeading(
 
         // Fetch magnetic declination when user position changes
         const fetchMagneticDeclination = (geoCoords: GeolocationCoordinates | undefined) => {
-            if (!geoCoords) return 0;
+            if (!geoCoords) return;
 
             getMagneticDeclination(
                 geoCoords.latitude,
                 geoCoords.longitude,
             ).then((declination) => {
-                return declination;
+                magneticDeclinationRef.current = declination ?? 0;
+            }).catch(() => {
+                magneticDeclinationRef.current = 0;
             });
         };
 
         requestPermission();
+
+        // update declination immediately if geoPosition present
+        fetchMagneticDeclination(geoPosition?.coords);
+
+        return () => {
+            removeListeners();
+        };
     }, []);
+
+    // Keep magnetic declination up-to-date whenever geoPosition changes
+    useEffect(() => {
+        if (!geoPosition?.coords) return;
+        getMagneticDeclination(geoPosition.coords.latitude, geoPosition.coords.longitude)
+            .then((declination) => { magneticDeclinationRef.current = declination ?? 0; })
+            .catch(() => { magneticDeclinationRef.current = 0; });
+    }, [geoPosition]);
 
     return [compassHeading, smoothedHeading, compassCardinal, phoneTilt];
 }
