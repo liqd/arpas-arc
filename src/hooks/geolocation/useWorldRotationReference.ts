@@ -64,21 +64,28 @@ export default function useWorldRotationReference(
         //     setLastCalculationTime(currentTime);
         // }
 
+        let historyForCalculation = rotationHistory;
         if (currentTime - lastDataUpdateTimeRef.current > 250) { // Reduce data update frequency
             // Update rotation history, keeping the most recent entries
             const updatedHistory = [...rotationHistory, newRotation].slice(-MAX_HISTORY_LENGTH);
             setRotationHistory(updatedHistory);
             lastDataUpdateTimeRef.current = currentTime;
+            historyForCalculation = updatedHistory;
         }
 
         if (currentTime - lastCalculationTimeRef.current < 1500) return; // Reduce calculation frequency
         lastCalculationTimeRef.current = currentTime;
 
-        const filteredHeadings = removeOutliers(rotationHistory);
+        const filteredHeadings = removeOutliers(historyForCalculation);
         const averagedHeading = getWeightedAverage(filteredHeadings);
 
         // Adaptive Drift Detection
-        const angleDifference = rotationReference ? Math.abs(normalizeAngleDifference(rotationReference, averagedHeading)) : 0;
+        const angleDifference = rotationReference
+            ? Math.abs(normalizeAngleDifference(
+                THREE.MathUtils.radToDeg(rotationReference),
+                THREE.MathUtils.radToDeg(averagedHeading)
+            ))
+            : 0;
         const dynamicThreshold = Math.max(2, angleDifference / 3);
 
         const updateTimeDelta = currentTime - lastUpdateTimeRef.current;
