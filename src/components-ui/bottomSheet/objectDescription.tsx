@@ -195,7 +195,9 @@ const ObjectDescription: React.FC<{
     setCurrentVariant: (objectId: number, variantId: number) => void;
     onClose: () => void;
     fontSize: number;
-}> = ({ objectId, variantId, headerHeight, setCurrentVariant, onClose, fontSize }) => {
+    distance?: number;
+    bearing?: number;
+}> = ({ objectId, variantId, headerHeight, setCurrentVariant, onClose, fontSize, distance, bearing }) => {
     const [isSheetMinimized, setIsSheetMinimized] = useState(false);
     const [commentText, setCommentText] = useState<string>("");
     const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
@@ -240,7 +242,6 @@ const ObjectDescription: React.FC<{
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, []);
-    
 
     const handleVariantLike = () => likeVariant(objectId, variantId);
     const handleVariantDislike = () => dislikeVariant(objectId, variantId);
@@ -279,6 +280,8 @@ const ObjectDescription: React.FC<{
                 isVisible={true}
                 headerHeight={headerHeight}
                 variantName={variant.name}
+                distance={distance}
+                bearing={bearing}
                 onClose={onClose}
                 onMinimize={minimized => {
                     setIsSheetMinimized(minimized);

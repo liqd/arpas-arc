@@ -6,6 +6,8 @@ const BottomSheet = ({
     isVisible,
     headerHeight,
     variantName,
+    distance, 
+    bearing,
     onClose,
     onMinimize,
     children,
@@ -14,6 +16,8 @@ const BottomSheet = ({
     isVisible: boolean;
     headerHeight: number;
     variantName: string;
+    distance?: number;
+    bearing?: number;
     onClose?: () => void;
     onMinimize?: (minimized: boolean) => void;
     fontSize: number;
@@ -90,6 +94,15 @@ const BottomSheet = ({
                     <div className="row align-items-center">
                         <div className="col-10">
                             <h3>{variantName}</h3>
+                            <div style={{
+                                    fontSize: `${fontSize * 0.7}px`,
+                                    opacity: 0.7,
+                                    marginTop: "-8px"
+                                }}>
+                                {distance !== undefined && (
+                                    <span>{distance.toFixed(1)} m</span>
+                                )}
+                            </div>
                         </div>
                         <div className="col-2 d-flex justify-content-end align-items-center">
                             <i
