@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import * as THREE from "three";
-import { lerpValue } from "../../utility/interpolation";
+import { lerpAngle } from "../../utility/interpolation";
 import { useCombinedCompass } from "./useCombinedCompass";
 import useMessageStore from "../../store/messagesStore";
 
@@ -44,24 +44,29 @@ export default function useWorldRotation(
 
     useEffect(() => {
         if (!rotationReference) return;
-
+        
         if (!worldRotation) {
             addScreenMessage(`Compass initialized.`, "compass_initialized", 3000, "green");
 
             setWorldRotation(rotationReference);
             return;
         }
+        
+        // compute shortest signed delta in radians (range [-PI, PI])
+        const rawDelta = rotationReference - worldRotation;
+        const twoPi = Math.PI * 2;
+        const delta = ((rawDelta + Math.PI) % twoPi + twoPi) % twoPi - Math.PI;
 
-        // Snap if difference exceeds threshold
-        if (Math.abs(rotationReference - worldRotation) > interpolationTreshhold) {
+        // Snap if difference exceeds threshold (use shortest arc magnitude)
+        if (Math.abs(delta) > interpolationTreshhold) {
             addScreenMessage(`The compass seems very unstable.`, "compass_very_unstable", 3000, "red");
             setWorldRotation(rotationReference);
 
         } else {
-            if (Math.abs(rotationReference - worldRotation) > 2) {
+            if (Math.abs(delta) > 2) {
                 addScreenMessage(`The compass seems a litte unstable.`, "compass_little_unstable", 3000, "orange");
             }
-            lerpValue(worldRotation, rotationReference, intrepolationTimeInSec * 1000, (value) => {
+            lerpAngle(worldRotation, rotationReference, intrepolationTimeInSec * 1000, (value) => {
                 setWorldRotation(value);
             });
         }
