@@ -6,6 +6,7 @@ import { Position } from "../../types/transform";
 import useLocationStore from "../../store/locationStore";
 import useSceneStore from "../../store/sceneStore";
 import { getObjectPosition } from "../../utility/objects";
+import { useObjectPositionStore } from "../../store/objectPositionStore";
 
 interface ObjectSceneProps {
     selectedVariants: Record<number, number>;
@@ -23,7 +24,8 @@ const ObjectScene: React.FC<ObjectSceneProps> = ({
     cameraPosition
 }) => {
     const { scene } = useSceneStore();
-    const getPosition = useLocationStore(state => state.getPosition);
+    const getStoredPosition = useObjectPositionStore(state => state.getStoredPosition);
+    //const getPosition = useLocationStore(state => state.getPosition);
 
     const renderedObjects = useMemo(() => {
         return scene.objects?.map((sceneObject) => {
@@ -33,6 +35,8 @@ const ObjectScene: React.FC<ObjectSceneProps> = ({
             }
 
             const sceneObjectId = sceneObject.id;
+            const storedPosition = getStoredPosition(sceneObjectId);    // new
+
             const variantId = selectedVariants[sceneObject.id] ?? sceneObject.variants[0]?.id;
             const variant = sceneObject.variants.find((v) => v.id === variantId);
 
@@ -41,8 +45,13 @@ const ObjectScene: React.FC<ObjectSceneProps> = ({
                 return null;
             }
 
-            const position = getObjectPosition(sceneObject, variant, getPosition)
-                .substractedPosition(worldPosition);
+            const position = storedPosition 
+                ? storedPosition.substractedPosition(worldPosition)
+                : new Position(0, 0, 0);
+
+            // ToDo store position
+            //const position = getObjectPosition(sceneObject, variant, getPosition)
+            //    .substractedPosition(worldPosition);
             // .substractedPosition(cameraPosition);
 
             return (
@@ -85,8 +94,10 @@ const ObjectScene: React.FC<ObjectSceneProps> = ({
         return null;
     }
 
+    //return <group rotation={[0, 0, 0]}></group>
+
     return <group rotation={[0, -worldRotation - Math.PI / 2, 0]}>
-        {renderedObjects}
+         {renderedObjects}
     </group>;
 };
 
