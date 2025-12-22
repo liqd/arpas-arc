@@ -5,7 +5,8 @@ import { Position } from "../../types/transform";
 const DirectionalArrow = ({
     camera,
     targetPos,
-    hideArrowAngle = 0,
+    hideArrowAngle = 15,
+    nearDistance = 6,
     fixedPosition = false,
     color = "red",
     size = 40,
@@ -14,17 +15,18 @@ const DirectionalArrow = ({
     camera: THREE.Camera,
     targetPos: Position,
     hideArrowAngle?: number,
-    fixedPosition?: boolean,
+    nearDistance: number,
+    fixedPosition: boolean,
     color?: string
     size?: string | number
     headerOffset?: number
 }) => {
-    const deviceOrientationAlpha = useRef(0);
     const [isVisible, setIsVisible] = useState(true);
-
     const [angle, setAngle] = useState(0);
     const [screenPosition, setScreenPosition] = useState({ top: 0, left: 0 });
+    const [arrowOpacity, setArrowOpacity] = useState(0.9);
 
+    const deviceOrientationAlpha = useRef(0);
     const cameraRef = useRef(camera);
     const targetPosRef = useRef(targetPos);
     const hideAngleRef = useRef(hideArrowAngle);    //wichtig
@@ -32,8 +34,6 @@ const DirectionalArrow = ({
 
     const lastTargetRef = useRef(targetPos.clone());
     const jumpThreshold = 3; 
-
-    const [arrowOpacity, setArrowOpacity] = useState(0.9);
 
     useEffect(() => {
         // NOTE : save as refs refer than use effect deps to prevent interval resets
@@ -49,6 +49,8 @@ const DirectionalArrow = ({
             if (event.alpha !== null) {
                 deviceOrientationAlpha.current = event.alpha;
             }
+            window.addEventListener("deviceorientation", handleOrientation);
+            return () => window.removeEventListener("deviceorientation", handleOrientation);
         };
 
         window.addEventListener("deviceorientation", handleOrientation);
@@ -57,27 +59,40 @@ const DirectionalArrow = ({
 
     useEffect(() => {
         // calculates the angle between two 3D points in the XZ plane
-        const getBearingToTarget = (from: THREE.Vector3, to: THREE.Vector3): number => {
+        const getBearingToTarget = (from: THREE.Vector3, to: THREE.Vector3) => {
             const dx = to.x - from.x;
             const dz = to.z - from.z;
-            return THREE.MathUtils.radToDeg(Math.atan2(dx, dz));
+
+            // ARCamera looks down -Z, also bearing = angle in XZ-plane
+            const rad = Math.atan2(dx, dz); // wichtig!
+            let deg = THREE.MathUtils.radToDeg(rad);
+
+            // Normalize 0–360
+            return deg;
         };
 
         // calculates the corrected angle based on device orientation
-        const getCorrectedAngle = (bearing: number, alpha: number): number => {
-            const yaw = (alpha + 360) % 360; // normalize the alpha (yaw)
-            return (yaw - bearing + 90 + 360) % 360;
+        const getCorrectedAngle = (bearing: number, alpha: number) => {
+            if (!alpha && alpha !== 0) alpha = 0;  
+
+            // alpha = yaw, forward = north
+            const yaw = (alpha + 360) % 360;
+
+            // Arrow needs screen-rotation = difference between device yaw & target direction
+            const corrected = (yaw - bearing + 90 + 360) % 360;
+
+            return corrected;
         };
 
         // prevents angle wraparounds causing visible jitter
-        const getSmoothedAngle = (current: number, target: number): number => {
-            let delta = target - current;
+        const smoothAngle = (prev: number, next: number) => {
+            let delta = next - prev;
             if (delta > 180) delta -= 360;
             else if (delta < -180) delta += 360;
-            return current + delta * 0.15;
+            return prev + delta * 0.12;
         };
 
-         // calculate the screen position for the arrow based on the angle
+        // calculate the screen position for the arrow based on the angle
         const getScreenPosition = (angleDeg: number): { top: number; left: number } => {
             const margin = 5;
             const screenLength = 100 - 2 * margin;
@@ -111,12 +126,15 @@ const DirectionalArrow = ({
 
             currentCamera.getWorldPosition(cameraPos);
 
-            // get camera world position
-            const distJump = lastTargetRef.current.distanceTo(currentTarget);
-            if (distJump > jumpThreshold) {
-                setAngle((prev) => prev * 0.3);
+            // Calculate distance to target object
+            const dist = cameraPos.distanceTo(
+                new THREE.Vector3(currentTarget.x, cameraPos.y, currentTarget.z)
+            );
+
+            if (dist < nearDistance) {
+                setIsVisible(false);
+                return;
             }
-            lastTargetRef.current = currentTarget.clone();
 
             const bearing = getBearingToTarget(cameraPos, currentTarget);
             const corrected = getCorrectedAngle(bearing, deviceOrientationAlpha.current);
@@ -130,27 +148,29 @@ const DirectionalArrow = ({
                 setIsVisible(true);
             }
 
-            setAngle((prevAngle) => getSmoothedAngle(prevAngle, corrected));
+            setAngle(prev => smoothAngle(prev, corrected));
 
+            // Screen position
             if (fixedPositionRef.current) {
                 setScreenPosition({ top: 95, left: 50 });
             } else {
                 setScreenPosition(getScreenPosition(corrected));
             }
 
-            // Calculate distance to target object
-            const dist = cameraPos.distanceTo(new THREE.Vector3(
-                currentTarget.x, cameraPos.y, currentTarget.z   
-            ));
-
             // Adjust opacity based on distance
             let opacity = 0.6;
             if (dist < 3) opacity = 0.2;
             else if (dist > 30) opacity = 1.0;
-            setArrowOpacity(prev => prev + (opacity - prev) * 0.15);
+            setArrowOpacity(prev => prev + (opacity - prev) * 0.1);
+
+            const distJump = lastTargetRef.current.distanceTo(currentTarget);
+            if (distJump > jumpThreshold) {
+                setAngle(prev => prev * 0.3);
+            }
+            lastTargetRef.current = currentTarget.clone();
         };
 
-        const id = setInterval(update, 100);
+        const id = setInterval(update, 60);
         return () => clearInterval(id);
     }, []);
 
