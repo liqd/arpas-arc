@@ -33,6 +33,7 @@ import { getMedian, getWeightedAverage, removeOutliers } from "../../utility/fil
  * console.log(`Reference Location:`, referenceLocation);
  * ```
  */
+
 export default function useWorldPositionReference(
     coordinatesHistory: GeolocationCoordinates[], maxHistoryLength: number,
     updateCurrentLocation?: (currentLocation: { coordinates: GeolocationCoordinates; position: Position }) => void,

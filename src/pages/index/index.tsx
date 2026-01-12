@@ -6,7 +6,7 @@ import { ContentTypesData } from "../../types/contentTypesData";
 import { SceneData, ObjectData, VariantData } from "../../types/objectData";
 import { TopicData } from "../../types/topicData";
 import { ObjectScene } from "../../components";
-import { useThree } from "@react-three/fiber";
+import { Camera, useThree } from "@react-three/fiber";
 import { Position, Rotation, Scale } from "../../types/transform";
 import { getClosestObject, getIntersectedSceneObject, getObjectPosition } from "../../utility/objects";
 import { Compass2D, Compass3D } from "../../components-ui/compass";
@@ -14,7 +14,7 @@ import "./style.css";
 import useSceneStore from "../../store/sceneStore";
 import { useMessageStore } from "../../store/messagesStore";
 import { MinioData } from "../../types/databaseData";
-import { useWorldRotation, useWorldPosition } from "../../hooks";
+import { useWorldRotation, useWorldPosition, useARPosition } from "../../hooks";
 import { useCommentsStore } from "../../store/commentsStore";
 import { useRatingStore } from "../../store/ratingStore";
 
@@ -26,32 +26,42 @@ const debounce = (func: () => void, delay: number) => {
     };
 };
 
-const IndexPage = ({ contentTypes, sceneData, topicData, minioData }:
-    { contentTypes: ContentTypesData, sceneData: SceneData, topicData: TopicData, minioData?: MinioData }) => {
+const IndexPage = ({
+    contentTypes,
+    sceneData,
+    topicData,
+    minioData
+}: {
+    contentTypes: ContentTypesData;
+    sceneData: SceneData;
+    topicData: TopicData;
+    minioData?: MinioData;
+}) => {
+
     // XR objects and values
     const store = useXRStore();
     const { camera, ...state } = useThree();
     const { scene, setScene } = useSceneStore();
-    const { messages, addScreenMessage, removeScreenMessage } = useMessageStore();
-    const groundMesh = store.getState().groundMesh;
+    const { messages } = useMessageStore();
+
     const [minioClientData, setMinioClientData] = useState<MinioData | null>(null);
 
     // UI values
     const fontSize = 22;
     const [isHelpVisible, setIsHelpVisible] = useState(false);
     const [headerHeight, setHeaderHeight] = useState(0);
+    const [devWorldTargetPos, setDevWorldTargetPos] = useState(new Position(0, 0, 0));
 
     // Location values
-    const [worldPosition] = useWorldPosition(20, 2);
     const [fixedWorldPosition, setFixedWorldPosition] = useState<Position | null>(null);
 
     // Compass values
-    const [compassPosition, setCompassPosition] = useState(camera?.position?.clone() ?? new THREE.Vector3(0, 0, 0));
     const [worldRotation] = useWorldRotation(camera);
     const [fixedWorldRotation, setFixedWorldRotation] = useState<number | null>(null);
 
+    const [compassPosition, setCompassPosition] = useState(camera.position.clone());
     // Memoized camera position for ObjectScene
-    const cameraPositionMemo = useMemo(() => camera?.position?.clone() ?? new THREE.Vector3(0, 0, 0), [worldPosition]);
+    const cameraPositionMemo = camera.position.clone();
 
     // Scene values
     const [selectedObject, setSelectedObject] = useState<number | null>(null);
@@ -60,6 +70,19 @@ const IndexPage = ({ contentTypes, sceneData, topicData, minioData }:
     const setCurrentVariant = useCallback((objectId: number, variantId: number) => {
         setSelectedVariants((prev) => ({ ...prev, [objectId]: variantId }));
     }, []);
+
+    const {
+        worldPosition,
+        cameraWorldPos,
+        targetWorldPos,
+        targetPos
+    } = useARPosition({
+        scene,
+        selectedObject,
+        selectedVariants,
+        camera,
+        fixedWorldPosition
+    });
 
     // Apply data
     useEffect(() => {
@@ -84,12 +107,14 @@ const IndexPage = ({ contentTypes, sceneData, topicData, minioData }:
         // Apply scene data
         setScene(sceneData);
         console.log("Scene data updated:", sceneData);
+
         const variants = sceneData.objects.reduce((acc, object) => {
             acc[object.id] = object.variants[0]?.id ?? null;
             return acc;
         }, {} as Record<number, number>);
+
         setSelectedVariants(variants);
-        // setSelectedObject(sceneData.objects[0]?.id ?? null);
+        setSelectedObject(sceneData.objects[0]?.id ?? null);
     }, [contentTypes, sceneData]);
 
      useEffect(() => {
@@ -130,7 +155,7 @@ const IndexPage = ({ contentTypes, sceneData, topicData, minioData }:
         "selectstart",
         (event) => {
             if (!scene) return;
-
+            
             const selectedObjectId = getIntersectedSceneObject(event, { ...state, camera }, scene.objects);
             if (selectedObjectId) {
                 setSelectedObject(selectedObjectId);
@@ -138,7 +163,7 @@ const IndexPage = ({ contentTypes, sceneData, topicData, minioData }:
         },
         [scene]
     );
-
+    
     // Update compass position if camera moves significantly
     useEffect(() => {
         const distance = compassPosition.distanceTo(camera.position);
@@ -146,6 +171,11 @@ const IndexPage = ({ contentTypes, sceneData, topicData, minioData }:
             setCompassPosition(camera.position.clone());
         }
     }, [camera.position.x, camera.position.z]);
+    
+    // Calculate distance to target object
+    const dx = targetWorldPos.x - cameraWorldPos.x;
+    const dz = targetWorldPos.z - cameraWorldPos.z;
+    const distance = Math.sqrt(dx * dx + dz * dz);
 
     return (
         <>
@@ -165,6 +195,20 @@ const IndexPage = ({ contentTypes, sceneData, topicData, minioData }:
                     onLeave={() => store.getState().session?.end()}
                     fontSize={fontSize}
                 />
+
+                <div id="arrow-overlay">
+                    <DirectionalArrow
+                        key={selectedObject}
+                        camera={camera}
+                        targetPos={targetPos}
+                        hideArrowAngle={15}
+                        nearDistance={6}
+                        fixedPosition={false}
+                        color="red"
+                        size={50}
+                        headerOffset={headerHeight}
+                    />
+                </div>
 
                 {/* Content */}
                 <div style={{ top: `${headerHeight}px` }}>
@@ -204,6 +248,8 @@ const IndexPage = ({ contentTypes, sceneData, topicData, minioData }:
                         setCurrentVariant={setCurrentVariant}
                         onClose={() => setSelectedObject(null)}
                         fontSize={fontSize}
+                        distance={distance}
+                        bearing={worldRotation}
                     />
                 )}
 
@@ -252,4 +298,3 @@ const IndexPage = ({ contentTypes, sceneData, topicData, minioData }:
 };
 
 export default IndexPage;
-

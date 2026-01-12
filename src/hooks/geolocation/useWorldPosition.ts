@@ -25,6 +25,7 @@ import useMessageStore from "../../store/messagesStore";
  * console.log(`Current Position:`, worldPosition.toArray());
  * ```
  */
+
 export default function useWorldPosition(interpolationTreshhold: number = 15, interpolationTimeInSec: number = 1
 ): [Position] {
 

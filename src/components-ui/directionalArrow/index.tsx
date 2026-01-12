@@ -5,27 +5,35 @@ import { Position } from "../../types/transform";
 const DirectionalArrow = ({
     camera,
     targetPos,
-    hideArrowAngle = 0,
+    hideArrowAngle = 15,
+    nearDistance = 6,
     fixedPosition = false,
-    color = "green",
-    size = 30
+    color = "red",
+    size = 40,
+    headerOffset = 0  
 }: {
     camera: THREE.Camera,
     targetPos: Position,
     hideArrowAngle?: number,
-    fixedPosition?: boolean,
+    nearDistance: number,
+    fixedPosition: boolean,
     color?: string
     size?: string | number
+    headerOffset?: number
 }) => {
-    const deviceOrientationAlpha = useRef(0);
+    const [isVisible, setIsVisible] = useState(true);
     const [angle, setAngle] = useState(0);
     const [screenPosition, setScreenPosition] = useState({ top: 0, left: 0 });
-    const [isVisible, setIsVisible] = useState(true);
+    const [arrowOpacity, setArrowOpacity] = useState(0.9);
 
+    const deviceOrientationAlpha = useRef(0);
     const cameraRef = useRef(camera);
     const targetPosRef = useRef(targetPos);
-    const hideAngleRef = useRef(hideArrowAngle);
+    const hideAngleRef = useRef(hideArrowAngle);    //wichtig
     const fixedPositionRef = useRef(fixedPosition);
+
+    const lastTargetRef = useRef(targetPos.clone());
+    const jumpThreshold = 3; 
 
     useEffect(() => {
         // NOTE : save as refs refer than use effect deps to prevent interval resets
@@ -41,6 +49,8 @@ const DirectionalArrow = ({
             if (event.alpha !== null) {
                 deviceOrientationAlpha.current = event.alpha;
             }
+            window.addEventListener("deviceorientation", handleOrientation);
+            return () => window.removeEventListener("deviceorientation", handleOrientation);
         };
 
         window.addEventListener("deviceorientation", handleOrientation);
@@ -49,38 +59,46 @@ const DirectionalArrow = ({
 
     useEffect(() => {
         // calculates the angle between two 3D points in the XZ plane
-        const getBearingToTarget = (from: THREE.Vector3, to: THREE.Vector3): number => {
+        const getBearingToTarget = (from: THREE.Vector3, to: THREE.Vector3) => {
             const dx = to.x - from.x;
             const dz = to.z - from.z;
-            return THREE.MathUtils.radToDeg(Math.atan2(dx, dz));
+
+            // ARCamera looks down -Z, also bearing = angle in XZ-plane
+            const rad = Math.atan2(dx, dz); // wichtig!
+            let deg = THREE.MathUtils.radToDeg(rad);
+
+            // Normalize 0–360
+            return deg;
         };
 
         // calculates the corrected angle based on device orientation
-        const getCorrectedAngle = (bearing: number, alpha: number): number => {
-            const yaw = (alpha + 360) % 360; // normalize the alpha (yaw)
-            return (yaw - bearing + 90 + 360) % 360;
+        const getCorrectedAngle = (bearing: number, alpha: number) => {
+            if (!alpha && alpha !== 0) alpha = 0;  
+
+            // alpha = yaw, forward = north
+            const yaw = (alpha + 360) % 360;
+
+            // Arrow needs screen-rotation = difference between device yaw & target direction
+            const corrected = (yaw - bearing + 90 + 360) % 360;
+
+            return corrected;
         };
 
         // prevents angle wraparounds causing visible jitter
-        const getSmoothedAngle = (current: number, target: number): number => {
-            let delta = target - current;
-            if (delta > 180)
-                delta -= 360;
-            else if (delta < -180)
-                delta += 360;
-
-            return current + delta;
+        const smoothAngle = (prev: number, next: number) => {
+            let delta = next - prev;
+            if (delta > 180) delta -= 360;
+            else if (delta < -180) delta += 360;
+            return prev + delta * 0.12;
         };
 
         // calculate the screen position for the arrow based on the angle
         const getScreenPosition = (angleDeg: number): { top: number; left: number } => {
             const margin = 5;
             const screenLength = 100 - 2 * margin;
-
             // convert angle to radians and adjust for the arrow position
             const angleRad = (THREE.MathUtils.degToRad(angleDeg) + Math.PI / 4 + 2 * Math.PI) % (2 * Math.PI);
             const norm = angleRad / (2 * Math.PI); // normalize the angle
-
             // calculate distance around the screen edge using the screen length
             const perimeter = 2 * (screenLength * 2);
             const dist = norm * perimeter;
@@ -100,12 +118,23 @@ const DirectionalArrow = ({
         const update = () => {
             const currentTarget = targetPosRef.current;
             const currentCamera = cameraRef.current;
+
             if (!currentTarget || !currentCamera) {
                 setIsVisible(false);
                 return;
             }
 
             currentCamera.getWorldPosition(cameraPos);
+
+            // Calculate distance to target object
+            const dist = cameraPos.distanceTo(
+                new THREE.Vector3(currentTarget.x, cameraPos.y, currentTarget.z)
+            );
+
+            if (dist < nearDistance) {
+                setIsVisible(false);
+                return;
+            }
 
             const bearing = getBearingToTarget(cameraPos, currentTarget);
             const corrected = getCorrectedAngle(bearing, deviceOrientationAlpha.current);
@@ -119,32 +148,63 @@ const DirectionalArrow = ({
                 setIsVisible(true);
             }
 
-            setAngle((prevAngle) => getSmoothedAngle(prevAngle, corrected));
+            setAngle(prev => smoothAngle(prev, corrected));
 
+            // Screen position
             if (fixedPositionRef.current) {
                 setScreenPosition({ top: 95, left: 50 });
             } else {
                 setScreenPosition(getScreenPosition(corrected));
             }
+
+            // Adjust opacity based on distance
+            let opacity = 0.6;
+            if (dist < 3) opacity = 0.2;
+            else if (dist > 30) opacity = 1.0;
+            setArrowOpacity(prev => prev + (opacity - prev) * 0.1);
+
+            const distJump = lastTargetRef.current.distanceTo(currentTarget);
+            if (distJump > jumpThreshold) {
+                setAngle(prev => prev * 0.3);
+            }
+            lastTargetRef.current = currentTarget.clone();
         };
 
-        const id = setInterval(update, 100);
+        const id = setInterval(update, 60);
         return () => clearInterval(id);
     }, []);
+
+    // convert percentage position to pixels
+    const computedTopPx = (screenPosition.top / 100) * window.innerHeight + headerOffset;
+
+    // Clamp so arrow never leaves the screen
+    const finalTopPx = Math.min(
+        window.innerHeight - 60,  
+        Math.max(headerOffset + 10, computedTopPx)
+    );
 
     return (
         <div
             style={{
                 position: "absolute",
-                top: `${screenPosition.top}%`,
+                top: `${finalTopPx}px`,
                 left: `${screenPosition.left}%`,
                 transform: `translate(-50%, -50%) rotate(${angle - 45}deg)`,
                 transition: "transform 0.1s linear, top 0.1s linear, left 0.1s linear",
-                zIndex: 1000,
+                zIndex: 2147483647, 
+                pointerEvents: "none",
+                opacity: arrowOpacity,
                 display: isVisible ? "block" : "none"
             }}
         >
-            <i className="fas fa-location-arrow" color={color}></i>
+            <i 
+                className="fas fa-location-arrow"
+                style={{
+                    color,
+                    opacity: arrowOpacity,
+                    transition: "opacity 0.25s ease-in-out"
+                }}
+            ></i>
         </div>
     );
 };

@@ -182,6 +182,7 @@ const Comment: React.FC<{
                 onSubmit={handlePostReply}
                 onKeyPress={handleKeyboardKeyPress}
                 onRequestClose={handleKeyboardClose}
+                inputRef={inputRef}
             />
         </>
     );
@@ -194,12 +195,19 @@ const ObjectDescription: React.FC<{
     setCurrentVariant: (objectId: number, variantId: number) => void;
     onClose: () => void;
     fontSize: number;
-}> = ({ objectId, variantId, headerHeight, setCurrentVariant, onClose, fontSize }) => {
+    distance?: number;
+    bearing?: number;
+}> = ({ objectId, variantId, headerHeight, setCurrentVariant, onClose, fontSize, distance, bearing }) => {
     const [isSheetMinimized, setIsSheetMinimized] = useState(false);
     const [commentText, setCommentText] = useState<string>("");
     const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
     const [hasHardwareKeyboard, setHasHardwareKeyboard] = useState(false);
     const inputRef = useRef<HTMLDivElement>(null);
+
+    // Test: Tastatur automatisch öffnen
+    useEffect(() => {
+        setIsKeyboardVisible(true);  
+    }, []);
 
     const { scene } = useSceneStore();
 
@@ -272,6 +280,8 @@ const ObjectDescription: React.FC<{
                 isVisible={true}
                 headerHeight={headerHeight}
                 variantName={variant.name}
+                distance={distance}
+                bearing={bearing}
                 onClose={onClose}
                 onMinimize={minimized => {
                     setIsSheetMinimized(minimized);
@@ -410,6 +420,7 @@ const ObjectDescription: React.FC<{
                 onSubmit={handlePostComment}
                 onKeyPress={handleKeyboardKeyPress}
                 onRequestClose={handleKeyboardClose}
+                inputRef={inputRef}
             />
         </>
     );
