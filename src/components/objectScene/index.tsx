@@ -49,10 +49,10 @@ const ObjectScene: React.FC<ObjectSceneProps> = ({
                 ? storedPosition.substractedPosition(worldPosition)
                 : new Position(0, 0, 0);
 
-            // ToDo store position
-            //const position = getObjectPosition(sceneObject, variant, getPosition)
-            //    .substractedPosition(worldPosition);
-            // .substractedPosition(cameraPosition);
+            // Create label with variant name and comment count
+            //const commentCount = sceneObject.comments?.length ?? 0;
+            //const labelText = `${variant.name} 💬${commentCount}`;
+            const labelText = variant.name;
 
             return (
                 <mesh
@@ -80,6 +80,8 @@ const ObjectScene: React.FC<ObjectSceneProps> = ({
                             sceneObjectId={sceneObjectId}
                             meshObjectId={variant.mesh_id}
                             meshObjectUrl={variant.mesh_url || null}
+                            label={labelText}   
+                            //commentCount={sceneObject.comments?.length ?? 0} 
                             scale={variant.offset_scale}
                             minioData={minioClientData}
                         />
