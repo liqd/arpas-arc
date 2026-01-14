@@ -50,8 +50,6 @@ const ObjectScene: React.FC<ObjectSceneProps> = ({
                 : new Position(0, 0, 0);
 
             // Create label with variant name and comment count
-            //const commentCount = sceneObject.comments?.length ?? 0;
-            //const labelText = `${variant.name} 💬${commentCount}`;
             const labelText = variant.name;
 
             return (
@@ -81,7 +79,6 @@ const ObjectScene: React.FC<ObjectSceneProps> = ({
                             meshObjectId={variant.mesh_id}
                             meshObjectUrl={variant.mesh_url || null}
                             label={labelText}   
-                            //commentCount={sceneObject.comments?.length ?? 0} 
                             scale={variant.offset_scale}
                             minioData={minioClientData}
                         />
