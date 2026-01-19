@@ -8,7 +8,7 @@ interface LocationState {
     getPosition: (latitude: number, longitude: number) => Position;
 }
 
-const useLocationStore = create<LocationState>((set, get) => ({
+export const useLocationStore = create<LocationState>((set, get) => ({
     locations: {},
 
     getPosition: (latitude, longitude) => {

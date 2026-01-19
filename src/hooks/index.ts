@@ -6,4 +6,3 @@ export { default as useRotationReference } from "./geolocation/useWorldRotationR
 export { default as usePositionReference } from "./geolocation/useWorldPositionReference";
 export { default as useWorldRotation } from "./geolocation/useWorldRotation";
 export { default as useWorldPosition } from "./geolocation/useWorldPosition";
-export { default as useARPosition} from "./geolocation/useARPosition";

@@ -101,10 +101,11 @@ export async function baseFetch<T = any>(
         if (error instanceof Error && error.name === 'AbortError') {
             const errorMessage = `Request timeout after ${timeout}ms`;
             console.error(errorMessage);
-            throw new Error(errorMessage);
+            // throw new Error(errorMessage);
+            return;
         }
         console.error('Fetch error:', error);
-        throw error instanceof Error ? error : new Error('Unknown error occurred');
+        // throw error instanceof Error ? error : new Error('Unknown error occurred');
     }
 }
 
@@ -129,9 +130,12 @@ export async function apiGet<T = any>(
         const error = new Error(`GET ${url} failed with status ${response.status}`) as ApiError;
         error.status = response.status;
         console.error("Get error:", error);
-        throw error;
+        // throw error;
+        return {} as T;
     }
-    return response.data;
+    else {
+        return response.data;
+    }
 }
 
 /**
@@ -160,9 +164,12 @@ export async function apiPost<T = any, U = any>(
         const error = new Error(`POST ${url} failed with status ${response.status}`) as ApiError;
         error.status = response.status;
         console.error(createErrorMessage(`POST ${url}`, error, response));
-        throw error;
+        // throw error;
+        return {} as T;
     }
-    return response.data;
+    else {
+        return response.data;
+    }
 }
 
 // Add PATCH helper

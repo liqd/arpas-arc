@@ -1,0 +1,4237 @@
+openapi: 3.0.3
+info:
+  title: Arpas API
+  version: 1.0.0
+  description: API for Arpas  Plattform
+paths:
+  /admin/api/main/documents/:
+    get:
+      operationId: admin_api_main_documents_retrieve
+      tags:
+      - admin
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /admin/api/main/documents/{id}/:
+    get:
+      operationId: admin_api_main_documents_retrieve_2
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - admin
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /admin/api/main/documents/find/:
+    get:
+      operationId: admin_api_main_documents_find_retrieve
+      tags:
+      - admin
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /admin/api/main/images/:
+    get:
+      operationId: admin_api_main_images_retrieve
+      tags:
+      - admin
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /admin/api/main/images/{id}/:
+    get:
+      operationId: admin_api_main_images_retrieve_2
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - admin
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /admin/api/main/images/find/:
+    get:
+      operationId: admin_api_main_images_find_retrieve
+      tags:
+      - admin
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /admin/api/main/pages/:
+    get:
+      operationId: admin_api_main_pages_retrieve
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /admin/api/main/pages/{id}/:
+    get:
+      operationId: admin_api_main_pages_retrieve_2
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /admin/api/main/pages/{id}/action/{action_name}/:
+    post:
+      operationId: admin_api_main_pages_action_create
+      parameters:
+      - in: path
+        name: action_name
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /admin/api/main/pages/find/:
+    get:
+      operationId: admin_api_main_pages_find_retrieve
+      tags:
+      - admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/account/:
+    get:
+      operationId: api_account_retrieve
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+          description: ''
+    put:
+      operationId: api_account_update
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Account'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Account'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Account'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+          description: ''
+  /api/app-modules/:
+    get:
+      operationId: api_app_modules_list
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AppModule'
+          description: ''
+  /api/app-modules/{id}/:
+    get:
+      operationId: api_app_modules_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this module.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppModule'
+          description: ''
+  /api/app-projects/:
+    get:
+      operationId: api_app_projects_list
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AppProject'
+          description: ''
+  /api/app-projects/{slug}/:
+    get:
+      operationId: api_app_projects_retrieve
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppProject'
+          description: ''
+  /api/comments/{comment_pk}/moderatorfeedback/:
+    get:
+      operationId: api_comments_moderatorfeedback_list
+      description: Use in combination with CommentRouter to fetch the comment.
+      parameters:
+      - in: path
+        name: comment_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ModeratorCommentFeedback'
+          description: ''
+    post:
+      operationId: api_comments_moderatorfeedback_create
+      description: Use in combination with CommentRouter to fetch the comment.
+      parameters:
+      - in: path
+        name: comment_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModeratorCommentFeedback'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ModeratorCommentFeedback'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ModeratorCommentFeedback'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModeratorCommentFeedback'
+          description: ''
+  /api/comments/{comment_pk}/moderatorfeedback/{id}/:
+    put:
+      operationId: api_comments_moderatorfeedback_update
+      description: Use in combination with CommentRouter to fetch the comment.
+      parameters:
+      - in: path
+        name: comment_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModeratorCommentFeedback'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ModeratorCommentFeedback'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ModeratorCommentFeedback'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModeratorCommentFeedback'
+          description: ''
+    patch:
+      operationId: api_comments_moderatorfeedback_partial_update
+      description: Use in combination with CommentRouter to fetch the comment.
+      parameters:
+      - in: path
+        name: comment_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedModeratorCommentFeedback'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedModeratorCommentFeedback'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedModeratorCommentFeedback'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModeratorCommentFeedback'
+          description: ''
+    delete:
+      operationId: api_comments_moderatorfeedback_destroy
+      description: Use in combination with CommentRouter to fetch the comment.
+      parameters:
+      - in: path
+        name: comment_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/contenttypes/{content_type}/objects/{object_pk}/arpas-comments/:
+    get:
+      operationId: api_contenttypes_objects_arpas_comments_list
+      description: Add organisation terms of use info to response.data.
+      parameters:
+      - in: path
+        name: content_type
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      - in: path
+        name: object_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedThreadListList'
+          description: ''
+    post:
+      operationId: api_contenttypes_objects_arpas_comments_create
+      description: |-
+        Allow anonymous users to access the view by creating a guest user.
+
+        This mixin does not require overriding any attributes.
+
+        Example usage:
+
+        .. code:: python
+
+            from guest_user.mixins import AllowGuestUserMixin
+
+            class HelloWorldView(AllowGuestUserMixin, View):
+                def get(self, request):
+                    return HttpResponse(f"Hello {request.user.username}!")
+      parameters:
+      - in: path
+        name: content_type
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      - in: path
+        name: object_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Thread'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Thread'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Thread'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Thread'
+          description: ''
+  /api/contenttypes/{content_type}/objects/{object_pk}/arpas-comments/{id}/:
+    get:
+      operationId: api_contenttypes_objects_arpas_comments_retrieve
+      description: |-
+        Allow anonymous users to access the view by creating a guest user.
+
+        This mixin does not require overriding any attributes.
+
+        Example usage:
+
+        .. code:: python
+
+            from guest_user.mixins import AllowGuestUserMixin
+
+            class HelloWorldView(AllowGuestUserMixin, View):
+                def get(self, request):
+                    return HttpResponse(f"Hello {request.user.username}!")
+      parameters:
+      - in: path
+        name: content_type
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: object_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Thread'
+          description: ''
+    put:
+      operationId: api_contenttypes_objects_arpas_comments_update
+      description: |-
+        Allow anonymous users to access the view by creating a guest user.
+
+        This mixin does not require overriding any attributes.
+
+        Example usage:
+
+        .. code:: python
+
+            from guest_user.mixins import AllowGuestUserMixin
+
+            class HelloWorldView(AllowGuestUserMixin, View):
+                def get(self, request):
+                    return HttpResponse(f"Hello {request.user.username}!")
+      parameters:
+      - in: path
+        name: content_type
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: object_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Thread'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Thread'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Thread'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Thread'
+          description: ''
+    patch:
+      operationId: api_contenttypes_objects_arpas_comments_partial_update
+      description: |-
+        Allow anonymous users to access the view by creating a guest user.
+
+        This mixin does not require overriding any attributes.
+
+        Example usage:
+
+        .. code:: python
+
+            from guest_user.mixins import AllowGuestUserMixin
+
+            class HelloWorldView(AllowGuestUserMixin, View):
+                def get(self, request):
+                    return HttpResponse(f"Hello {request.user.username}!")
+      parameters:
+      - in: path
+        name: content_type
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: object_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedThread'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedThread'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedThread'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Thread'
+          description: ''
+    delete:
+      operationId: api_contenttypes_objects_arpas_comments_destroy
+      description: |-
+        Allow anonymous users to access the view by creating a guest user.
+
+        This mixin does not require overriding any attributes.
+
+        Example usage:
+
+        .. code:: python
+
+            from guest_user.mixins import AllowGuestUserMixin
+
+            class HelloWorldView(AllowGuestUserMixin, View):
+                def get(self, request):
+                    return HttpResponse(f"Hello {request.user.username}!")
+      parameters:
+      - in: path
+        name: content_type
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: object_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/contenttypes/{content_type}/objects/{object_pk}/arpas-ratings/:
+    post:
+      operationId: api_contenttypes_objects_arpas_ratings_create
+      description: |-
+        Allow anonymous users to access the view by creating a guest user.
+
+        This mixin does not require overriding any attributes.
+
+        Example usage:
+
+        .. code:: python
+
+            from guest_user.mixins import AllowGuestUserMixin
+
+            class HelloWorldView(AllowGuestUserMixin, View):
+                def get(self, request):
+                    return HttpResponse(f"Hello {request.user.username}!")
+      parameters:
+      - in: path
+        name: content_type
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      - in: path
+        name: object_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Rating'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Rating'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Rating'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rating'
+          description: ''
+  /api/contenttypes/{content_type}/objects/{object_pk}/arpas-ratings/{id}/:
+    patch:
+      operationId: api_contenttypes_objects_arpas_ratings_partial_update
+      description: |-
+        Allow anonymous users to access the view by creating a guest user.
+
+        This mixin does not require overriding any attributes.
+
+        Example usage:
+
+        .. code:: python
+
+            from guest_user.mixins import AllowGuestUserMixin
+
+            class HelloWorldView(AllowGuestUserMixin, View):
+                def get(self, request):
+                    return HttpResponse(f"Hello {request.user.username}!")
+      parameters:
+      - in: path
+        name: content_type
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this rating.
+        required: true
+      - in: path
+        name: object_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedRating'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedRating'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedRating'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rating'
+          description: ''
+  /api/contenttypes/{content_type}/objects/{object_pk}/comment-moderate/:
+    post:
+      operationId: api_contenttypes_objects_comment_moderate_create
+      parameters:
+      - in: path
+        name: content_type
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      - in: path
+        name: object_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentModerate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CommentModerate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CommentModerate'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentModerate'
+          description: ''
+  /api/contenttypes/{content_type}/objects/{object_pk}/comment-moderate/{id}/:
+    get:
+      operationId: api_contenttypes_objects_comment_moderate_retrieve
+      parameters:
+      - in: path
+        name: content_type
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Comment.
+        required: true
+      - in: path
+        name: object_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentModerate'
+          description: ''
+    put:
+      operationId: api_contenttypes_objects_comment_moderate_update
+      parameters:
+      - in: path
+        name: content_type
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Comment.
+        required: true
+      - in: path
+        name: object_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentModerate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CommentModerate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CommentModerate'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentModerate'
+          description: ''
+    patch:
+      operationId: api_contenttypes_objects_comment_moderate_partial_update
+      parameters:
+      - in: path
+        name: content_type
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Comment.
+        required: true
+      - in: path
+        name: object_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCommentModerate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCommentModerate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCommentModerate'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentModerate'
+          description: ''
+  /api/contenttypes/{content_type}/objects/{object_pk}/comments/:
+    get:
+      operationId: api_contenttypes_objects_comments_list
+      description: Add organisation terms of use info to response.data.
+      parameters:
+      - in: path
+        name: content_type
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      - in: path
+        name: object_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedThreadListList'
+          description: ''
+    post:
+      operationId: api_contenttypes_objects_comments_create
+      parameters:
+      - in: path
+        name: content_type
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      - in: path
+        name: object_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Thread'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Thread'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Thread'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Thread'
+          description: ''
+  /api/contenttypes/{content_type}/objects/{object_pk}/comments/{id}/:
+    get:
+      operationId: api_contenttypes_objects_comments_retrieve
+      parameters:
+      - in: path
+        name: content_type
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: object_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Thread'
+          description: ''
+    put:
+      operationId: api_contenttypes_objects_comments_update
+      parameters:
+      - in: path
+        name: content_type
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: object_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Thread'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Thread'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Thread'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Thread'
+          description: ''
+    patch:
+      operationId: api_contenttypes_objects_comments_partial_update
+      parameters:
+      - in: path
+        name: content_type
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: object_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedThread'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedThread'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedThread'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Thread'
+          description: ''
+    delete:
+      operationId: api_contenttypes_objects_comments_destroy
+      parameters:
+      - in: path
+        name: content_type
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: object_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/contenttypes/{content_type}/objects/{object_pk}/moderatorremarks/:
+    post:
+      operationId: api_contenttypes_objects_moderatorremarks_create
+      parameters:
+      - in: path
+        name: content_type
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      - in: path
+        name: object_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModeratorRemark'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ModeratorRemark'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ModeratorRemark'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModeratorRemark'
+          description: ''
+  /api/contenttypes/{content_type}/objects/{object_pk}/moderatorremarks/{id}/:
+    put:
+      operationId: api_contenttypes_objects_moderatorremarks_update
+      parameters:
+      - in: path
+        name: content_type
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this moderator remark.
+        required: true
+      - in: path
+        name: object_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModeratorRemark'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ModeratorRemark'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ModeratorRemark'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModeratorRemark'
+          description: ''
+    patch:
+      operationId: api_contenttypes_objects_moderatorremarks_partial_update
+      parameters:
+      - in: path
+        name: content_type
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this moderator remark.
+        required: true
+      - in: path
+        name: object_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedModeratorRemark'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedModeratorRemark'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedModeratorRemark'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModeratorRemark'
+          description: ''
+  /api/contenttypes/{content_type}/objects/{object_pk}/ratings/:
+    post:
+      operationId: api_contenttypes_objects_ratings_create
+      parameters:
+      - in: path
+        name: content_type
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      - in: path
+        name: object_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Rating'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Rating'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Rating'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rating'
+          description: ''
+  /api/contenttypes/{content_type}/objects/{object_pk}/ratings/{id}/:
+    put:
+      operationId: api_contenttypes_objects_ratings_update
+      parameters:
+      - in: path
+        name: content_type
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this rating.
+        required: true
+      - in: path
+        name: object_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Rating'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Rating'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Rating'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rating'
+          description: ''
+    patch:
+      operationId: api_contenttypes_objects_ratings_partial_update
+      parameters:
+      - in: path
+        name: content_type
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this rating.
+        required: true
+      - in: path
+        name: object_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedRating'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedRating'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedRating'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rating'
+          description: ''
+    delete:
+      operationId: api_contenttypes_objects_ratings_destroy
+      description: |-
+        Sets value to zero
+        NOTE: Rating is NOT deleted.
+      parameters:
+      - in: path
+        name: content_type
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this rating.
+        required: true
+      - in: path
+        name: object_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/follows/:
+    get:
+      operationId: api_follows_list
+      description: |-
+        The following mixin class may be used in order to support PUT-as-create
+        behavior for incoming requests.
+      parameters:
+      - in: query
+        name: enabled
+        schema:
+          type: boolean
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Follow'
+          description: ''
+  /api/follows/{project__slug}/:
+    get:
+      operationId: api_follows_retrieve
+      description: |-
+        The following mixin class may be used in order to support PUT-as-create
+        behavior for incoming requests.
+      parameters:
+      - in: path
+        name: project__slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Follow'
+          description: ''
+    put:
+      operationId: api_follows_update
+      description: |-
+        The following mixin class may be used in order to support PUT-as-create
+        behavior for incoming requests.
+      parameters:
+      - in: path
+        name: project__slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Follow'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Follow'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Follow'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Follow'
+          description: ''
+    patch:
+      operationId: api_follows_partial_update
+      description: |-
+        The following mixin class may be used in order to support PUT-as-create
+        behavior for incoming requests.
+      parameters:
+      - in: path
+        name: project__slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedFollow'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedFollow'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedFollow'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Follow'
+          description: ''
+  /api/livequestions/{livequestion_pk}/likes/:
+    post:
+      operationId: api_livequestions_likes_create
+      parameters:
+      - in: path
+        name: livequestion_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Like'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Like'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Like'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Like'
+          description: ''
+  /api/login:
+    post:
+      operationId: api_login_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthToken'
+          description: ''
+  /api/moderationprojects/:
+    get:
+      operationId: api_moderationprojects_list
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ModerationProject'
+          description: ''
+  /api/moderationprojects/{id}/:
+    get:
+      operationId: api_moderationprojects_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModerationProject'
+          description: ''
+  /api/modules/{module_pk}/documents/:
+    post:
+      operationId: api_modules_documents_create
+      description: Should be used in combination with ModuleRouter to fetch the module.
+      parameters:
+      - in: path
+        name: module_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Document'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Document'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Document'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+          description: ''
+  /api/modules/{module_pk}/ideas/:
+    get:
+      operationId: api_modules_ideas_list
+      description: Should be used in combination with ModuleRouter to fetch the module.
+      parameters:
+      - in: path
+        name: module_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Idea'
+          description: ''
+    post:
+      operationId: api_modules_ideas_create
+      description: Should be used in combination with ModuleRouter to fetch the module.
+      parameters:
+      - in: path
+        name: module_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Idea'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Idea'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Idea'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Idea'
+          description: ''
+  /api/modules/{module_pk}/ideas/{id}/:
+    get:
+      operationId: api_modules_ideas_retrieve
+      description: Should be used in combination with ModuleRouter to fetch the module.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: module_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Idea'
+          description: ''
+    put:
+      operationId: api_modules_ideas_update
+      description: Should be used in combination with ModuleRouter to fetch the module.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: module_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Idea'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Idea'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Idea'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Idea'
+          description: ''
+    patch:
+      operationId: api_modules_ideas_partial_update
+      description: Should be used in combination with ModuleRouter to fetch the module.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: module_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedIdea'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedIdea'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedIdea'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Idea'
+          description: ''
+    delete:
+      operationId: api_modules_ideas_destroy
+      description: Should be used in combination with ModuleRouter to fetch the module.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: module_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/modules/{module_pk}/interactiveevents/livequestions/:
+    get:
+      operationId: api_modules_interactiveevents_livequestions_list
+      description: Should be used in combination with ModuleRouter to fetch the module.
+      parameters:
+      - in: path
+        name: module_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LiveQuestion'
+          description: ''
+    post:
+      operationId: api_modules_interactiveevents_livequestions_create
+      description: Should be used in combination with ModuleRouter to fetch the module.
+      parameters:
+      - in: path
+        name: module_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LiveQuestion'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LiveQuestion'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LiveQuestion'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LiveQuestion'
+          description: ''
+  /api/modules/{module_pk}/interactiveevents/livequestions/{id}/:
+    put:
+      operationId: api_modules_interactiveevents_livequestions_update
+      description: Should be used in combination with ModuleRouter to fetch the module.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: module_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LiveQuestion'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LiveQuestion'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LiveQuestion'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LiveQuestion'
+          description: ''
+    patch:
+      operationId: api_modules_interactiveevents_livequestions_partial_update
+      description: Should be used in combination with ModuleRouter to fetch the module.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: module_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedLiveQuestion'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedLiveQuestion'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedLiveQuestion'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LiveQuestion'
+          description: ''
+  /api/polls/{id}/:
+    get:
+      operationId: api_polls_retrieve
+      description: Add organisation terms of use info to response.data.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this poll.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Poll'
+          description: ''
+    put:
+      operationId: api_polls_update
+      description: |-
+        ViewSet used to edit a poll from the dashboard and to display and vote on the
+        user side.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this poll.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Poll'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Poll'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Poll'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Poll'
+          description: ''
+    patch:
+      operationId: api_polls_partial_update
+      description: |-
+        ViewSet used to edit a poll from the dashboard and to display and vote on the
+        user side.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this poll.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPoll'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPoll'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPoll'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Poll'
+          description: ''
+  /api/polls/{id}/vote/:
+    post:
+      operationId: api_polls_vote_create
+      description: |-
+        ViewSet used to edit a poll from the dashboard and to display and vote on the
+        user side.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this poll.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Poll'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Poll'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Poll'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Poll'
+          description: ''
+  /api/reports/:
+    post:
+      operationId: api_reports_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Report'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Report'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Report'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+          description: ''
+  /api/token/:
+    post:
+      operationId: api_token_create
+      description: |-
+        Takes a set of user credentials and returns an access and refresh JSON web
+        token pair to prove the authentication of those credentials.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenObtainPair'
+          description: ''
+  /api/token/refresh/:
+    post:
+      operationId: api_token_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/token/verify/:
+    post:
+      operationId: api_token_verify_create
+      description: |-
+        Takes a token and indicates if it is valid.  This view provides no
+        information about a token's fitness for a particular use.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenVerify'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenVerify'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenVerify'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenVerify'
+          description: ''
+  /api/userdashboard/moderation/{project_pk}/comments/:
+    get:
+      operationId: api_userdashboard_moderation_comments_list
+      parameters:
+      - name: num_of_comments
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: path
+        name: project_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedModerationCommentList'
+          description: ''
+  /api/userdashboard/moderation/{project_pk}/comments/{id}/:
+    get:
+      operationId: api_userdashboard_moderation_comments_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: project_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModerationComment'
+          description: ''
+    put:
+      operationId: api_userdashboard_moderation_comments_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: project_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModerationComment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ModerationComment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ModerationComment'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModerationComment'
+          description: ''
+    patch:
+      operationId: api_userdashboard_moderation_comments_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: project_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedModerationComment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedModerationComment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedModerationComment'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModerationComment'
+          description: ''
+  /api/userdashboard/moderation/{project_pk}/comments/{id}/mark_read/:
+    get:
+      operationId: api_userdashboard_moderation_comments_mark_read_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: project_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModerationComment'
+          description: ''
+  /api/userdashboard/moderation/{project_pk}/comments/{id}/mark_unread/:
+    get:
+      operationId: api_userdashboard_moderation_comments_mark_unread_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: project_pk
+        schema:
+          type: string
+          pattern: ^[\d]+$
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModerationComment'
+          description: ''
+  /api/users/:
+    get:
+      operationId: api_users_list
+      description: Adds User API to be used in app.
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+          description: ''
+  /api/users/{id}/:
+    get:
+      operationId: api_users_retrieve
+      description: Adds User API to be used in app.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+components:
+  schemas:
+    AccessEnum:
+      enum:
+      - 1
+      - 2
+      - 3
+      type: integer
+      description: |-
+        * `1` - All users can see project tile and content and can participate (public).
+        * `2` - All users can see project tile and content, only invited users can participate (semi-public).
+        * `3` - Only invited users can see project tile and content and can participate (private).
+    Account:
+      type: object
+      properties:
+        pk:
+          type: integer
+          readOnly: true
+          title: ID
+        username:
+          type: string
+          description: Required. 60 characters or fewer. Letters, digits, spaces and
+            @/./+/-/_ only.
+          pattern: ^[\w]+[ \w.@+-]*$
+          maxLength: 60
+        user_image:
+          type: string
+          format: uri
+        user_image_fallback:
+          type: string
+          readOnly: true
+        language:
+          allOf:
+          - $ref: '#/components/schemas/LanguageEnum'
+          title: Your preferred language
+          description: |-
+            Specify your preferred language for the user interface and the notifications of the platform.
+
+            * `en` - English
+            * `de` - German
+            * `nl` - Dutch
+            * `ky` - Kyrgyz
+            * `ru` - Russian
+      required:
+      - pk
+      - user_image_fallback
+      - username
+    Answer:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        answer:
+          type: string
+          maxLength: 750
+      required:
+      - answer
+      - id
+    AppModule:
+      type: object
+      properties:
+        pk:
+          type: integer
+          readOnly: true
+          title: ID
+        active_phase:
+          type: string
+          readOnly: true
+        future_phases:
+          type: string
+          readOnly: true
+        past_phases:
+          type: string
+          readOnly: true
+        labels:
+          type: string
+          readOnly: true
+        categories:
+          type: string
+          readOnly: true
+        has_idea_adding_permission:
+          type: string
+          readOnly: true
+      required:
+      - active_phase
+      - categories
+      - future_phases
+      - has_idea_adding_permission
+      - labels
+      - past_phases
+      - pk
+    AppProject:
+      type: object
+      description: |-
+        Mixin for serializers to convert a GeoDjango Point field into a GeoJSON feature.
+
+        The Meta class of the serializer must define `geo_field` as the name of the model field
+        containing the point data.
+      properties:
+        pk:
+          type: integer
+          readOnly: true
+          title: ID
+        slug:
+          type: string
+          maxLength: 50
+          pattern: ^[-a-zA-Z0-9_]+$
+        point:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - Point
+            coordinates:
+              type: array
+              items:
+                type: number
+                format: float
+              example:
+              - 12.9721
+              - 77.5933
+              minItems: 2
+              maxItems: 3
+          readOnly: true
+          nullable: true
+          title: Can your project be located on the map?
+          description: Locate your project. Click inside the marked area or type in
+            an address to set the marker. A set marker can be dragged when pressed.
+        name:
+          type: string
+          title: Title of your project
+          description: This title will appear on the teaser card and on top of the
+            project detail page. It should be max. 120 characters long
+          maxLength: 120
+        url:
+          type: string
+          readOnly: true
+        description:
+          type: string
+          title: Short description of your project
+          description: This short description will appear on the header of the project
+            and in the teaser. It should briefly state the goal of the project in
+            max. 250 chars.
+          maxLength: 250
+        information:
+          type: string
+          readOnly: true
+        result:
+          type: string
+          readOnly: true
+        organisation:
+          type: string
+          readOnly: true
+        organisation_logo:
+          type: string
+          readOnly: true
+        published_modules:
+          type: array
+          items:
+            type: string
+          readOnly: true
+        access:
+          type: string
+          readOnly: true
+        image:
+          type: string
+          format: uri
+          title: Header image
+          description: The image will be shown as a decorative background image. It
+            must be min. 1500 pixel wide and 500 pixel tall. Allowed file formats
+            are png, jpeg, gif. The file size should be max. 5 MB.
+        single_idea_collection_module:
+          type: string
+          readOnly: true
+        single_poll_module:
+          type: string
+          readOnly: true
+        participation_time_display:
+          type: string
+          readOnly: true
+        module_running_progress:
+          type: string
+          readOnly: true
+        has_contact_info:
+          type: string
+          readOnly: true
+        contact_name:
+          type: string
+          title: Contact person
+          maxLength: 120
+        contact_address_text:
+          type: string
+          title: Postal address
+        contact_phone:
+          type: string
+          title: Phone
+          pattern: ^[\d\+\(\)\- ]{8,20}$
+          maxLength: 20
+        contact_email:
+          type: string
+          format: email
+          title: Email
+          maxLength: 254
+        contact_url:
+          type: string
+          format: uri
+          title: Website
+          maxLength: 200
+      required:
+      - access
+      - description
+      - has_contact_info
+      - information
+      - module_running_progress
+      - name
+      - organisation
+      - organisation_logo
+      - participation_time_display
+      - pk
+      - point
+      - published_modules
+      - result
+      - single_idea_collection_module
+      - single_poll_module
+      - slug
+      - url
+    AuthToken:
+      type: object
+      properties:
+        username:
+          type: string
+          writeOnly: true
+        password:
+          type: string
+          writeOnly: true
+        token:
+          type: string
+          readOnly: true
+      required:
+      - password
+      - token
+      - username
+    Chapter:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          maxLength: 120
+        weight:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          writeOnly: true
+          default: 0
+        paragraphs:
+          type: array
+          items:
+            $ref: '#/components/schemas/Paragraph'
+      required:
+      - name
+      - paragraphs
+    Choice:
+      type: object
+      properties:
+        id:
+          type: integer
+        label:
+          type: string
+          maxLength: 255
+        count:
+          type: integer
+          readOnly: true
+        is_other_choice:
+          type: boolean
+      required:
+      - count
+      - label
+    Comment:
+      type: object
+      description: Default Serializer for the comments.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user_name:
+          type: string
+          readOnly: true
+        user_profile_url:
+          type: string
+          readOnly: true
+        user_image:
+          type: string
+          readOnly: true
+        user_image_fallback:
+          type: string
+          readOnly: true
+        is_deleted:
+          type: string
+          readOnly: true
+        ratings:
+          type: string
+          readOnly: true
+        author_is_moderator:
+          type: string
+          readOnly: true
+        comment_content_type:
+          type: string
+          readOnly: true
+        comment_categories:
+          type: string
+        user_info:
+          type: string
+          readOnly: true
+        created:
+          type: string
+          readOnly: true
+        modified:
+          type: string
+          readOnly: true
+        object_pk:
+          type: integer
+          readOnly: true
+        comment:
+          type: string
+          maxLength: 4000
+        is_removed:
+          type: boolean
+        is_censored:
+          type: boolean
+        is_blocked:
+          type: boolean
+        last_discussed:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        is_moderator_marked:
+          type: boolean
+        is_reviewed:
+          type: boolean
+        content_type:
+          type: integer
+          readOnly: true
+        project:
+          type: integer
+          nullable: true
+      required:
+      - author_is_moderator
+      - comment
+      - comment_content_type
+      - content_type
+      - created
+      - id
+      - is_deleted
+      - last_discussed
+      - modified
+      - object_pk
+      - ratings
+      - user_image
+      - user_image_fallback
+      - user_info
+      - user_name
+      - user_profile_url
+    CommentList:
+      type: object
+      description: Serializer for the comments to be used when viewed as list.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user_name:
+          type: string
+          readOnly: true
+        user_profile_url:
+          type: string
+          readOnly: true
+        user_image:
+          type: string
+          readOnly: true
+        user_image_fallback:
+          type: string
+          readOnly: true
+        is_deleted:
+          type: string
+          readOnly: true
+        ratings:
+          type: string
+          readOnly: true
+        author_is_moderator:
+          type: string
+          readOnly: true
+        comment_content_type:
+          type: string
+          readOnly: true
+        comment_categories:
+          type: string
+        user_info:
+          type: string
+          readOnly: true
+        created:
+          type: string
+          readOnly: true
+        modified:
+          type: string
+          readOnly: true
+        object_pk:
+          type: integer
+          readOnly: true
+        comment:
+          type: string
+          maxLength: 4000
+        is_removed:
+          type: boolean
+        is_censored:
+          type: boolean
+        is_blocked:
+          type: boolean
+        last_discussed:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        is_moderator_marked:
+          type: boolean
+        is_reviewed:
+          type: boolean
+        content_type:
+          type: integer
+          readOnly: true
+        project:
+          type: integer
+          nullable: true
+      required:
+      - author_is_moderator
+      - comment
+      - comment_content_type
+      - content_type
+      - created
+      - id
+      - is_deleted
+      - last_discussed
+      - modified
+      - object_pk
+      - ratings
+      - user_image
+      - user_image_fallback
+      - user_info
+      - user_name
+      - user_profile_url
+    CommentModerate:
+      type: object
+      properties:
+        is_moderator_marked:
+          type: boolean
+        modified:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        created:
+          type: string
+          format: date-time
+          readOnly: true
+        id:
+          type: integer
+          readOnly: true
+        content_type:
+          type: integer
+          readOnly: true
+        object_pk:
+          type: integer
+          readOnly: true
+        last_discussed:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        comment:
+          type: string
+          readOnly: true
+        comment_categories:
+          type: string
+          readOnly: true
+      required:
+      - comment
+      - comment_categories
+      - content_type
+      - created
+      - id
+      - last_discussed
+      - modified
+      - object_pk
+    Document:
+      type: object
+      properties:
+        chapters:
+          type: array
+          items:
+            $ref: '#/components/schemas/Chapter'
+      required:
+      - chapters
+    Follow:
+      type: object
+      properties:
+        project:
+          type: string
+          readOnly: true
+        follows:
+          type: string
+          readOnly: true
+        created:
+          type: string
+          format: date-time
+          readOnly: true
+        modified:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        enabled:
+          type: boolean
+      required:
+      - created
+      - follows
+      - modified
+      - project
+    Idea:
+      type: object
+      properties:
+        pk:
+          type: integer
+          readOnly: true
+          title: ID
+        name:
+          type: string
+          title: Title
+          maxLength: 120
+        description:
+          type: string
+        creator:
+          type: string
+          readOnly: true
+        created:
+          type: string
+          readOnly: true
+        reference_number:
+          type: string
+          readOnly: true
+        image:
+          type: string
+          format: uri
+          title: Add image
+          description: Visualize your idea. It must be min. 600 pixel wide and 400
+            pixel tall. Allowed file formats are png, jpeg, gif. The file size should
+            be max. 5 MB.
+        comment_count:
+          type: string
+          readOnly: true
+        positive_rating_count:
+          type: string
+          readOnly: true
+        negative_rating_count:
+          type: string
+          readOnly: true
+        labels:
+          type: array
+          items:
+            type: string
+        category:
+          type: string
+        content_type:
+          type: string
+          readOnly: true
+        user_rating:
+          type: string
+          readOnly: true
+        has_rating_permission:
+          type: string
+          readOnly: true
+        has_commenting_permission:
+          type: string
+          readOnly: true
+        has_changing_permission:
+          type: string
+          readOnly: true
+        has_deleting_permission:
+          type: string
+          readOnly: true
+      required:
+      - category
+      - comment_count
+      - content_type
+      - created
+      - creator
+      - description
+      - has_changing_permission
+      - has_commenting_permission
+      - has_deleting_permission
+      - has_rating_permission
+      - labels
+      - name
+      - negative_rating_count
+      - pk
+      - positive_rating_count
+      - reference_number
+      - user_rating
+    LanguageEnum:
+      enum:
+      - en
+      - de
+      - nl
+      - ky
+      - ru
+      type: string
+      description: |-
+        * `en` - English
+        * `de` - German
+        * `nl` - Dutch
+        * `ky` - Kyrgyz
+        * `ru` - Russian
+    Like:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+      required:
+      - id
+    LiveQuestion:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        category:
+          type: string
+          readOnly: true
+        likes:
+          type: string
+          readOnly: true
+        text:
+          type: string
+          title: Question
+          maxLength: 1000
+        is_answered:
+          type: boolean
+        is_on_shortlist:
+          type: boolean
+        is_hidden:
+          type: boolean
+        is_live:
+          type: boolean
+      required:
+      - category
+      - id
+      - likes
+      - text
+    ModerationComment:
+      type: object
+      properties:
+        comment:
+          type: string
+          maxLength: 4000
+        comment_url:
+          type: string
+          readOnly: true
+        feedback_api_url:
+          type: string
+          readOnly: true
+        is_unread:
+          type: string
+          readOnly: true
+        is_blocked:
+          type: boolean
+        is_moderator_marked:
+          type: boolean
+        is_modified:
+          type: string
+          readOnly: true
+        last_edit:
+          type: string
+          readOnly: true
+        moderator_feedback:
+          allOf:
+          - $ref: '#/components/schemas/ModeratorCommentFeedback'
+          readOnly: true
+        num_reports:
+          type: string
+          readOnly: true
+        pk:
+          type: integer
+          readOnly: true
+          title: ID
+        user_image:
+          type: string
+          readOnly: true
+        user_name:
+          type: string
+          readOnly: true
+        user_profile_url:
+          type: string
+          readOnly: true
+      required:
+      - comment
+      - comment_url
+      - feedback_api_url
+      - is_modified
+      - is_unread
+      - last_edit
+      - moderator_feedback
+      - num_reports
+      - pk
+      - user_image
+      - user_name
+      - user_profile_url
+    ModerationProject:
+      type: object
+      properties:
+        title:
+          type: string
+          readOnly: true
+        organisation:
+          type: string
+          readOnly: true
+        tile_image:
+          type: string
+          readOnly: true
+        tile_image_alt_text:
+          type: string
+          description: 'An alternate text serves as a textual description of the image
+            content and is read out by screen readers. Describe the image in max.
+            80 characters. Example: A busy square with people in summer.'
+          maxLength: 80
+        tile_image_copyright:
+          type: string
+          readOnly: true
+        status:
+          type: string
+          readOnly: true
+        access:
+          allOf:
+          - $ref: '#/components/schemas/AccessEnum'
+          title: Access to the project
+          minimum: -2147483648
+          maximum: 2147483647
+        participation_active:
+          type: string
+          readOnly: true
+        participation_string:
+          type: string
+          readOnly: true
+        future_phase:
+          type: string
+          readOnly: true
+        active_phase:
+          type: string
+          readOnly: true
+        past_phase:
+          type: string
+          readOnly: true
+        num_reported_unread_comments:
+          type: string
+          readOnly: true
+        comment_count:
+          type: string
+          readOnly: true
+        moderation_detail_url:
+          type: string
+          readOnly: true
+      required:
+      - active_phase
+      - comment_count
+      - future_phase
+      - moderation_detail_url
+      - num_reported_unread_comments
+      - organisation
+      - participation_active
+      - participation_string
+      - past_phase
+      - status
+      - tile_image
+      - tile_image_copyright
+      - title
+    ModeratorCommentFeedback:
+      type: object
+      properties:
+        last_edit:
+          type: string
+          readOnly: true
+        pk:
+          type: integer
+          readOnly: true
+          title: ID
+        feedback_text:
+          type: string
+          title: Moderator feedback
+      required:
+      - last_edit
+      - pk
+    ModeratorRemark:
+      type: object
+      properties:
+        remark:
+          type: string
+        id:
+          type: integer
+          readOnly: true
+        item_content_type:
+          type: integer
+          readOnly: true
+        item_object_id:
+          type: integer
+          readOnly: true
+      required:
+      - id
+      - item_content_type
+      - item_object_id
+    PaginatedModerationCommentList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModerationComment'
+    PaginatedThreadListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ThreadList'
+    Paragraph:
+      type: object
+      properties:
+        id:
+          type: integer
+        weight:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          writeOnly: true
+          default: 0
+        name:
+          type: string
+          maxLength: 120
+        text:
+          type: string
+      required:
+      - text
+    PatchedCommentModerate:
+      type: object
+      properties:
+        is_moderator_marked:
+          type: boolean
+        modified:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        created:
+          type: string
+          format: date-time
+          readOnly: true
+        id:
+          type: integer
+          readOnly: true
+        content_type:
+          type: integer
+          readOnly: true
+        object_pk:
+          type: integer
+          readOnly: true
+        last_discussed:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        comment:
+          type: string
+          readOnly: true
+        comment_categories:
+          type: string
+          readOnly: true
+    PatchedFollow:
+      type: object
+      properties:
+        project:
+          type: string
+          readOnly: true
+        follows:
+          type: string
+          readOnly: true
+        created:
+          type: string
+          format: date-time
+          readOnly: true
+        modified:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        enabled:
+          type: boolean
+    PatchedIdea:
+      type: object
+      properties:
+        pk:
+          type: integer
+          readOnly: true
+          title: ID
+        name:
+          type: string
+          title: Title
+          maxLength: 120
+        description:
+          type: string
+        creator:
+          type: string
+          readOnly: true
+        created:
+          type: string
+          readOnly: true
+        reference_number:
+          type: string
+          readOnly: true
+        image:
+          type: string
+          format: uri
+          title: Add image
+          description: Visualize your idea. It must be min. 600 pixel wide and 400
+            pixel tall. Allowed file formats are png, jpeg, gif. The file size should
+            be max. 5 MB.
+        comment_count:
+          type: string
+          readOnly: true
+        positive_rating_count:
+          type: string
+          readOnly: true
+        negative_rating_count:
+          type: string
+          readOnly: true
+        labels:
+          type: array
+          items:
+            type: string
+        category:
+          type: string
+        content_type:
+          type: string
+          readOnly: true
+        user_rating:
+          type: string
+          readOnly: true
+        has_rating_permission:
+          type: string
+          readOnly: true
+        has_commenting_permission:
+          type: string
+          readOnly: true
+        has_changing_permission:
+          type: string
+          readOnly: true
+        has_deleting_permission:
+          type: string
+          readOnly: true
+    PatchedLiveQuestion:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        category:
+          type: string
+          readOnly: true
+        likes:
+          type: string
+          readOnly: true
+        text:
+          type: string
+          title: Question
+          maxLength: 1000
+        is_answered:
+          type: boolean
+        is_on_shortlist:
+          type: boolean
+        is_hidden:
+          type: boolean
+        is_live:
+          type: boolean
+    PatchedModerationComment:
+      type: object
+      properties:
+        comment:
+          type: string
+          maxLength: 4000
+        comment_url:
+          type: string
+          readOnly: true
+        feedback_api_url:
+          type: string
+          readOnly: true
+        is_unread:
+          type: string
+          readOnly: true
+        is_blocked:
+          type: boolean
+        is_moderator_marked:
+          type: boolean
+        is_modified:
+          type: string
+          readOnly: true
+        last_edit:
+          type: string
+          readOnly: true
+        moderator_feedback:
+          allOf:
+          - $ref: '#/components/schemas/ModeratorCommentFeedback'
+          readOnly: true
+        num_reports:
+          type: string
+          readOnly: true
+        pk:
+          type: integer
+          readOnly: true
+          title: ID
+        user_image:
+          type: string
+          readOnly: true
+        user_name:
+          type: string
+          readOnly: true
+        user_profile_url:
+          type: string
+          readOnly: true
+    PatchedModeratorCommentFeedback:
+      type: object
+      properties:
+        last_edit:
+          type: string
+          readOnly: true
+        pk:
+          type: integer
+          readOnly: true
+          title: ID
+        feedback_text:
+          type: string
+          title: Moderator feedback
+    PatchedModeratorRemark:
+      type: object
+      properties:
+        remark:
+          type: string
+        id:
+          type: integer
+          readOnly: true
+        item_content_type:
+          type: integer
+          readOnly: true
+        item_object_id:
+          type: integer
+          readOnly: true
+    PatchedPoll:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Question'
+        has_user_vote:
+          type: string
+          readOnly: true
+        allow_unregistered_users:
+          type: boolean
+    PatchedRating:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        meta_info:
+          type: string
+          readOnly: true
+        object_pk:
+          type: integer
+          readOnly: true
+        value:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        content_type:
+          type: integer
+          readOnly: true
+    PatchedThread:
+      type: object
+      description: Serializes a comment including child comment (replies).
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user_name:
+          type: string
+          readOnly: true
+        user_profile_url:
+          type: string
+          readOnly: true
+        user_image:
+          type: string
+          readOnly: true
+        user_image_fallback:
+          type: string
+          readOnly: true
+        is_deleted:
+          type: string
+          readOnly: true
+        ratings:
+          type: string
+          readOnly: true
+        author_is_moderator:
+          type: string
+          readOnly: true
+        comment_content_type:
+          type: string
+          readOnly: true
+        comment_categories:
+          type: string
+        user_info:
+          type: string
+          readOnly: true
+        created:
+          type: string
+          readOnly: true
+        modified:
+          type: string
+          readOnly: true
+        child_comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Comment'
+          readOnly: true
+        object_pk:
+          type: integer
+          readOnly: true
+        comment:
+          type: string
+          maxLength: 4000
+        is_removed:
+          type: boolean
+        is_censored:
+          type: boolean
+        is_blocked:
+          type: boolean
+        last_discussed:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        is_moderator_marked:
+          type: boolean
+        is_reviewed:
+          type: boolean
+        content_type:
+          type: integer
+          readOnly: true
+        project:
+          type: integer
+          nullable: true
+    Poll:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Question'
+        has_user_vote:
+          type: string
+          readOnly: true
+        allow_unregistered_users:
+          type: boolean
+      required:
+      - has_user_vote
+      - id
+      - questions
+    Question:
+      type: object
+      properties:
+        id:
+          type: integer
+        label:
+          type: string
+          maxLength: 255
+        help_text:
+          type: string
+          title: Explanation
+          maxLength: 250
+        multiple_choice:
+          type: boolean
+        is_open:
+          type: boolean
+        isReadOnly:
+          type: boolean
+          readOnly: true
+        authenticated:
+          type: boolean
+          readOnly: true
+        choices:
+          type: array
+          items:
+            $ref: '#/components/schemas/Choice'
+        userChoices:
+          type: string
+          readOnly: true
+        answers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Answer'
+        userAnswer:
+          oneOf:
+          - type: string
+          - type: integer
+          readOnly: true
+        other_choice_answers:
+          type: string
+          readOnly: true
+        other_choice_user_answer:
+          type: string
+          readOnly: true
+        totalVoteCount:
+          type: string
+          readOnly: true
+        totalVoteCountMulti:
+          type: string
+          readOnly: true
+        totalAnswerCount:
+          type: string
+          readOnly: true
+      required:
+      - answers
+      - authenticated
+      - choices
+      - isReadOnly
+      - label
+      - other_choice_answers
+      - other_choice_user_answer
+      - totalAnswerCount
+      - totalVoteCount
+      - totalVoteCountMulti
+      - userAnswer
+      - userChoices
+    Rating:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        meta_info:
+          type: string
+          readOnly: true
+        object_pk:
+          type: integer
+          readOnly: true
+        value:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        content_type:
+          type: integer
+          readOnly: true
+      required:
+      - content_type
+      - id
+      - meta_info
+      - object_pk
+      - value
+    Report:
+      type: object
+      properties:
+        username:
+          type: string
+        created:
+          type: string
+          readOnly: true
+        object_pk:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        description:
+          type: string
+          maxLength: 1024
+        content_type:
+          type: integer
+      required:
+      - content_type
+      - created
+      - description
+      - object_pk
+    Thread:
+      type: object
+      description: Serializes a comment including child comment (replies).
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user_name:
+          type: string
+          readOnly: true
+        user_profile_url:
+          type: string
+          readOnly: true
+        user_image:
+          type: string
+          readOnly: true
+        user_image_fallback:
+          type: string
+          readOnly: true
+        is_deleted:
+          type: string
+          readOnly: true
+        ratings:
+          type: string
+          readOnly: true
+        author_is_moderator:
+          type: string
+          readOnly: true
+        comment_content_type:
+          type: string
+          readOnly: true
+        comment_categories:
+          type: string
+        user_info:
+          type: string
+          readOnly: true
+        created:
+          type: string
+          readOnly: true
+        modified:
+          type: string
+          readOnly: true
+        child_comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Comment'
+          readOnly: true
+        object_pk:
+          type: integer
+          readOnly: true
+        comment:
+          type: string
+          maxLength: 4000
+        is_removed:
+          type: boolean
+        is_censored:
+          type: boolean
+        is_blocked:
+          type: boolean
+        last_discussed:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        is_moderator_marked:
+          type: boolean
+        is_reviewed:
+          type: boolean
+        content_type:
+          type: integer
+          readOnly: true
+        project:
+          type: integer
+          nullable: true
+      required:
+      - author_is_moderator
+      - child_comments
+      - comment
+      - comment_content_type
+      - content_type
+      - created
+      - id
+      - is_deleted
+      - last_discussed
+      - modified
+      - object_pk
+      - ratings
+      - user_image
+      - user_image_fallback
+      - user_info
+      - user_name
+      - user_profile_url
+    ThreadList:
+      type: object
+      description: |-
+        Serializes comments when viewed.
+
+        As list including child comment (replies).
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user_name:
+          type: string
+          readOnly: true
+        user_profile_url:
+          type: string
+          readOnly: true
+        user_image:
+          type: string
+          readOnly: true
+        user_image_fallback:
+          type: string
+          readOnly: true
+        is_deleted:
+          type: string
+          readOnly: true
+        ratings:
+          type: string
+          readOnly: true
+        author_is_moderator:
+          type: string
+          readOnly: true
+        comment_content_type:
+          type: string
+          readOnly: true
+        comment_categories:
+          type: string
+        user_info:
+          type: string
+          readOnly: true
+        created:
+          type: string
+          readOnly: true
+        modified:
+          type: string
+          readOnly: true
+        child_comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommentList'
+          readOnly: true
+        object_pk:
+          type: integer
+          readOnly: true
+        comment:
+          type: string
+          maxLength: 4000
+        is_removed:
+          type: boolean
+        is_censored:
+          type: boolean
+        is_blocked:
+          type: boolean
+        last_discussed:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        is_moderator_marked:
+          type: boolean
+        is_reviewed:
+          type: boolean
+        content_type:
+          type: integer
+          readOnly: true
+        project:
+          type: integer
+          nullable: true
+      required:
+      - author_is_moderator
+      - child_comments
+      - comment
+      - comment_content_type
+      - content_type
+      - created
+      - id
+      - is_deleted
+      - last_discussed
+      - modified
+      - object_pk
+      - ratings
+      - user_image
+      - user_image_fallback
+      - user_info
+      - user_name
+      - user_profile_url
+    TokenObtainPair:
+      type: object
+      properties:
+        username:
+          type: string
+          writeOnly: true
+        password:
+          type: string
+          writeOnly: true
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          readOnly: true
+      required:
+      - access
+      - password
+      - refresh
+      - username
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+      required:
+      - access
+      - refresh
+    TokenVerify:
+      type: object
+      properties:
+        token:
+          type: string
+          writeOnly: true
+      required:
+      - token
+    User:
+      type: object
+      properties:
+        username:
+          type: string
+          description: Required. 60 characters or fewer. Letters, digits, spaces and
+            @/./+/-/_ only.
+          pattern: ^[\w]+[ \w.@+-]*$
+          maxLength: 60
+        user_image:
+          type: string
+          format: uri
+        user_image_fallback:
+          type: string
+          readOnly: true
+        is_self:
+          type: string
+          readOnly: true
+      required:
+      - is_self
+      - user_image
+      - user_image_fallback
+      - username
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    tokenAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token-based authentication with required prefix "Token"

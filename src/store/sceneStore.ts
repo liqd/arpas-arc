@@ -6,6 +6,9 @@ import { useRatingStore } from "./ratingStore";
 interface SceneState {
     scene: SceneData;
     setScene: (scene: SceneData) => void;
+    getObjectData: (id: number) => ObjectData | undefined;
+    getVariantData: (objectId: number, variantId: number) => VariantData | undefined;
+    getVariantDataOfObject: (object: ObjectData, variantId: number) => VariantData | undefined;
 }
 
 const useSceneStore = create<SceneState>((set) => ({
@@ -17,6 +20,21 @@ const useSceneStore = create<SceneState>((set) => ({
             useCommentsStore.getState().initFromScene(scene.objects);
             useRatingStore.getState().initFromScene(scene.objects);
         }
+    },
+
+    getObjectData: (id: number): ObjectData | undefined => {
+        const { scene } = useSceneStore.getState();
+        return scene?.objects?.find((o) => o.id === id);
+    },
+
+    getVariantData: (objectId: number, variantId: number): VariantData | undefined => {
+        const object = useSceneStore.getState().getObjectData(objectId);
+        const variant = object?.variants.find((v) => v.id === variantId);
+        return variant;
+    },
+    getVariantDataOfObject(object: ObjectData, variantId: number): VariantData | undefined {
+        const variant = object.variants.find((v) => v.id === variantId);
+        return variant;
     },
 }));
 

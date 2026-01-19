@@ -14,6 +14,7 @@ export type ObjectData = {
     qr_id: string;                           // Optional QR code identifier
     variants: Array<VariantData>;            // Visual / mesh variants
     coordinates: [number, number, number];   // World / geo coordinates: [lat, lng, alt]
+    // comments does not seem to work here any more
     comments: Array<CommentData>;            // Initial comments (roots with replies)
 };
 

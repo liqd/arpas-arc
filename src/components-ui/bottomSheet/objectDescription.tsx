@@ -195,7 +195,7 @@ const ObjectDescription: React.FC<{
     setCurrentVariant: (objectId: number, variantId: number) => void;
     onClose: () => void;
     fontSize: number;
-    distance?: number;
+    distance?: number | null;
     bearing?: number;
 }> = ({ objectId, variantId, headerHeight, setCurrentVariant, onClose, fontSize, distance, bearing }) => {
     const [isSheetMinimized, setIsSheetMinimized] = useState(false);
@@ -204,10 +204,11 @@ const ObjectDescription: React.FC<{
     const [hasHardwareKeyboard, setHasHardwareKeyboard] = useState(false);
     const inputRef = useRef<HTMLDivElement>(null);
 
-    // Test: Tastatur automatisch öffnen
-    useEffect(() => {
-        setIsKeyboardVisible(true);  
-    }, []);
+    // For testing
+    // useEffect(() => {
+    //     // Open keyboard by default
+    //     setIsKeyboardVisible(true);  
+    // }, []);
 
     const { scene } = useSceneStore();
 

@@ -16,7 +16,7 @@ const BottomSheet = ({
     isVisible: boolean;
     headerHeight: number;
     variantName: string;
-    distance?: number;
+    distance?: number | null;
     bearing?: number;
     onClose?: () => void;
     onMinimize?: (minimized: boolean) => void;
@@ -99,7 +99,7 @@ const BottomSheet = ({
                                     opacity: 0.7,
                                     marginTop: "-8px"
                                 }}>
-                                {distance !== undefined && (
+                                {distance !== null && distance !== undefined && (
                                     <span>{distance.toFixed(1)} m</span>
                                 )}
                             </div>

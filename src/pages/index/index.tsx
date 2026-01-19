@@ -8,15 +8,17 @@ import { TopicData } from "../../types/topicData";
 import { ObjectScene } from "../../components";
 import { Camera, useThree } from "@react-three/fiber";
 import { Position, Rotation, Scale } from "../../types/transform";
-import { getClosestObject, getIntersectedSceneObject, getObjectPosition } from "../../utility/objects";
+import { getClosestObject, getIntersectedSceneObject } from "../../utility/objects";
 import { Compass2D, Compass3D } from "../../components-ui/compass";
 import "./style.css";
 import useSceneStore from "../../store/sceneStore";
 import { useMessageStore } from "../../store/messagesStore";
 import { MinioData } from "../../types/databaseData";
-import { useWorldRotation, useWorldPosition, useARPosition } from "../../hooks";
+import { useWorldRotation, useWorldPosition } from "../../hooks";
+import { useObjectPositionStore } from "../../store/objectPositionStore";
 import { useCommentsStore } from "../../store/commentsStore";
 import { useRatingStore } from "../../store/ratingStore";
+import { useLocationStore } from "../../store/locationStore";
 
 const debounce = (func: () => void, delay: number) => {
     let timeoutId: ReturnType<typeof setTimeout>;
@@ -50,9 +52,9 @@ const IndexPage = ({
     const fontSize = 22;
     const [isHelpVisible, setIsHelpVisible] = useState(false);
     const [headerHeight, setHeaderHeight] = useState(0);
-    const [devWorldTargetPos, setDevWorldTargetPos] = useState(new Position(0, 0, 0));
 
     // Location values
+    const [worldPosition] = useWorldPosition(20, 2);
     const [fixedWorldPosition, setFixedWorldPosition] = useState<Position | null>(null);
 
     // Compass values
@@ -64,25 +66,14 @@ const IndexPage = ({
     const cameraPositionMemo = camera.position.clone();
 
     // Scene values
-    const [selectedObject, setSelectedObject] = useState<number | null>(null);
-    const [selectedVariants, setSelectedVariants] = useState<Record<number, number>>({});
+    const [selectedObjectId, setSelectedObjectId] = useState<number | null>(null);
+    const [selectedVariantIds, setSelectedVariantIds] = useState<Record<number, number>>({});
+    const [positionOfSelectedVariant, setPositionOfSelectedVariant] = useState<Position | null>(null);
+    const [distanceToSelectedVariant, setDistanceToSelectedVariant] = useState<number | null>(null);
 
     const setCurrentVariant = useCallback((objectId: number, variantId: number) => {
-        setSelectedVariants((prev) => ({ ...prev, [objectId]: variantId }));
+        setSelectedVariantIds((prev) => ({ ...prev, [objectId]: variantId }));
     }, []);
-
-    const {
-        worldPosition,
-        cameraWorldPos,
-        targetWorldPos,
-        targetPos
-    } = useARPosition({
-        scene,
-        selectedObject,
-        selectedVariants,
-        camera,
-        fixedWorldPosition
-    });
 
     // Apply data
     useEffect(() => {
@@ -113,8 +104,8 @@ const IndexPage = ({
             return acc;
         }, {} as Record<number, number>);
 
-        setSelectedVariants(variants);
-        setSelectedObject(sceneData.objects[0]?.id ?? null);
+        setSelectedVariantIds(variants);
+        setSelectedObjectId(sceneData.objects[0]?.id ?? null);
     }, [contentTypes, sceneData]);
 
      useEffect(() => {
@@ -130,6 +121,49 @@ const IndexPage = ({
     useEffect(() => {
         console.log('Scene objects:', scene.objects);
     }, [scene.objects]);
+
+    useEffect(() => {
+        if (selectedObjectId === null || !scene) {
+            setPositionOfSelectedVariant(null);
+            setDistanceToSelectedVariant(null);
+            return;
+        }
+        const selectedVariantId = selectedVariantIds[selectedObjectId];
+        if(selectedVariantId === undefined) {
+            setPositionOfSelectedVariant(null);
+            setDistanceToSelectedVariant(null);
+            return;
+        }
+
+        let storedPosition = useObjectPositionStore.getState().getStoredPosition(selectedObjectId, selectedVariantId) ?? null;
+        if (!storedPosition) {
+            console.warn(`No stored position for object ${selectedObjectId} variant ${selectedVariantId}. Computing and storing.`);
+            try {
+                const sceneObject = useSceneStore.getState().getObjectData(selectedObjectId);
+                if (!sceneObject) throw new Error(`Scene object not found: ${selectedObjectId}`);
+                const variant = useSceneStore.getState().getVariantDataOfObject(sceneObject, selectedVariantId);
+                if (!variant) throw new Error(`Variant not found for object ${selectedObjectId} variant ${selectedVariantId}`);
+
+                const getPosition = useLocationStore(state => state.getPosition);
+                storedPosition = useObjectPositionStore.getState().computeAndSetObjectPosition(sceneObject, variant, getPosition);
+            } catch (err) {
+                console.error("Error computing/storing object position:", err, "object:", selectedObjectId, "variant:", selectedVariantId);
+                // fallback to zero position if compute failed
+                storedPosition = new Position(0, 0, 0);
+            }
+        }
+
+        // Position
+        const position = storedPosition 
+            ? storedPosition.substractedPosition(worldPosition)
+            : new Position(0, 0, 0);
+        setPositionOfSelectedVariant(position);
+
+        const dx = position.x - camera.position.x;
+        const dz = position.z - camera.position.z;
+        const distance = Math.sqrt(dx * dx + dz * dz);
+        setDistanceToSelectedVariant(distance);
+    }, [selectedObjectId, selectedVariantIds, scene, worldPosition, camera.position.x, camera.position.y, camera.position.z]);
 
     // Update header height on mount and window resize
     useLayoutEffect(() => {
@@ -158,7 +192,7 @@ const IndexPage = ({
             
             const selectedObjectId = getIntersectedSceneObject(event, { ...state, camera }, scene.objects);
             if (selectedObjectId) {
-                setSelectedObject(selectedObjectId);
+                setSelectedObjectId(selectedObjectId);
             }
         },
         [scene]
@@ -170,12 +204,7 @@ const IndexPage = ({
         if (distance > 0.2) {
             setCompassPosition(camera.position.clone());
         }
-    }, [camera.position.x, camera.position.z]);
-    
-    // Calculate distance to target object
-    const dx = targetWorldPos.x - cameraWorldPos.x;
-    const dz = targetWorldPos.z - cameraWorldPos.z;
-    const distance = Math.sqrt(dx * dx + dz * dz);
+    }, [camera.position.x, camera.position.z]); 
 
     return (
         <>
@@ -196,19 +225,24 @@ const IndexPage = ({
                     fontSize={fontSize}
                 />
 
-                <div id="arrow-overlay">
-                    <DirectionalArrow
-                        key={selectedObject}
-                        camera={camera}
-                        targetPos={targetPos}
-                        hideArrowAngle={15}
-                        nearDistance={6}
-                        fixedPosition={false}
-                        color="red"
-                        size={50}
-                        headerOffset={headerHeight}
-                    />
-                </div>
+                { positionOfSelectedVariant && (
+                    <div id="arrow-overlay">
+                        <DirectionalArrow
+                            key={selectedObjectId}
+                            worldRotationRad={(fixedWorldRotation ?? worldRotation) ?? 0}
+                            worldPosition={(fixedWorldPosition ?? worldPosition)}
+                            camera={camera}
+                            targetPosition={positionOfSelectedVariant}
+                            distanceToPosition={distanceToSelectedVariant}
+                            hideArrowAngle={15}
+                            nearDistance={6}
+                            fixedPosition={false}
+                            color="red"
+                            size={50}
+                            headerOffset={headerHeight}
+                        />
+                    </div>
+                )}
 
                 {/* Content */}
                 <div style={{ top: `${headerHeight}px` }}>
@@ -240,15 +274,15 @@ const IndexPage = ({
                     fontSize={fontSize}
                 />
 
-                {selectedObject && (
+                {selectedObjectId && (
                     <ObjectDescription
-                        objectId={selectedObject}
-                        variantId={selectedVariants[selectedObject]}
+                        objectId={selectedObjectId}
+                        variantId={selectedVariantIds[selectedObjectId]}
                         headerHeight={headerHeight}
                         setCurrentVariant={setCurrentVariant}
-                        onClose={() => setSelectedObject(null)}
+                        onClose={() => setSelectedObjectId(null)}
                         fontSize={fontSize}
-                        distance={distance}
+                        distance={distanceToSelectedVariant}
                         bearing={worldRotation}
                     />
                 )}
@@ -285,11 +319,10 @@ const IndexPage = ({
                     <Compass3D headingInRad={worldRotation} cameraPosition={compassPosition} />
 
                     <ObjectScene
-                        selectedVariants={selectedVariants}
+                        selectedVariants={selectedVariantIds}
                         minioClientData={minioClientData}
                         worldRotation={fixedWorldRotation ?? worldRotation}
                         worldPosition={fixedWorldPosition ?? worldPosition}
-                        cameraPosition={cameraPositionMemo}
                     />
                 </>
             )}

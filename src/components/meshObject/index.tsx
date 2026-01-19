@@ -1,7 +1,7 @@
 import React, { useEffect, useState, Suspense, useRef } from "react";
 import { useGLTF, Text } from "@react-three/drei";
 import * as THREE from "three";
-import { ThreeEvent } from "@react-three/fiber";
+import { ThreeEvent, useThree } from "@react-three/fiber";
 import { fetchGLTFModel, fetchGLTFModelFromMinio, releaseGLTFModel } from "../../utility/fetchGLTFModel";
 import { Position, Rotation, Scale } from "../../types/transform";
 import { MinioData } from "../../types/databaseData";
@@ -17,7 +17,6 @@ interface MeshObjectProps {
     scale?: Scale | [number, number, number];
     minioData?: MinioData | null;
     onClick?: (e: ThreeEvent<MouseEvent>) => void;
-    showOutline?: boolean;
     userData?: Record<string, any> | Readonly<Record<string, any> | undefined>;
 }
 
@@ -29,7 +28,7 @@ const MeshObject = ({
     meshObjectUrl,
     position = new Position(), rotation = new Rotation(), scale = new Scale(),
     minioData,
-    onClick, showOutline = false, userData }: MeshObjectProps) => {
+    onClick, userData }: MeshObjectProps) => {
 
     const [modelUrl, setModelUrl] = useState<string | null>(null); // State to store the Blob URL for the model
     const [showLabel, setShowLabel] = useState(false);
@@ -42,8 +41,11 @@ const MeshObject = ({
 
     useEffect(() => {
         let isMounted = true;
-        let retryCount = 0; // Track the number of retries
-        const maxRetries = 5; // Set a maximum number of retries
+        let retryCount = 0; // Track retry attempts for loading the model
+        const maxRetries = 5; // Maximum number of retry attempts
+
+        let loadModelIntervalId: number | undefined;
+        let toggleLabelIntervalId: number | undefined;
 
         const loadModel = async () => {
 
@@ -60,19 +62,21 @@ const MeshObject = ({
             try {
                 let blobUrl: string;
                 let wasCached = false;
+
                 if (meshObjectUrl) {
                     // If meshObjectUrl is provided, use it directly
                     blobUrl = meshObjectUrl;
                     const result = await fetchGLTFModel(meshObjectId, blobUrl);
                     wasCached = result.wasCached;
                 } else {
-                    console.log("Presigned URL not provided, try fetching from MinIO...");
+                    console.warn("Presigned URL not provided, try fetching from MinIO...");
 
                     if (!minioData) {
-                        console.error("Minio client data is missing for mesh object with id:", meshObjectId);
-                        // Remove loading message if failed
+                        console.error("Fallback minio client data is also missing for mesh object with id:", meshObjectId);
                         return;
                     }
+                    console.warn("Fallback minio client data is used for fetching mesh object with id:", meshObjectId);
+
                     // Fetch the model URL from MinIO
                     const result = await fetchGLTFModelFromMinio(meshObjectId, minioData);
                     blobUrl = await result.blobUrl; // Wait for the Blob URL to be ready
@@ -103,8 +107,8 @@ const MeshObject = ({
                 removeScreenMessage(`loading_model_${meshObjectId}`);
                 if (retryCount >= maxRetries) {
                     setLoading(false);
-                    clearInterval(loadModelInterval);
-                    clearInterval(toggleLabelInterval);
+                    if (loadModelIntervalId) clearInterval(loadModelIntervalId);
+                    if (toggleLabelIntervalId) clearInterval(toggleLabelIntervalId);
                     setShowLabel(false);
                     addScreenMessage(`Model ${modelName} failed to load!`, `model_faild_to_load${meshObjectId}`, 7000, "red");
                 } else {
@@ -115,50 +119,17 @@ const MeshObject = ({
 
         loadModel();
 
-        const toggleLabelInterval = setInterval(() => setShowLabel((prev) => !prev), 3000); // Toggle label every few seconds
-        const loadModelInterval = setInterval(loadModel, 10000); // Retry to load model every 10 seconds
+        toggleLabelIntervalId = window.setInterval(() => setShowLabel((prev) => !prev), 3000);
+        loadModelIntervalId = window.setInterval(loadModel, 10000);
 
         return () => {
             isMounted = false;
-            clearInterval(loadModelInterval);
-            clearInterval(toggleLabelInterval);
-            // Remove loading message on unmount
+            if (loadModelIntervalId) clearInterval(loadModelIntervalId);
+            if (toggleLabelIntervalId) clearInterval(toggleLabelIntervalId);
+            // Remove the model from activeModels when unmounting
             removeScreenMessage(`loading_model_${meshObjectId}`);
         };
-        // Add meshObjectId and minioData to dependencies
-    }, [meshObjectId, meshObjectUrl, minioData, modelUrl]);
-
-    // Add event listeners for highlighting and unhighlighting
-    useEffect(() => {
-        const object = objectRef.current;
-        if (!object) {
-            console.warn("Object reference is not set. Cannot add event listeners for highlighting on object with id:", sceneObjectId);
-            return;
-        }
-
-        const handleMouseEnter = () => {
-            addOutline(object); // Add outline on hover
-        };
-
-        const handleMouseLeave = () => {
-            removeOutline(object); // Remove outline on mouse out
-        };
-
-        const mouseEnter = "mouseenter";
-        const mouseLeave = "mouseleave";
-
-        // @ts-ignore
-        object.addEventListener(mouseEnter, handleMouseEnter);
-        // @ts-ignore
-        object.addEventListener(mouseLeave, handleMouseLeave);
-
-        return () => {
-            // @ts-ignore
-            object.removeEventListener(mouseEnter, handleMouseEnter);
-            // @ts-ignore
-            object.removeEventListener(mouseLeave, handleMouseLeave);
-        };
-    }, [objectRef]);
+    }, [meshObjectId, meshObjectUrl, minioData]);
 
     // If loading failed
     if (!modelUrl && !loading) {
@@ -228,6 +199,7 @@ const MeshObject = ({
                         position={position}
                         rotation={rotation}
                         scale={new Scale(scale)}
+                        onClick={onClick}
                     />
                 </Suspense>
             )}
@@ -242,12 +214,12 @@ interface ModelComponentProps {
     position: Position;
     rotation: Rotation;
     scale: Scale;
+    onClick?: (e: ThreeEvent<MouseEvent>) => void;
 }
 
-const ModelComponent = ({ sceneObjectId, modelUrl, objectRef, position, rotation, scale }: ModelComponentProps) => {
-    const { scene } = useGLTF(modelUrl); // Load the model using useGLTF
-
-    const clonedScene = React.useMemo(() => scene.clone(true), [scene]); // Clone the scene to avoid modifying the original
+const ModelComponent = ({ sceneObjectId, modelUrl, objectRef, position, rotation, scale, onClick }: ModelComponentProps) => {
+    const { scene } = useGLTF(modelUrl);
+    const clonedScene = React.useMemo(() => scene.clone(true), [scene]); // clone the scene to avoid modifying the original
 
     React.useEffect(() => {
         clonedScene.traverse((child) => {
@@ -259,9 +231,14 @@ const ModelComponent = ({ sceneObjectId, modelUrl, objectRef, position, rotation
         });
     }, [clonedScene, sceneObjectId]);
 
-    const boundingBox = new THREE.Box3().setFromObject(clonedScene); // Compute bounding box
-    const size = boundingBox.getSize(new THREE.Vector3(1, 1, 1));
-    const center = boundingBox.getCenter(new THREE.Vector3());
+    // Memoize bounding box to avoid misscalculation when scene re-renders
+    const { shadowSize, shadowCenter } = React.useMemo(() => {
+        const box = new THREE.Box3().setFromObject(clonedScene);
+        return {
+            shadowSize: box.getSize(new THREE.Vector3(1, 1, 1)),
+            shadowCenter: box.getCenter(new THREE.Vector3())
+        };
+    }, [clonedScene]);
 
     {/* Invisible object for click interaction */ }
     //            <mesh position={center} userData={{ sceneObjectId }}>
@@ -269,51 +246,30 @@ const ModelComponent = ({ sceneObjectId, modelUrl, objectRef, position, rotation
     //                <meshStandardMaterial color="green" transparent={false} opacity={0.0001} depthWrite={false} wireframe={true} /> {/* wireframe  */}
     //            </mesh>
     return (
-        <group
-            scale={scale.toArray()}>
+        <group scale={scale.toArray()}>
             <group
                 ref={objectRef}
                 position={position.toArray()}
                 rotation={rotation.toArray()}
-                // scale={scale.toArray()}
                 castShadow
                 receiveShadow
+                onClick={(e) => { e.stopPropagation(); onClick?.(e); }}
             >
                 <primitive object={clonedScene} />
-                <meshStandardMaterial color="white" transparent={false} opacity={1} depthWrite={true} />
             </group>
+
+            {/* Show shadow plane */}
             <RoundedPlane
-                position={new Position(position.x, center.y - size.y / 2, position.z)}
+                position={new Position(position.x, shadowCenter.y - shadowSize.y / 2, position.z)}
                 rotation={new Rotation(0, rotation.y, 0)}
                 radius={2}
-                width={size.x * 1.2}
-                height={size.z * 1.2}
+                width={shadowSize.x * 1.2}
+                height={shadowSize.z * 1.2}
                 color="black"
                 opacity={.15}
-            ></RoundedPlane>
+            />
         </group>
     );
 };
-
-
-// Functions to add and remove outlines
-const addOutline = (object: THREE.Object3D) => {
-    if (object instanceof THREE.Mesh) { // Ensure it's a Mesh before cloning
-        const outlinePass = new THREE.Mesh(object.geometry, new THREE.MeshBasicMaterial({ color: "yellow", side: THREE.BackSide }));
-        outlinePass.scale.set(1.05, 1.05, 1.05); // Slightly larger for the outline effect
-        object.add(outlinePass); // Add the outline as a child
-    } else {
-        console.warn("Object is not a Mesh and cannot be outlined.");
-    }
-};
-
-const removeOutline = (object: THREE.Object3D) => {
-    object.children.forEach((child) => {
-        if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshBasicMaterial) {
-            object.remove(child); // Remove the outline child
-        }
-    });
-};
-
 
 export default MeshObject;

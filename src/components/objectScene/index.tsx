@@ -1,11 +1,10 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { MinioData } from "../../types/databaseData";
 import { MeshObject } from "..";
 import { Position } from "../../types/transform";
 import useLocationStore from "../../store/locationStore";
 import useSceneStore from "../../store/sceneStore";
-import { getObjectPosition } from "../../utility/objects";
 import { useObjectPositionStore } from "../../store/objectPositionStore";
 
 interface ObjectSceneProps {
@@ -13,7 +12,6 @@ interface ObjectSceneProps {
     minioClientData: MinioData | null;
     worldRotation: number;
     worldPosition: Position;
-    cameraPosition: THREE.Vector3;
 }
 
 const ObjectScene: React.FC<ObjectSceneProps> = ({
@@ -21,80 +19,91 @@ const ObjectScene: React.FC<ObjectSceneProps> = ({
     minioClientData,
     worldRotation,
     worldPosition,
-    cameraPosition
 }) => {
     const { scene } = useSceneStore();
+    const getPosition = useLocationStore(state => state.getPosition);
     const getStoredPosition = useObjectPositionStore(state => state.getStoredPosition);
-    //const getPosition = useLocationStore(state => state.getPosition);
+    const computeAndSetObjectPosition = useObjectPositionStore(state => state.computeAndSetObjectPosition);
 
     const renderedObjects = useMemo(() => {
-        return scene.objects?.map((sceneObject) => {
+        if (!scene?.objects) return [];
+
+        return scene.objects.map((sceneObject) => {
             if (!sceneObject || !sceneObject.variants) {
                 console.error("Invalid scene object:", sceneObject);
                 return null;
             }
-
+            
             const sceneObjectId = sceneObject.id;
-            const storedPosition = getStoredPosition(sceneObjectId);    // new
-
             const variantId = selectedVariants[sceneObject.id] ?? sceneObject.variants[0]?.id;
             const variant = sceneObject.variants.find((v) => v.id === variantId);
-
+            
             if (!variant || !variant.mesh_id) {
-                console.error("Invalid variant:", variant);
+                console.error("Invalid or missing variant for sceneObjectId:", sceneObjectId, "variantId:", variantId);
                 return null;
             }
+            
+            let storedPosition = getStoredPosition(sceneObjectId, variantId);
+            if (!storedPosition) {
+                console.warn(`No stored position for object ${sceneObjectId} variant ${variantId}. Computing and storing.`);
+                try {
+                    storedPosition = computeAndSetObjectPosition(sceneObject, variant, getPosition);
+                } catch (err) {
+                    console.error("Error computing/storing object position:", err, "object:", sceneObjectId, "variant:", variantId);
+                    // fallback to zero position if compute failed
+                    storedPosition = new Position(0, 0, 0);
+                }
+            }
 
+            // Position
             const position = storedPosition 
                 ? storedPosition.substractedPosition(worldPosition)
                 : new Position(0, 0, 0);
+            const positionArray = position.toArray();
 
-            // ToDo store position
-            //const position = getObjectPosition(sceneObject, variant, getPosition)
-            //    .substractedPosition(worldPosition);
-            // .substractedPosition(cameraPosition);
+            // Rotation
+            const rotation = variant.offset_rotation || [0, 0, 0];
+            const rotationRadians: [number, number, number] = [
+                THREE.MathUtils.degToRad(-rotation[0]),
+                THREE.MathUtils.degToRad(-rotation[1]),
+                THREE.MathUtils.degToRad(-rotation[2])
+            ];
 
+            // Outer group holds world position (so rotation doesn't offset the world translation).
+            // Inner group gets local rotation so geometry is rotated around its own origin.
             return (
-                <mesh
-                    key={sceneObjectId}
-                    userData={{ sceneObjectId }}
-                    position={position.toArray()}
-                    rotation={[
-                        THREE.MathUtils.degToRad(-variant.offset_rotation[0]),
-                        THREE.MathUtils.degToRad(-variant.offset_rotation[1]),
-                        THREE.MathUtils.degToRad(-variant.offset_rotation[2])]}
-                >
-                    {variant.mesh_id === "primitive_cube" ? (
-                        <>
-                            <boxGeometry args={variant.offset_scale} />
-                            <meshStandardMaterial color="#248cb5" />
-                        </>
-                    ) : variant.mesh_id === "primitive_sphere" ? (
-                        <>
-                            <sphereGeometry args={variant.offset_scale} />
-                            <meshStandardMaterial color="#248cb5" />
-                        </>
-                    ) : (
-                        <MeshObject
-                            key={`${sceneObject.id}_${variant.id}`}
-                            sceneObjectId={sceneObjectId}
-                            meshObjectId={variant.mesh_id}
-                            meshObjectUrl={variant.mesh_url || null}
-                            scale={variant.offset_scale}
-                            minioData={minioClientData}
-                        />
-                    )}
-                </mesh>
+                <group key={sceneObjectId} userData={{ sceneObjectId }} position={positionArray}>
+                    <group rotation={rotationRadians}>
+                        {variant.mesh_id === "primitive_cube" ? (
+                            <mesh>
+                                <boxGeometry args={variant.offset_scale} />
+                                <meshStandardMaterial color="#248cb5" />
+                            </mesh>
+                        ) : variant.mesh_id === "primitive_sphere" ? (
+                            <mesh>
+                                <sphereGeometry args={variant.offset_scale} />
+                                <meshStandardMaterial color="#248cb5" />
+                            </mesh>
+                        ) : (
+                            <MeshObject
+                                key={`${sceneObject.id}_${variant.id}`}
+                                sceneObjectId={sceneObjectId}
+                                meshObjectId={variant.mesh_id}
+                                meshObjectUrl={variant.mesh_url || null}
+                                scale={variant.offset_scale}
+                                minioData={minioClientData}
+                            />
+                        )}
+                    </group>
+                </group>
             );
         });
-    }, [scene.objects, minioClientData, selectedVariants, worldPosition, worldRotation]);
+    }, [scene?.objects, minioClientData, selectedVariants, worldPosition, worldRotation]);
 
     if (!scene) {
         console.warn("Scene data is null or undefined.");
         return null;
     }
-
-    //return <group rotation={[0, 0, 0]}></group>
 
     return <group rotation={[0, -worldRotation - Math.PI / 2, 0]}>
          {renderedObjects}
