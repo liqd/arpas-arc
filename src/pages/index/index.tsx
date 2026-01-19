@@ -105,7 +105,7 @@ const IndexPage = ({
         }, {} as Record<number, number>);
 
         setSelectedVariantIds(variants);
-        setSelectedObjectId(sceneData.objects[0]?.id ?? null);
+        // setSelectedObjectId(sceneData.objects[0]?.id ?? null); // enable to select first object by default
     }, [contentTypes, sceneData]);
 
      useEffect(() => {

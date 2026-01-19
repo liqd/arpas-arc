@@ -34,6 +34,7 @@ interface CommentsState {
     ensureObjectLoaded: (objPk: number) => void;
 
     getCommentRoots: (objPk: number) => CommentModel[];
+    getCommentCount: (objPk: number) => number;
     getReplyComments: (parentId: number) => CommentModel[];
     addComment: (objPk: number, text: string, parentId?: number) => Promise<void>;
 }
@@ -207,6 +208,25 @@ export const useCommentsStore = create<CommentsState>((set, get) => ({
         return (s.childIds[parentId] || [])
             .map(id => s.byId[id])
             .filter(Boolean);
+    },
+
+    // Get total comment count including replies
+    getCommentCount: (objPk: number) => {
+        const s = get();
+        const key = `${objPk}`;
+
+        let count = 0;
+
+        const root = s.rootIdsByObject[key] || [];
+
+        for (const rootId of root) {
+            count++;    // count root comment
+            const replyCount = s.childIds[rootId] || [];
+            for (const replyID of replyCount) {
+                count++;    // count each reply
+            }
+        }
+        return count;
     },
 
     addComment: async (objPk, text, parentId) => {

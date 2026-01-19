@@ -7,11 +7,14 @@ import { Position, Rotation, Scale } from "../../types/transform";
 import { MinioData } from "../../types/databaseData";
 import { LoadingSpheres, RoundedPlane } from "..";
 import useMessageStore from "../../store/messagesStore";
+import ObjectLabel3D from "./objectLabel3D";
+import { useCommentsStore } from "../../store/commentsStore";
 
 interface MeshObjectProps {
     sceneObjectId: number;
     meshObjectId: string;
     meshObjectUrl: string | null;
+    label?: string;
     position?: Position;
     rotation?: Rotation;
     scale?: Scale | [number, number, number];
@@ -26,6 +29,7 @@ const MeshObject = ({
     sceneObjectId,
     meshObjectId,
     meshObjectUrl,
+    label,
     position = new Position(), rotation = new Rotation(), scale = new Scale(),
     minioData,
     onClick, userData }: MeshObjectProps) => {
@@ -37,7 +41,12 @@ const MeshObject = ({
     const { addScreenMessage, removeScreenMessage } = useMessageStore();
 
     const loadingSpheresScale = new Scale(.5, .5, .5);
-    const modelName = meshObjectId.split("/").pop()?.replace(/\.[^/.]+$/, "") ?? meshObjectId;
+    //const modelName = meshObjectId.split("/").pop()?.replace(/\.[^/.]+$/, "") ?? meshObjectId;
+
+    const modelName =
+        label ??
+        meshObjectId.split("/").pop()?.replace(/\.[^/.]+$/, "") ??
+        meshObjectId;
 
     useEffect(() => {
         let isMounted = true;
@@ -105,8 +114,8 @@ const MeshObject = ({
                 console.warn(`Failed to load model: ${meshObjectId}. Retry attempt ${retryCount + 1}`);
                 retryCount++;
                 removeScreenMessage(`loading_model_${meshObjectId}`);
+                setLoading(false);
                 if (retryCount >= maxRetries) {
-                    setLoading(false);
                     if (loadModelIntervalId) clearInterval(loadModelIntervalId);
                     if (toggleLabelIntervalId) clearInterval(toggleLabelIntervalId);
                     setShowLabel(false);
@@ -131,6 +140,15 @@ const MeshObject = ({
         };
     }, [meshObjectId, meshObjectUrl, minioData]);
 
+    // Falback object when loading fails
+    const FallbackCube = ({ position }: { position: Position }) => (
+        <mesh position={position.toArray()}>
+            <boxGeometry args={[1, 1, 1]} />
+            <meshStandardMaterial color="orange" />
+        </mesh>
+    );
+
+    const notLoadedText = "Not loaded: {modelName}";
     // If loading failed
     if (!modelUrl && !loading) {
         return (
@@ -141,16 +159,22 @@ const MeshObject = ({
                     radius={1}
                     opacity={.2}
                 ></RoundedPlane>
+                <FallbackCube position={position} />
                 <RoundedPlane
-                    position={position}
-                    rotation={new Rotation(0, rotation.y, 0)}
-                    radius={1}
-                    opacity={.2}
-                >
-                    <Text fontSize={0.2} position={new THREE.Vector3(0, 0, 0.0001)}>
-                        Not loaded: {modelName}
-                    </Text>
-                </RoundedPlane>
+                        position={position.clone().addY(loadingSpheresScale.y * .65)}
+                        width={Math.max(0.1, notLoadedText.length * (0.13))}
+                        height={0.2}
+                        radius={0.3}
+                        color="red"
+                        hoverColor="gray"
+                        opacity={0.8}
+                        alwaysFaceCamera={true}
+                        onlyFaceCameraAroundY={false}
+                    >
+                        <Text fontSize={0.2} position={new THREE.Vector3(0, 0, 0.0001)}>
+                            {notLoadedText}
+                        </Text>
+                    </RoundedPlane>
             </>
         );
     }
@@ -166,6 +190,7 @@ const MeshObject = ({
                     radius={1}
                     opacity={.2}
                 ></RoundedPlane>
+                <FallbackCube position={position} />
                 {showLabel && (
                     <RoundedPlane
                         position={position.clone().addY(loadingSpheresScale.y * .65)}
@@ -195,6 +220,7 @@ const MeshObject = ({
                     <ModelComponent
                         sceneObjectId={sceneObjectId}
                         modelUrl={modelUrl}
+                        modelName={modelName}           
                         objectRef={objectRef}
                         position={position}
                         rotation={rotation}
@@ -210,6 +236,7 @@ const MeshObject = ({
 interface ModelComponentProps {
     sceneObjectId: number;
     modelUrl: string;
+    modelName: string; 
     objectRef: React.RefObject<THREE.Group>;
     position: Position;
     rotation: Rotation;
@@ -217,9 +244,11 @@ interface ModelComponentProps {
     onClick?: (e: ThreeEvent<MouseEvent>) => void;
 }
 
-const ModelComponent = ({ sceneObjectId, modelUrl, objectRef, position, rotation, scale, onClick }: ModelComponentProps) => {
+const ModelComponent = ({ sceneObjectId, modelUrl, modelName, objectRef, position, rotation, scale, onClick }: ModelComponentProps) => {
     const { scene } = useGLTF(modelUrl);
     const clonedScene = React.useMemo(() => scene.clone(true), [scene]); // clone the scene to avoid modifying the original
+
+    const [commentsCount, setCommentsCount] = useState(0);
 
     React.useEffect(() => {
         clonedScene.traverse((child) => {
@@ -232,19 +261,35 @@ const ModelComponent = ({ sceneObjectId, modelUrl, objectRef, position, rotation
     }, [clonedScene, sceneObjectId]);
 
     // Memoize bounding box to avoid misscalculation when scene re-renders
-    const { shadowSize, shadowCenter } = React.useMemo(() => {
+    const { size, center } = React.useMemo(() => {
         const box = new THREE.Box3().setFromObject(clonedScene);
         return {
-            shadowSize: box.getSize(new THREE.Vector3(1, 1, 1)),
-            shadowCenter: box.getCenter(new THREE.Vector3())
+            size: box.getSize(new THREE.Vector3(1, 1, 1)),
+            center: box.getCenter(new THREE.Vector3())
         };
     }, [clonedScene]);
 
+    // Get comment count from the store
+    const commentCount = useCommentsStore(
+        state => state.getCommentCount(sceneObjectId)
+    );
+    
+    // Ensure object comments are loaded
+    useEffect(() => {
+        useCommentsStore.getState().ensureObjectLoaded(sceneObjectId);
+    }, [sceneObjectId]);
+
+    const labelPosition = new Position(
+        position.x,
+        center.y + size.y / 2 + 3, 
+        position.z
+    );
+
     {/* Invisible object for click interaction */ }
-    //            <mesh position={center} userData={{ sceneObjectId }}>
-    //                <boxGeometry args={[size.x, size.y, size.z]} />
-    //                <meshStandardMaterial color="green" transparent={false} opacity={0.0001} depthWrite={false} wireframe={true} /> {/* wireframe  */}
-    //            </mesh>
+                <mesh position={center} userData={{ sceneObjectId }}>
+                    <boxGeometry args={[size.x, size.y, size.z]} />
+                    <meshStandardMaterial color="green" transparent={false} opacity={0.0001} depthWrite={false} wireframe={true} /> {/* wireframe  */}
+                </mesh>
     return (
         <group scale={scale.toArray()}>
             <group
@@ -256,15 +301,20 @@ const ModelComponent = ({ sceneObjectId, modelUrl, objectRef, position, rotation
                 onClick={(e) => { e.stopPropagation(); onClick?.(e); }}
             >
                 <primitive object={clonedScene} />
+                <ObjectLabel3D
+                    text={modelName + (commentCount ? ` 💬${commentCount}` : "")}
+                    position={labelPosition}
+                />
+                <meshStandardMaterial color="white" transparent={false} opacity={1} depthWrite={true} />
             </group>
 
             {/* Show shadow plane */}
             <RoundedPlane
-                position={new Position(position.x, shadowCenter.y - shadowSize.y / 2, position.z)}
+                position={new Position(position.x, center.y - size.y / 2, position.z)}
                 rotation={new Rotation(0, rotation.y, 0)}
                 radius={2}
-                width={shadowSize.x * 1.2}
-                height={shadowSize.z * 1.2}
+                width={size.x * 1.2}
+                height={size.z * 1.2}
                 color="black"
                 opacity={.15}
             />

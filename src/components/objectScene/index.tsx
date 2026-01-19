@@ -68,6 +68,9 @@ const ObjectScene: React.FC<ObjectSceneProps> = ({
                 THREE.MathUtils.degToRad(-rotation[1]),
                 THREE.MathUtils.degToRad(-rotation[2])
             ];
+            
+            // Create label with variant name and comment count
+            const labelText = variant.name;
 
             // Outer group holds world position (so rotation doesn't offset the world translation).
             // Inner group gets local rotation so geometry is rotated around its own origin.
@@ -90,6 +93,7 @@ const ObjectScene: React.FC<ObjectSceneProps> = ({
                                 sceneObjectId={sceneObjectId}
                                 meshObjectId={variant.mesh_id}
                                 meshObjectUrl={variant.mesh_url || null}
+                                label={labelText}   
                                 scale={variant.offset_scale}
                                 minioData={minioClientData}
                             />
